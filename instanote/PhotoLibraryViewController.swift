@@ -52,10 +52,10 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
         case .Denied:
             break
         case .NotDetermined:
-            PHPhotoLibrary.requestAuthorization { [unowned self] (status) -> Void in
+            PHPhotoLibrary.requestAuthorization { [weak self] (status) -> Void in
                 if status == PHAuthorizationStatus.Authorized {
-                    dispatch_async(dispatch_get_main_queue()){ [unowned self] in
-                        self.loadData()
+                    dispatch_async(dispatch_get_main_queue()){ [weak self] in
+                        self?.loadData()
                     }
                 }
             }

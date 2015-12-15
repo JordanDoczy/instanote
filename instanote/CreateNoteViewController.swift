@@ -73,7 +73,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                 lazy.image = UIImage(named: self.note!.photo!)
             }
             else {
-                UIImage.fetchImage(NSURL(string: self.note!.photo!)!) { [unowned self] image, response in
+                UIImage.fetchImage(NSURL(string: self.note!.photo!)!) { image, response in
                     lazy.image = image
                 }
             }

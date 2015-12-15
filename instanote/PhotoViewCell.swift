@@ -76,12 +76,16 @@ class PhotoViewCell: UICollectionViewCell {
         if sender.state == .Began{
             pressIndicator.frame.size.width = 0
             UIView.animateWithDuration(0.33,
-                animations: { [unowned self] in
-                    self.pressIndicator.frame.size.width = self.frame.width
+                animations: { [weak self] in
+                    if let cell = self{
+                        cell.pressIndicator.frame.size.width = cell.frame.width
+                    }
                 },
-                completion: { [unowned self] success in
+                completion: { [weak self] success in
                     if success {
-                        self.delegate?.photoViewCellSelected?(self)
+                        if let cell = self{
+                            cell.delegate?.photoViewCellSelected?(cell)
+                        }
                     }
                 })
         }

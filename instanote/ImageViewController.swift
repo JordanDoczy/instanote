@@ -80,9 +80,9 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
                 setImage(UIImage(named: imageURLString)!)
             }
             else if let imageURL = NSURL(string: imageURLString){
-                UIImage.fetchImage(imageURL) { [unowned self] image, response in
+                UIImage.fetchImage(imageURL) { [weak self] image, response in
                     if image != nil{
-                        self.setImage(image!)
+                        self?.setImage(image!)
                     }
                 }
             }

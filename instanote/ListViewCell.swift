@@ -172,12 +172,16 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         if sender.state == .Began{
             pressIndicator.frame.size.width = 0
             UIView.animateWithDuration(0.33,
-                animations: { [unowned self] in
-                    self.pressIndicator.frame.size.width = self.frame.width
+                animations: { [weak self] in
+                    if let cell = self{
+                        cell.pressIndicator.frame.size.width = cell.frame.width
+                    }
                 },
-                completion: { [unowned self] success in
+                completion: { [weak self] success in
                     if success {
-                        self.delegate?.listViewCellSelected?(self)
+                        if let cell = self{
+                            cell.delegate?.listViewCellSelected?(cell)
+                        }
                     }
                 })
         }
@@ -201,11 +205,14 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         if imageHeightConstraintOriginal != nil {
 
             UIView.animateWithDuration(0.25,
-                animations: { [unowned self] in
-                self.imageHeightConstraint.constant = self.imageHeightConstraintOriginal!
-                    self.layoutIfNeeded()},
-                completion: { [unowned self] success in
-                    self.expandIndicator.hidden = false
+                animations: { [weak self] in
+                    if let cell = self{
+                        cell.imageHeightConstraint.constant = cell.imageHeightConstraintOriginal!
+                        cell.layoutIfNeeded()
+                    }
+                },
+                completion: { [weak self] success in
+                    self?.expandIndicator.hidden = false
                 })
         }
     }

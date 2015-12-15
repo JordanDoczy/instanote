@@ -331,9 +331,9 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath != selectedCellIndexPath, let cell = tableView.cellForRowAtIndexPath(indexPath) as? ListViewCell{
             
-            UIView.animateWithDuration(0.25, animations: { [unowned self] in
+            UIView.animateWithDuration(0.25, animations: { [weak self] in
                 cell.increaseImageSize(Constants.TableView.ImageMultiplier)
-                self.view.layoutIfNeeded()
+                self?.view.layoutIfNeeded()
                 })
         }
         selectedCellIndexPath = indexPath
