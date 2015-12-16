@@ -59,27 +59,6 @@ class RequestManager{
         
         deleteObject(note)
         
-//        if let tags = note.tags {
-//            _ = tags.allObjects.map(){
-//                if let tag = $0 as? Tag {
-//                    if let notes = tag.notes {
-//                        if notes.count == 1 && (notes.allObjects.first as? Note) == note {
-//                            deleteObject(tag)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        
-//        if let location = note.location {
-//            if location.notes?.count == 1 {
-//                if (location.notes?.allObjects.first as? Note) == note{
-//                    deleteObject(location)
-//                }
-//            }
-//            
-//        }
-        
         RequestManager.save()
         
     }
