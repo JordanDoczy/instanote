@@ -239,6 +239,10 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         return true
     }
     
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        captionTextView.resignFirstResponder()
+    }
+    
     // MARK: Gesture Recognizers
     func dropPin(sender:UILongPressGestureRecognizer){
         let coordinate = mapView.convertPoint(sender.locationInView(mapView), toCoordinateFromView: mapView)
