@@ -42,14 +42,11 @@ class SampleData {
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-knZ7NK7/0/XL/IMG_1172-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-c7Hr6Vb/0/XL/IMG_9790-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-s6prns7/1/XL/IMG_9403-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-Mn6zwXm/1/XL/IMG_9000-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-tzxCS86/1/XL/IMG_8998-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-hLmXWCN/0/XL/IMG_8263-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-ZTCpNDH/1/XL/IMG_3740-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-3JzMJv2/0/XL/IMG_8062-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-jKw2Vqr/0/XL/IMG_7968-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-3hzqC4B/1/XL/IMG_7789-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-nc4wxvh/1/XL/IMG_7762-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-zNWf7FC/2/XL/IMG_7654-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-Z6vHDM5/1/XL/IMG_7489-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-MNsbCzJ/2/XL/IMG_6896-XL.jpg",
@@ -58,10 +55,7 @@ class SampleData {
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-G4M2pVL/1/XL/IMG_6305-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-jHtPZh3/1/XL/IMG_6275-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-T25B8nB/1/XL/IMG_6218-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-HvFGwD3/1/XL/IMG_6086-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-S69HbKX/1/XL/IMG_6082-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-7z5PhJV/1/XL/IMG_6081-XL.jpg",
-        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-WRmbDfK/0/XL/IMG_7463-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-G89pK9D/0/XL/IMG_8171-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-HMjM6QZ/1/XL/IMG_8121-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-CZ8FrNQ/2/XL/IMG_7459-XL.jpg",
@@ -75,7 +69,34 @@ class SampleData {
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-zpwjgFN/1/XL/IMG_9261-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-P4Z5dnm/1/XL/IMG_5372-XL.jpg",
         "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-BDv9Cd6/1/XL/IMG_5191-XL.jpg"]
+    
+    static let firstPagePhotos = [
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-HvFGwD3/1/XL/IMG_6086-XL.jpg",
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-nc4wxvh/1/XL/IMG_7762-XL.jpg",
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-7z5PhJV/1/XL/IMG_6081-XL.jpg",
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-WRmbDfK/0/XL/IMG_7463-XL.jpg",
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-tzxCS86/1/XL/IMG_8998-XL.jpg",
+        "https://jordandoczy.smugmug.com/Photography/PhotoStream/i-Mn6zwXm/1/XL/IMG_9000-XL.jpg"]
 
+
+    static let firstPageCaptions = [
+        "Castro theatre #sanfranciso",
+        "Awesome lunch at memphis minnies #bbq #food #pork #sanfrancisco",
+        "Quaint bed and breakfast in #sanfrancisco #green #bedandbreakfast #charming",
+        "Great day in #sausalito, can't wait to go sailing again #sunsets #boats #sailing",
+        "No parking! Love the #graffiti in #hayesvalley full of #color #sanfrancisco",
+        "Candy #sweets #color #hayesvalley #sanfrancisco"
+    ]
+    
+    static let firstPageLocations = [
+        [37.7619920,-122.4347360],
+        [37.7721500,-122.4317120],
+        [37.7671120,-122.4471910],
+        [37.8590940,-122.4852510],
+        [37.7759070,-122.4245250],
+        [37.7878750,-122.4269130]
+    ]
+    
 
     static func GetData(){
         func random(min min: Int, max: Int) -> Int {
@@ -102,10 +123,9 @@ class SampleData {
                 for i in 0 ..< photos.count{
                     let location = CLLocationCoordinate2D(latitude: locations[i][0], longitude: locations[i][1])
                     var caption = ""
-                    for _ in 0 ..< Int(random(min: 5, max: 50)){
+                    for _ in 0 ..< Int(random(min: 5, max: 15)){
                         let term = terms[Int(random(min: 0,max: terms.count-1))]
                         let tag = isTag() ? "#" : ""
-//                        print("term", term)
                         caption += tag + term + " "
                     }
                     
@@ -114,7 +134,13 @@ class SampleData {
                 }
                 RequestManager.save()
             }
-            
         }
+        
+        
+        for index in 0 ..< firstPageCaptions.count{
+            let location = CLLocationCoordinate2D(latitude: firstPageLocations[index][0], longitude: firstPageLocations[index][1])
+            RequestManager.createNote(firstPageCaptions[index], photo: firstPagePhotos[index], location: location)
+        }
+        
     }
 }
