@@ -80,7 +80,7 @@ class SampleData {
 
 
     static let firstPageCaptions = [
-        "Castro theatre #sanfranciso",
+        "Castro theatre #sanfrancisco",
         "Awesome lunch at memphis minnies #bbq #food #pork #sanfrancisco",
         "Quaint bed and breakfast in #sanfrancisco #green #bedandbreakfast #charming",
         "Great day in #sausalito, can't wait to go sailing again #sunsets #boats #sailing",
