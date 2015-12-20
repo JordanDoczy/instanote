@@ -19,8 +19,6 @@
 		E631C19B1C196289004F5A89 /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E631C19A1C196289004F5A89 /* PhotoCell.swift */; };
 		E631C3B71C1BA38800BB5692 /* CAShapeLayerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E631C3B51C1BA38800BB5692 /* CAShapeLayerExtension.swift */; };
 		E631C3B81C1BA38800BB5692 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E631C3B61C1BA38800BB5692 /* Colors.swift */; };
-		E6520A0C1C221B5000FABE66 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6520A0A1C221B5000FABE66 /* SampleData.swift */; };
-		E6520A0D1C221B5000FABE66 /* words.txt in Resources */ = {isa = PBXBuildFile; fileRef = E6520A0B1C221B5000FABE66 /* words.txt */; };
 		E66C557E1C12413600057670 /* PhotoLibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66C557D1C12413600057670 /* PhotoLibraryViewController.swift */; };
 		E66C55801C1272E700057670 /* PhotoCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66C557F1C1272E700057670 /* PhotoCollectionViewFlowLayout.swift */; };
 		E67129B31C1F24F700130983 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E67129B21C1F24F700130983 /* Fonts.swift */; };
@@ -64,8 +62,6 @@
 		E631C19A1C196289004F5A89 /* PhotoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 		E631C3B51C1BA38800BB5692 /* CAShapeLayerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CAShapeLayerExtension.swift; path = instanote/CAShapeLayerExtension.swift; sourceTree = "<group>"; };
 		E631C3B61C1BA38800BB5692 /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Colors.swift; path = instanote/Colors.swift; sourceTree = "<group>"; };
-		E6520A0A1C221B5000FABE66 /* SampleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
-		E6520A0B1C221B5000FABE66 /* words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = words.txt; sourceTree = "<group>"; };
 		E66C557D1C12413600057670 /* PhotoLibraryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoLibraryViewController.swift; sourceTree = "<group>"; };
 		E66C557F1C1272E700057670 /* PhotoCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoCollectionViewFlowLayout.swift; path = instanote/PhotoCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		E67129B21C1F24F700130983 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Fonts.swift; path = instanote/Fonts.swift; sourceTree = "<group>"; };
@@ -148,15 +144,6 @@
 			name = Controllers;
 			sourceTree = "<group>";
 		};
-		E6520A091C221B4100FABE66 /* Test */ = {
-			isa = PBXGroup;
-			children = (
-				E6520A0A1C221B5000FABE66 /* SampleData.swift */,
-				E6520A0B1C221B5000FABE66 /* words.txt */,
-			);
-			name = Test;
-			sourceTree = "<group>";
-		};
 		E67536171C08BA1400F04488 = {
 			isa = PBXGroup;
 			children = (
@@ -184,7 +171,6 @@
 				E61D7E971C16281B0064436D /* Views */,
 				E67536441C08D96800F04488 /* ManagedObjects */,
 				E6ADACA01C0B9DBC00D75A23 /* Supporting */,
-				E6520A091C221B4100FABE66 /* Test */,
 			);
 			path = instanote;
 			sourceTree = "<group>";
@@ -290,7 +276,6 @@
 			files = (
 				E67536311C08BA1400F04488 /* LaunchScreen.storyboard in Resources */,
 				E67536291C08BA1400F04488 /* Main.storyboard in Resources */,
-				E6520A0D1C221B5000FABE66 /* words.txt in Resources */,
 				E698D3B41C208C72004DCD5F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -329,7 +314,6 @@
 				E602E94D1C1E0F3200D9ED9B /* UIImageExtension.swift in Sources */,
 				E631C3B71C1BA38800BB5692 /* CAShapeLayerExtension.swift in Sources */,
 				E602E9511C1E3CCC00D9ED9B /* HelpView.swift in Sources */,
-				E6520A0C1C221B5000FABE66 /* SampleData.swift in Sources */,
 				E67536601C0A7EFD00F04488 /* Tag.swift in Sources */,
 				E631C19B1C196289004F5A89 /* PhotoCell.swift in Sources */,
 				E6DC53A61C10B89A0049B295 /* MainTabBarController.swift in Sources */,
