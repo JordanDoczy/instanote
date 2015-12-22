@@ -96,7 +96,7 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     private func initializeFetchedResultsController() {
         let request = NSFetchRequest(entityName: Entities.Note)
         request.sortDescriptors = [NSSortDescriptor(key: Note.Constants.Properties.Date, ascending: false)]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: RequestManager.appDelegate.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: AppDelegate.sharedInstance().managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         do {
@@ -136,7 +136,7 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
 
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.CellIdentifiers.PhotoCell, forIndexPath: indexPath) as! PhotoViewCell
         cell.backgroundColor = Colors.LightGray
-        cell.imageURL = note.photo
+        cell.imageURL = note.imagePath
         cell.layer.shouldRasterize = true
         cell.layer.rasterizationScale = UIScreen.mainScreen().scale
         cell.delegate = self

@@ -68,12 +68,12 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         lazy.contentMode = .ScaleAspectFill;
         lazy.clipsToBounds = true
         
-        if self.note?.photo != nil {
-            if self.note?.photo == Assets.SampleImage || self.note?.photo == Assets.DefaultImage{
-                lazy.image = UIImage(named: self.note!.photo!)
+        if self.note?.imagePath != nil {
+            if self.note?.imagePath == Assets.SampleImage || self.note?.photo == Assets.DefaultImage{
+                lazy.image = UIImage(named: self.note!.imagePath!)
             }
             else {
-                UIImage.fetchImage(NSURL(string: self.note!.photo!)!) { image, response in
+                UIImage.fetchImage(NSURL(string: self.note!.imagePath!)!) { image, response in
                     lazy.image = image
                 }
             }
@@ -351,7 +351,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         forceSaveTimer.invalidate()
         attemptToSave = false
         
-        let photo:String? = image != nil ? saveImage(image!) : note?.photo != nil ? note!.photo : nil
+        let photo:String? = image != nil ? AppDelegate.sharedInstance().saveImage(image!) : note?.photo != nil ? note!.photo : nil
         
         let text = captionTextView.text != Constants.Text.PlaceholderText ? captionTextView.text : ""
         if isEditMode {
@@ -364,19 +364,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         performSegueWithIdentifier(Constants.Segues.UnwindToHome, sender: self)
     }
     
-    private func saveImage(image:UIImage)->String?{
         
-        if let imageData = UIImageJPEGRepresentation(image, 1.0){
-            if let documentsURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first{
-                let fileName = "\(NSDate.timeIntervalSinceReferenceDate()).jpg"
-                let imageURL = documentsURL.URLByAppendingPathComponent(fileName)
-                imageData.writeToURL(imageURL, atomically: true)
-                return imageURL.absoluteString
-            }
-        }
-        return nil
-    }
-    
     
     // MARK: LocationManager Protocol
     func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {

@@ -147,7 +147,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         didSet{
             caption = note?.caption
             date = note?.subtitle
-            imageURL = note?.photo
+            imageURL = note?.imagePath
             pressIndicator.frame.size.width = 0
         }
     }

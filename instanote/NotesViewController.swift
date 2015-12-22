@@ -127,7 +127,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     private func initializeFetchedResultsController() {
         let request = NSFetchRequest(entityName: Entities.Note)
         request.sortDescriptors = [NSSortDescriptor(key: Note.Constants.Properties.Date, ascending: false)]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: RequestManager.appDelegate.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: AppDelegate.sharedInstance().managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         do {

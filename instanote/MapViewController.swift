@@ -149,7 +149,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         if let annotation = view.annotation as? Note {
-            if let imageURLString = annotation.photo {
+            if let imageURLString = annotation.imagePath {
                 if imageURLString == Assets.SampleImage || imageURLString == Assets.DefaultImage{
                      setImageForPin(view, image: UIImage(named: imageURLString)!)
                 }
@@ -202,7 +202,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         request.sortDescriptors = [sort]
         
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: RequestManager.appDelegate.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: AppDelegate.sharedInstance().managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         do {

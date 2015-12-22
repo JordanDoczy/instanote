@@ -29,8 +29,17 @@ class Note: NSManagedObject, MKAnnotation {
         
     }
     
+    
+    
     var coordinate: CLLocationCoordinate2D {
         return location?.coordinate ?? CLLocationCoordinate2D()
+    }
+    
+    var imagePath: String? {
+        if photo != nil {
+            return AppDelegate.sharedInstance().getFilePath(photo!)
+        }
+        return nil
     }
     
     var title: String? {
@@ -49,7 +58,6 @@ class Note: NSManagedObject, MKAnnotation {
         dateFormatter.doesRelativeDateFormatting = true
         return dateFormatter.stringFromDate(date)
     }
-
     
     func addTag(tag:Tag){
         mutableSetValueForKey(Constants.Relationships.Tags).addObject(tag)

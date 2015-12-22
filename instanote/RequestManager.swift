@@ -12,11 +12,9 @@ import CoreLocation
 
 class RequestManager{
     
-    static var appDelegate:AppDelegate { return UIApplication.sharedApplication().delegate as! AppDelegate }
-
     // MARK : Create Methods
     static func createLocation(coordinate:CLLocationCoordinate2D) ->Location?{
-        if let location = NSEntityDescription.insertNewObjectForEntityForName(Entities.Location, inManagedObjectContext: appDelegate.managedObjectContext) as? Location{
+        if let location = NSEntityDescription.insertNewObjectForEntityForName(Entities.Location, inManagedObjectContext: AppDelegate.sharedInstance().managedObjectContext) as? Location{
             location.lat = coordinate.latitude
             location.long = coordinate.longitude
             return location
@@ -26,7 +24,7 @@ class RequestManager{
     
     static func createNote(caption:String?, photo:String?, location:CLLocationCoordinate2D?)->Note?{
         
-        if var note = NSEntityDescription.insertNewObjectForEntityForName(Entities.Note, inManagedObjectContext: self.appDelegate.managedObjectContext) as? Note {
+        if var note = NSEntityDescription.insertNewObjectForEntityForName(Entities.Note, inManagedObjectContext: AppDelegate.sharedInstance().managedObjectContext) as? Note {
             updateNote(&note, caption: caption, photo: photo, location: location)
             return note
         }
@@ -37,7 +35,7 @@ class RequestManager{
         if tagName == "" {
             return nil
         }
-        if let tag = NSEntityDescription.insertNewObjectForEntityForName(Entities.Tag, inManagedObjectContext: appDelegate.managedObjectContext) as? Tag{
+        if let tag = NSEntityDescription.insertNewObjectForEntityForName(Entities.Tag, inManagedObjectContext: AppDelegate.sharedInstance().managedObjectContext) as? Tag{
             tag.name = tagName
             return tag
         }
@@ -56,7 +54,7 @@ class RequestManager{
     }
     
     static func deleteNote(note:Note){
-        
+        deletePhoto(note)
         deleteObject(note)
         
         RequestManager.save()
@@ -64,11 +62,18 @@ class RequestManager{
     }
     
     static func deleteNotes(){
-        _ = RequestManager.getNotes()?.map() { RequestManager.deleteObject($0) }
+        _ = RequestManager.getNotes()?.map() { RequestManager.deleteNote($0) }
     }
     
     static func deleteObject(object:NSManagedObject){
-        appDelegate.managedObjectContext.deleteObject(object)
+        AppDelegate.sharedInstance().managedObjectContext.deleteObject(object)
+    }
+    
+    static func deletePhoto(note:Note)->Bool{
+        if note.imagePath != nil, let imageURL = NSURL(string:note.imagePath!){
+            return AppDelegate.sharedInstance().deleteImage(imageURL)
+        }
+        return false
     }
 
     static func deleteTags(){
@@ -86,7 +91,7 @@ class RequestManager{
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [latPredicate, longPredicate])
 
         do{
-            if let locations = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Location]{
+            if let locations = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Location]{
                 return locations.first
             }
         } catch _ {
@@ -101,7 +106,7 @@ class RequestManager{
         request.returnsObjectsAsFaults = false
         
         do{
-            if let locations = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Location]{
+            if let locations = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Location]{
                 return locations
             }
         } catch _ {
@@ -116,7 +121,7 @@ class RequestManager{
         request.returnsObjectsAsFaults = false
         
         do{
-            if let notes = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Note]{
+            if let notes = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Note]{
                 return notes
             }
         } catch _ {
@@ -133,7 +138,7 @@ class RequestManager{
         request.predicate = NSPredicate(format: "caption BEGINSWITH[c] %@", captionPrefix)
         
         do{
-            if let notes = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Note]{
+            if let notes = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Note]{
                 return notes
             }
         } catch _ {
@@ -148,7 +153,7 @@ class RequestManager{
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "name = %@", tag)
         do{
-            if let tags = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Tag]{
+            if let tags = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Tag]{
                 return tags.first
             }
         } catch _ {
@@ -163,7 +168,7 @@ class RequestManager{
         request.returnsObjectsAsFaults = false
         
         do{
-            if let tags = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Tag]{
+            if let tags = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Tag]{
                 return tags
             }
         } catch _ {
@@ -180,7 +185,7 @@ class RequestManager{
         request.predicate = NSPredicate(format: "name BEGINSWITH[c] %@", searchString)
         
         do{
-            if let tags = try appDelegate.managedObjectContext.executeFetchRequest(request) as? [Tag]{
+            if let tags = try AppDelegate.sharedInstance().managedObjectContext.executeFetchRequest(request) as? [Tag]{
                 return tags
             }
         } catch _ {
@@ -193,7 +198,7 @@ class RequestManager{
     // MARK : Save Methods
     static func save(){
         do { try
-            appDelegate.managedObjectContext.save()
+            AppDelegate.sharedInstance().managedObjectContext.save()
             
             if let tags = RequestManager.getTags(){
                 for tag in tags{
@@ -218,6 +223,11 @@ class RequestManager{
     
     // MARK : Update Methods
     static func updateNote(inout note:Note, caption:String?, photo:String?, location:CLLocationCoordinate2D?){
+
+        if photo != note.photo {
+            deletePhoto(note)
+        }
+        
         note.caption = caption
         note.photo = photo
         note.date = NSDate()
@@ -236,6 +246,8 @@ class RequestManager{
         if location != nil{
             note.location = getLocation(location!) ?? createLocation(location!)
         }
+        
+        
     }
     
 }

@@ -13,9 +13,11 @@ import CoreData
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
+    static func sharedInstance()->AppDelegate {
+        return UIApplication.sharedApplication().delegate as! AppDelegate 
+    }
+    
     var window: UIWindow?
-
-
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         window?.tintColor = Colors.Primary
@@ -108,6 +110,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 abort()
             }
         }
+    }
+    
+    
+    func saveImage(image:UIImage)->String?{
+        
+        if let imageData = UIImageJPEGRepresentation(image, 1.0){
+            let fileName = "\(NSDate.timeIntervalSinceReferenceDate()).jpg"
+            let imageURL = applicationDocumentsDirectory.URLByAppendingPathComponent(fileName)
+            imageData.writeToURL(imageURL, atomically: true)
+            return fileName
+        }
+        return nil
+    }
+    
+    func deleteImage(imageURL:NSURL)->Bool{
+        
+        if imageURL.absoluteString.containsString(applicationDocumentsDirectory.absoluteString){
+            do {
+                try NSFileManager.defaultManager().removeItemAtURL(imageURL)
+            }
+            catch { return false}
+            return true
+        }
+        return false
+    }
+    
+    func getFilePath(fileName:String)->String{
+        
+        if fileName.containsString("://") || !fileName.containsString(".jpg") {
+            return fileName
+        }
+
+        return applicationDocumentsDirectory.URLByAppendingPathComponent(fileName).absoluteString
     }
 
 }

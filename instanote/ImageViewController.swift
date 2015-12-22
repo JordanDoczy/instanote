@@ -75,7 +75,7 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     
     // MARK: Private Methods
     private func addPhoto(){
-        if let imageURLString = note!.photo{
+        if let imageURLString = note!.imagePath{
             if imageURLString == Assets.SampleImage || imageURLString == Assets.DefaultImage{
                 setImage(UIImage(named: imageURLString)!)
             }
