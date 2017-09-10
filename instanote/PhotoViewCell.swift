@@ -10,36 +10,36 @@ import UIKit
 import Photos
 
 @objc protocol PhotoViewCellDelegate {
-    optional func photoViewCellSelected(cell:PhotoViewCell)
+    @objc optional func photoViewCellSelected(_ cell:PhotoViewCell)
 }
 
 class PhotoViewCell: UICollectionViewCell {
 
     struct Constants {
         struct Selectors{
-            static let Pressed:Selector = "pressed:"
+            static let Pressed:Selector = #selector(PhotoViewCell.pressed(_:))
         }
     }
     
     @IBOutlet weak var imageView: UIImageView!{
         didSet{
-            imageView.contentMode = .ScaleAspectFill
+            imageView.contentMode = .scaleAspectFill
         }
     }
     
     weak var delegate:PhotoViewCellDelegate?
    
-    weak var imageFetchTask:NSURLSessionDataTask?
+    weak var imageFetchTask:URLSessionDataTask?
     var imageURL:String?=""{
         didSet{
             if imageURL == Assets.SampleImage || imageURL == Assets.DefaultImage{
                 imageView.image = UIImage(named: imageURL!)
             }
-            else if imageURL != nil && imageURL != oldValue, let url = NSURL(string: imageURL!){
+            else if imageURL != nil && imageURL != oldValue, let url = URL(string: imageURL!){
                 imageView.image = nil
                 imageFetchTask?.cancel()
                 imageFetchTask = UIImage.fetchImage(url) { [weak self] image, response in
-                    if (response?.URL?.absoluteString == self?.imageURL){
+                    if (response?.url?.absoluteString == self?.imageURL){
                         self?.imageView.image = image
                     }
                 }
@@ -47,7 +47,7 @@ class PhotoViewCell: UICollectionViewCell {
         }
     }
 
-    private lazy var pressIndicator:UIView = { [unowned self] in
+    fileprivate lazy var pressIndicator:UIView = { [unowned self] in
         let lazy = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 5))
         lazy.backgroundColor = Colors.Primary
         self.addSubview(lazy)
@@ -72,10 +72,10 @@ class PhotoViewCell: UICollectionViewCell {
         addGestureRecognizer(press)
     }
     
-    func pressed(sender:UILongPressGestureRecognizer){
-        if sender.state == .Began{
+    func pressed(_ sender:UILongPressGestureRecognizer){
+        if sender.state == .began{
             pressIndicator.frame.size.width = 0
-            UIView.animateWithDuration(0.33,
+            UIView.animate(withDuration: 0.33,
                 animations: { [weak self] in
                     if let cell = self{
                         cell.pressIndicator.frame.size.width = cell.frame.width

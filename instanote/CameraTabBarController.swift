@@ -11,7 +11,7 @@ import UIKit
 class CameraTabBarController : UITabBarController {
     
     // Unwind Segue Handler
-    @IBAction func choosePhoto(segue:UIStoryboardSegue) {}
+    @IBAction func choosePhoto(_ segue:UIStoryboardSegue) {}
     
     override func viewDidLoad() {
         super.viewDidLoad()

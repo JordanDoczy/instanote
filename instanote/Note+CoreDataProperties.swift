@@ -14,7 +14,7 @@ import CoreData
 
 extension Note {
 
-    @NSManaged var date: NSDate?
+    @NSManaged var date: Date?
     @NSManaged var photo: String?
     @NSManaged var caption: String?
     @NSManaged var location: Location?

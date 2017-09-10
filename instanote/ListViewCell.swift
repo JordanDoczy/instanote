@@ -9,8 +9,8 @@
 import UIKit
 
 @objc protocol ListViewCellDelegate {
-    optional func listViewCellLinkClicked(data:String)
-    optional func listViewCellSelected(cell:ListViewCell)
+    @objc optional func listViewCellLinkClicked(_ data:String)
+    @objc optional func listViewCellSelected(_ cell:ListViewCell)
 }
 
 class ListViewCell: UITableViewCell, UITextViewDelegate {
@@ -21,20 +21,20 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         }
         struct Selectors{
             static let LabelLink:Selector = "labelLink:"
-            static let Pressed:Selector = "pressed:"
+            static let Pressed:Selector = #selector(ListViewCell.pressed(_:))
         }
     }
     
-    private lazy var expandIndicator:UIView = {
+    fileprivate lazy var expandIndicator:UIView = {
         let lazy = UIImageView(image: UIImage(named: Assets.Expand))
-        lazy.image = lazy.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        lazy.image = lazy.image!.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
         lazy.frame.size = CGSize(width: 15, height: 15)
-        lazy.tintColor = UIColor.whiteColor()
+        lazy.tintColor = UIColor.white
         lazy.backgroundColor = Colors.PrimaryTransparent
-        lazy.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2))
+        lazy.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
         return lazy
     }()
-    private lazy var pressIndicator:UIView = { [unowned self] in
+    fileprivate lazy var pressIndicator:UIView = { [unowned self] in
         let lazy = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 5))
         lazy.backgroundColor = Colors.Primary
         self.addSubview(lazy)
@@ -42,7 +42,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     }()
 
     
-    private var imageHeightConstraintOriginal:CGFloat?
+    fileprivate var imageHeightConstraintOriginal:CGFloat?
     @IBOutlet weak var imageHeightConstraint: NSLayoutConstraint!{
         didSet{
             if imageHeightConstraintOriginal == nil{
@@ -53,24 +53,24 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     @IBOutlet weak var imageViewForThumbnail: UIImageView! {
         didSet{
             imageViewForThumbnail.clipsToBounds = true
-            imageViewForThumbnail.contentMode = .ScaleAspectFill
+            imageViewForThumbnail.contentMode = .scaleAspectFill
         }
     }
     @IBOutlet weak var labelForCaption: UILabel!{
         didSet{
-            labelForCaption.userInteractionEnabled = true
+            labelForCaption.isUserInteractionEnabled = true
         }
     }
     @IBOutlet weak var labelForDate: UILabel!
 
     @IBOutlet weak var textViewForCaption: UITextView! {
         didSet{
-            textViewForCaption.editable = false
-            textViewForCaption.dataDetectorTypes = .All
+            textViewForCaption.isEditable = false
+            textViewForCaption.dataDetectorTypes = .all
             textViewForCaption.delegate = self
             textViewForCaption.text = note?.caption
-            textViewForCaption.userInteractionEnabled = true
-            textViewForCaption.scrollEnabled = false
+            textViewForCaption.isUserInteractionEnabled = true
+            textViewForCaption.isScrollEnabled = false
             textViewForCaption.textContainerInset = UIEdgeInsetsMake(0,-5,0,0);
 
         }
@@ -85,13 +85,13 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                 
                 if let ranges = string.rangesForRegex("\\#+\\w+") {
                     
-                    var attributes = [String : AnyObject]()
+                    var attributes = [String : Any]()
                     let attributedString = NSMutableAttributedString(string: string, attributes: attributes)
                     
                     attributes[NSBackgroundColorAttributeName] = Colors.Tag
                     
                     _ = ranges.map() {
-                        attributes[NSLinkAttributeName] = NSURL(string: (string as NSString).substringWithRange($0))
+                        attributes[NSLinkAttributeName] = URL(string: (string as NSString).substring(with: $0))
                         attributedString.setAttributes(attributes, range: $0)
 
                     }
@@ -114,7 +114,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         }
     }
     weak var delegate:ListViewCellDelegate?
-    weak var imageFetchTask:NSURLSessionDataTask?
+    weak var imageFetchTask:URLSessionDataTask?
     var imageURL:String?=""{
         didSet{
             
@@ -123,11 +123,11 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                 imageViewForThumbnail.addSubview(expandIndicator)
                 expandIndicator.frame.origin = CGPoint(x: imageViewForThumbnail.frame.width - expandIndicator.frame.width, y: imageViewForThumbnail.frame.height - expandIndicator.frame.height)
             }
-            else if imageURL != nil && imageURL != oldValue, let url = NSURL(string: imageURL!){
+            else if imageURL != nil && imageURL != oldValue, let url = URL(string: imageURL!){
                 self.imageViewForThumbnail.image = nil
                 imageFetchTask?.cancel()
                 imageFetchTask = UIImage.fetchImage(url) { [weak self] image, response in
-                    if (response?.URL?.absoluteString == self?.imageURL){
+                    if (response?.url?.absoluteString == self?.imageURL){
                         
                         if let imageViewForThumbnail = self?.imageViewForThumbnail {
                             imageViewForThumbnail.image = image
@@ -168,10 +168,10 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         addGestureRecognizer(press)
     }
     
-    func pressed(sender:UILongPressGestureRecognizer){
-        if sender.state == .Began{
+    func pressed(_ sender:UILongPressGestureRecognizer){
+        if sender.state == .began{
             pressIndicator.frame.size.width = 0
-            UIView.animateWithDuration(0.33,
+            UIView.animate(withDuration: 0.33,
                 animations: { [weak self] in
                     if let cell = self{
                         cell.pressIndicator.frame.size.width = cell.frame.width
@@ -191,12 +191,12 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         }
     }
     
-    func increaseImageSize(scale:CGFloat){
+    func increaseImageSize(_ scale:CGFloat){
         imageHeightConstraint.constant = imageHeightConstraint.constant * scale
-        expandIndicator.hidden = true
+        expandIndicator.isHidden = true
     }
     
-    func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
         delegate?.listViewCellLinkClicked?(URL.absoluteString)
         return false
     }
@@ -204,7 +204,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     func resetConstraints(){
         if imageHeightConstraintOriginal != nil {
 
-            UIView.animateWithDuration(0.25,
+            UIView.animate(withDuration: 0.25,
                 animations: { [weak self] in
                     if let cell = self{
                         cell.imageHeightConstraint.constant = cell.imageHeightConstraintOriginal!
@@ -212,7 +212,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                     }
                 },
                 completion: { [weak self] success in
-                    self?.expandIndicator.hidden = false
+                    self?.expandIndicator.isHidden = false
                 })
         }
     }

@@ -9,26 +9,26 @@
 import UIKit
 
 @objc protocol UIToggleViewDelegate {
-    optional func toggleViewWillToggle()
-    optional func toggleViewDidToggle()
+    @objc optional func toggleViewWillToggle()
+    @objc optional func toggleViewDidToggle()
 }
 
 
 class UIToggleView : UIView {
 
     // MARK: Private Memebers
-    private struct Constants{
+    fileprivate struct Constants{
         struct Selectors{
-            static let ToggleView:Selector = "toggleView:"
+            static let ToggleView:Selector = #selector(UIToggleView.toggleView(_:))
         }
     }
     
-    private lazy var tap:UITapGestureRecognizer = { [unowned self] in
+    fileprivate lazy var tap:UITapGestureRecognizer = { [unowned self] in
         let lazy = UITapGestureRecognizer(target: self, action: Constants.Selectors.ToggleView)
         return lazy
     }()
     
-    private var border:CAShapeLayer?
+    fileprivate var border:CAShapeLayer?
     
     // MARK: Public API
     var delegate:UIToggleViewDelegate?
@@ -38,8 +38,8 @@ class UIToggleView : UIView {
         didSet{
             primaryView!.removeGestureRecognizer(tap)
             primaryView!.frame.size = frame.size
-            primaryView!.frame.origin = CGPointZero
-            primaryView!.layer.borderColor = Colors.LightGray.CGColor
+            primaryView!.frame.origin = CGPoint.zero
+            primaryView!.layer.borderColor = Colors.LightGray.cgColor
             primaryView!.layer.borderWidth = 1.0
             
             if !subviews.contains(primaryView!) {
@@ -52,29 +52,29 @@ class UIToggleView : UIView {
     
     var secondaryView:UIView?{
         didSet{
-            secondaryView!.userInteractionEnabled = true
+            secondaryView!.isUserInteractionEnabled = true
             secondaryView!.addGestureRecognizer(tap)
             secondaryView!.frame.size = CGSize(width: frame.size.width * scale, height: frame.size.height * scale)
             secondaryView!.frame.origin = CGPoint(x: 0, y: frame.size.height - secondaryView!.frame.size.height)
-            secondaryView!.layer.borderColor = Colors.LightGray.CGColor
+            secondaryView!.layer.borderColor = Colors.LightGray.cgColor
             secondaryView!.layer.borderWidth = 1.0
 
             if expandIndicator != nil{
                 expandIndicator!.frame.origin = CGPoint(x: secondaryView!.frame.width - expandIndicator!.frame.width, y: 0)
                 secondaryView!.addSubview(expandIndicator!)
-                secondaryView!.bringSubviewToFront(expandIndicator!)
+                secondaryView!.bringSubview(toFront: expandIndicator!)
             }
             
             if !subviews.contains(secondaryView!) {
                 addSubview(secondaryView!)
             }
-            bringSubviewToFront(secondaryView!)
+            bringSubview(toFront: secondaryView!)
         }
     }
     
 
     // MARK: Overrides
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         updateSizes()
     }
     
@@ -92,19 +92,19 @@ class UIToggleView : UIView {
         }
     }
     
-    func toggleView(sender:UITapGestureRecognizer?=nil){
+    func toggleView(_ sender:UITapGestureRecognizer?=nil){
         
         
         expandIndicator?.removeFromSuperview()
         border?.removeFromSuperlayer()
         
-        UIView.animateWithDuration(0.25, delay: 0.0, options: .CurveEaseOut,
+        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseOut,
             animations: { [unowned self] in
                 
                 if let thumbnail = self.secondaryView {
                     self.delegate?.toggleViewWillToggle?()
                     thumbnail.frame.size = self.frame.size
-                    thumbnail.frame.origin = CGPointZero
+                    thumbnail.frame.origin = CGPoint.zero
                 }
                 
             },
@@ -120,7 +120,7 @@ class UIToggleView : UIView {
     }
     
     func fadeInSecondaryView(){
-        UIView.animateWithDuration(0.25, delay: 0.0, options: .CurveEaseOut,
+        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseOut,
             animations: { [unowned self] in
                 self.secondaryView?.alpha = 1
             },

@@ -12,7 +12,7 @@ import CoreData
 class PhotoCollectionViewController: UICollectionViewController, NSFetchedResultsControllerDelegate, UICollectionViewDelegateFlowLayout, UIHelpViewDelegate, PhotoViewCellDelegate {
 
     // MARK: Private Members
-    private struct Constants {
+    fileprivate struct Constants {
         struct CellIdentifiers{
             static let PhotoCell = "PhotoCell"
         }
@@ -21,15 +21,15 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
             static let ShowImage = "Show Image"
         }
         struct Selectors{
-            static let ShowImage:Selector = "showImage:"
+            static let ShowImage:Selector = #selector(PhotoCollectionViewController.showImage(_:))
         }
     }
 
-    private var fetchedResultsController: NSFetchedResultsController!
-    private var selectedNote:Note?
-    private lazy var helpView:HelpView = { [unowned self] in
+    fileprivate var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
+    fileprivate var selectedNote:Note?
+    fileprivate lazy var helpView:HelpView = { [unowned self] in
         let lazy = HelpView()
-        self.view.userInteractionEnabled = true
+        self.view.isUserInteractionEnabled = true
         self.view.addSubview(lazy)
         lazy.delegate = self
         return lazy
@@ -37,10 +37,10 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     
     
     // MARK: IBActions
-    @IBAction func viewPhotos(segue:UIStoryboardSegue) {}
+    @IBAction func viewPhotos(_ segue:UIStoryboardSegue) {}
 
     //MARK: IBActions
-    @IBAction func helpButtonHandler(sender: UIBarButtonItem) {
+    @IBAction func helpButtonHandler(_ sender: UIBarButtonItem) {
         helpView.show(view.bounds)
     }
     
@@ -54,15 +54,15 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
         initializeFetchedResultsController()
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         helpView.hide()
     }
     
     
     // MARK: Overrides
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        var destination = segue.destinationViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var destination = segue.destination
         
         if let navController = destination as? UINavigationController {
             destination = navController.visibleViewController!
@@ -75,26 +75,26 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     }
     
     // MARK: UIGestureRecognizers
-    func showImage(sender:UITapGestureRecognizer){
-        if let note = getNote(sender.locationInView(collectionView)){
+    func showImage(_ sender:UITapGestureRecognizer){
+        if let note = getNote(sender.location(in: collectionView)){
             selectedNote = note
-            performSegueWithIdentifier(Constants.Segues.ShowImage, sender: self)
+            performSegue(withIdentifier: Constants.Segues.ShowImage, sender: self)
         }
     }
 
     
     // MARK: Private Methods
-    private func getNote(point:CGPoint)->Note?{
-        if let indexPath = collectionView?.indexPathForItemAtPoint(point){
-            if let note = fetchedResultsController.objectAtIndexPath(indexPath) as? Note{
+    fileprivate func getNote(_ point:CGPoint)->Note?{
+        if let indexPath = collectionView?.indexPathForItem(at: point){
+            if let note = fetchedResultsController.object(at: indexPath) as? Note{
                 return note
             }
         }
         return nil
     }
     
-    private func initializeFetchedResultsController() {
-        let request = NSFetchRequest(entityName: Entities.Note)
+    fileprivate func initializeFetchedResultsController() {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: Entities.Note)
         request.sortDescriptors = [NSSortDescriptor(key: Note.Constants.Properties.Date, ascending: false)]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: AppDelegate.sharedInstance().managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
@@ -107,50 +107,50 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     }
     
     // MARK: PhotoViewCell Protocol
-    func photoViewCellSelected(cell: PhotoViewCell) {
-        if let indexPath = collectionView?.indexPathForCell(cell){
-            selectedNote = fetchedResultsController.objectAtIndexPath(indexPath) as? Note
-            performSegueWithIdentifier(Constants.Segues.EditNote, sender: self)
+    func photoViewCellSelected(_ cell: PhotoViewCell) {
+        if let indexPath = collectionView?.indexPath(for: cell){
+            selectedNote = fetchedResultsController.object(at: indexPath) as? Note
+            performSegue(withIdentifier: Constants.Segues.EditNote, sender: self)
         }
     }
     
     // MARK: UIHelpView Protocol
     func helpViewDidHide() {
-        collectionView!.scrollEnabled = true
+        collectionView!.isScrollEnabled = true
     }
     func helpViewDidShow() {
-        collectionView!.scrollEnabled = false
+        collectionView!.isScrollEnabled = false
     }
     
     // MARK: Collection View Protocol
-    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
     
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> PhotoViewCell {
-        let note = fetchedResultsController.objectAtIndexPath(indexPath) as! Note
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> PhotoViewCell {
+        let note = fetchedResultsController.object(at: indexPath) as! Note
 
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.CellIdentifiers.PhotoCell, forIndexPath: indexPath) as! PhotoViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.CellIdentifiers.PhotoCell, for: indexPath) as! PhotoViewCell
         cell.backgroundColor = Colors.LightGray
         cell.imageURL = note.imagePath
         cell.layer.shouldRasterize = true
-        cell.layer.rasterizationScale = UIScreen.mainScreen().scale
+        cell.layer.rasterizationScale = UIScreen.main.scale
         cell.delegate = self
 
         return cell
     }
     
     // MARK: NSFetchedResultsController Protocol
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         collectionView?.reloadData()
     
         if let count = fetchedResultsController.fetchedObjects?.count {
             if count > 0 {
-                collectionView?.scrollToItemAtIndexPath(fetchedResultsController.indexPathForObject((fetchedResultsController.fetchedObjects!.first)!)!, atScrollPosition: .None, animated: false)
+                collectionView?.scrollToItem(at: fetchedResultsController.indexPath(forObject: (fetchedResultsController.fetchedObjects!.first)!)!, at: UICollectionViewScrollPosition(), animated: false)
             }
         }
         

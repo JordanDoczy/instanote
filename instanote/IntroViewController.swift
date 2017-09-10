@@ -32,11 +32,11 @@ class IntroViewController : UIViewController{
         labelTrailingConstraint.constant = -label.frame.width - 20
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
 
-        UIView.animateWithDuration(0.6, delay: 0.22, options: .CurveEaseOut,
+        UIView.animate(withDuration: 0.6, delay: 0.22, options: .curveEaseOut,
             animations: { [unowned self] in
                 self.label.alpha = 1
                 self.labelTrailingConstraint.constant = 0
@@ -44,19 +44,19 @@ class IntroViewController : UIViewController{
                 
             }) { success in
                 
-                UIView.animateWithDuration(0.4, delay: 1, options: .CurveEaseOut,
+                UIView.animate(withDuration: 0.4, delay: 1, options: .curveEaseOut,
                     animations: { [unowned self] in
                         self.label.alpha = 0
                     },
                     completion: { [unowned self] success in
-                        self.performSegueWithIdentifier(Constants.Segues.Home, sender: self)
+                        self.performSegue(withIdentifier: Constants.Segues.Home, sender: self)
                 })
                 
         }
 
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     

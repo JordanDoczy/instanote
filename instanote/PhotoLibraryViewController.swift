@@ -13,7 +13,7 @@ import Photos
 class PhotoLibraryViewController : UICollectionViewController, UICollectionViewDelegateFlowLayout  {
     
     // MARK: Private Members
-    private struct Constants {
+    fileprivate struct Constants {
         struct CellIdentifiers{
             static let PhotoCell = "Photo Cell"
         }
@@ -24,19 +24,19 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
         }
     }
     
-    private var isUnwind:Bool{
+    fileprivate var isUnwind:Bool{
         return !(presentingViewController is MainTabBarController)
     }
-    private var results:PHFetchResult!
-    private var selectedImage:UIImage?
+    fileprivate var results:PHFetchResult<AnyObject>!
+    fileprivate var selectedImage:UIImage?
     
     
     // MARK: IBActions
-    @IBAction func close(sender: UIBarButtonItem) {
+    @IBAction func close(_ sender: UIBarButtonItem) {
         if isUnwind {
-            performSegueWithIdentifier(Constants.Segues.UnwindToCreateNote, sender: self)
+            performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
         } else {
-            performSegueWithIdentifier(Constants.Segues.UnwindToHome, sender: self)
+            performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
         }
     }
     
@@ -47,19 +47,19 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
 
         
         switch(PHPhotoLibrary.authorizationStatus()){
-        case .Authorized:
+        case .authorized:
             loadData()
-        case .Denied:
+        case .denied:
             break
-        case .NotDetermined:
+        case .notDetermined:
             PHPhotoLibrary.requestAuthorization { [weak self] (status) -> Void in
-                if status == PHAuthorizationStatus.Authorized {
-                    dispatch_async(dispatch_get_main_queue()){ [weak self] in
+                if status == PHAuthorizationStatus.authorized {
+                    DispatchQueue.main.async{ [weak self] in
                         self?.loadData()
                     }
                 }
             }
-        case .Restricted:
+        case .restricted:
             break
         }
     }
@@ -67,19 +67,19 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
     func loadData(){
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        results = PHAsset.fetchAssetsWithMediaType(.Image, options: options)
+        results = PHAsset.fetchAssets(with: .image, options: options) as! PHFetchResult<AnyObject>
         if results.count > 0 {
             collectionView?.reloadData()
         }
     }
     
     // MARK: Overrides
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        var destination = segue.destinationViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var destination = segue.destination
         
         if let navController = destination as? UINavigationController {
             destination = navController.visibleViewController!
@@ -94,49 +94,49 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
     
     
     // MARK: Collection View Protocol
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(Constants.CellIdentifiers.PhotoCell, forIndexPath: indexPath) as! PhotoCell
-        if let asset = results.objectAtIndex(indexPath.row) as? PHAsset{
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.CellIdentifiers.PhotoCell, for: indexPath) as! PhotoCell
+        if let asset = results.object(at: indexPath.row) as? PHAsset{
             cell.asset = asset
         }
         return cell
     }
     
-    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        if let asset = results.objectAtIndex(indexPath.row) as? PHAsset{
+        if let asset = results.object(at: indexPath.row) as? PHAsset{
          
             let options = PHImageRequestOptions()
-            options.resizeMode = .Exact
-            options.deliveryMode = .HighQualityFormat
+            options.resizeMode = .exact
+            options.deliveryMode = .highQualityFormat
             
-            let manager = PHImageManager.defaultManager()
-            manager.requestImageForAsset(asset, targetSize: CGSize(width: 1000, height: 1000), contentMode: .AspectFit, options: options) { [unowned self] (image, _) in
+            let manager = PHImageManager.default()
+            manager.requestImage(for: asset, targetSize: CGSize(width: 1000, height: 1000), contentMode: .aspectFit, options: options) { [unowned self] (image, _) in
                     self.selectedImage = image
                     if self.isUnwind {
-                        self.performSegueWithIdentifier(Constants.Segues.UnwindToCreateNote, sender: self)
+                        self.performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
                     } else {
-                        self.performSegueWithIdentifier(Constants.Segues.CreateNote, sender: self)
+                        self.performSegue(withIdentifier: Constants.Segues.CreateNote, sender: self)
                     }
             }
         }
     }
     
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if results != nil {
             return results.count
         }
         return 0
     }
     
-    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     
     // MARK: CollectionViewLayout Protocol
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        return CGSizeMake(collectionView.frame.size.width/4.05 , collectionView.frame.size.width/4.05)
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.size.width/4.05 , height: collectionView.frame.size.width/4.05)
     }
 
     

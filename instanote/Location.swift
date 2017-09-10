@@ -27,13 +27,13 @@ class Location: NSManagedObject, MKAnnotation {
         return CLLocationCoordinate2D(latitude: CLLocationDegrees(lat!), longitude: CLLocationDegrees(long!))
     }
 
-    func addNote(note:Note){
-        mutableSetValueForKey(Constants.Relationships.Notes).addObject(note)
+    func addNote(_ note:Note){
+        mutableSetValue(forKey: Constants.Relationships.Notes).add(note)
     }
-    func removeNote(note:Note){
-        mutableSetValueForKey(Constants.Relationships.Notes).removeObject(note)
+    func removeNote(_ note:Note){
+        mutableSetValue(forKey: Constants.Relationships.Notes).remove(note)
     }
-    func debug(prepend:String=""){
+    func debug(_ prepend:String=""){
         if lat != nil && long != nil {
             print(prepend + "\(lat!)" + ":" + "\(long!)")
         }

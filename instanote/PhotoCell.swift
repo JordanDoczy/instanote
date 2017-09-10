@@ -13,25 +13,25 @@ class PhotoCell: UICollectionViewCell {
     
     @IBOutlet weak var imageView: UIImageView!{
         didSet{
-            imageView.contentMode = .ScaleAspectFill
+            imageView.contentMode = .scaleAspectFill
         }
     }
     
     var assetRequested:PHImageRequestID?
-    let manager = PHImageManager.defaultManager()
+    let manager = PHImageManager.default()
 
     var asset:PHAsset?=nil{
         didSet{
             if asset != oldValue{
                 let size = CGSize(width: 250, height: 250) 
                 let options = PHImageRequestOptions()
-                options.resizeMode = .Exact
-                options.deliveryMode = .HighQualityFormat
+                options.resizeMode = .exact
+                options.deliveryMode = .highQualityFormat
 
                 if let assetId = assetRequested{
                     manager.cancelImageRequest(assetId)
                 }
-                assetRequested = manager.requestImageForAsset(asset!, targetSize: size, contentMode: .AspectFill, options: options) { (image, data) in
+                assetRequested = manager.requestImage(for: asset!, targetSize: size, contentMode: .aspectFill, options: options) { (image, data) in
                     if let id = data?[PHImageResultRequestIDKey] as? Int{
                         if self.assetRequested == Int32(id) {
                             self.imageView.image = image

@@ -21,7 +21,7 @@ class PressIndicatorView : UIView {
             return animation.delegate
         }
         set{
-            animation.delegate = newValue
+            animation.delegate = newValue as! CAAnimationDelegate
         }
     }
     
@@ -36,39 +36,34 @@ class PressIndicatorView : UIView {
     }
     
     func initialize(){
-        self.backgroundColor = UIColor.clearColor()
+        self.backgroundColor = UIColor.clear
         
         let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: (frame.size.width - 10)/2, startAngle: 0.0, endAngle: CGFloat(M_PI * 2.0), clockwise: true)
 
-        circleLayer.path = circlePath.CGPath
-        circleLayer.fillColor = Colors.PrimaryTransparent.CGColor
-        circleLayer.strokeColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75).CGColor
+        circleLayer.path = circlePath.cgPath
+        circleLayer.fillColor = Colors.PrimaryTransparent.cgColor
+        circleLayer.strokeColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75).cgColor
         circleLayer.lineWidth = 3;
         
         circleLayer.strokeEnd = 0.0
         layer.addSublayer(circleLayer)
     }
     
-    func show(duration: NSTimeInterval) {
-        hidden = false
+    func show(_ duration: TimeInterval) {
+        isHidden = false
         animation.duration = duration
         animation.fromValue = 0
         animation.toValue = 1
         animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
 //        animation.delegate = self
         circleLayer.strokeEnd = 1.0
-        circleLayer.addAnimation(animation, forKey: "animateCircle")
+        circleLayer.add(animation, forKey: "animateCircle")
     }
     
     func hide()
     {
-        hidden = true
+        isHidden = true
         circleLayer.removeAllAnimations()
     }
-    
-    override func animationDidStop(anim: CAAnimation, finished flag: Bool) {
-        print(!hidden)
-    }
 
-    
 }
