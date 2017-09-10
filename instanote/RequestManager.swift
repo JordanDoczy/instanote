@@ -54,7 +54,7 @@ class RequestManager{
     }
     
     static func deleteNote(_ note:Note){
-        deletePhoto(note)
+        _ = deletePhoto(note)
         deleteObject(note)
         
         RequestManager.save()
@@ -225,7 +225,7 @@ class RequestManager{
     static func updateNote(_ note:inout Note, caption:String?, photo:String?, location:CLLocationCoordinate2D?){
 
         if photo != note.photo {
-            deletePhoto(note)
+            _ = deletePhoto(note)
         }
         
         note.caption = caption

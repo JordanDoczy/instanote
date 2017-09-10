@@ -202,7 +202,7 @@ class CameraViewController: UIViewController {
         if let videoConnection = output.connection(withMediaType: AVMediaTypeVideo) {
             output.captureStillImageAsynchronously(from: videoConnection, completionHandler: { [unowned self] (sampleBuffer, error) in
                 let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-                let dataProvider = CGDataProvider(data: imageData as! CFData)
+                let dataProvider = CGDataProvider(data: imageData! as CFData)
                 if let cgImage = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: .defaultIntent) {
                     self.capturedImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
                     if self.isUnwind {
@@ -220,12 +220,6 @@ class ShutterButton : UIButton{
     
     fileprivate var innerCircle = InnerCircle(color: Colors.Primary)
     fileprivate var innerCircleHighlight = InnerCircle(color: UIColor.white)
-    
-    fileprivate struct Constants{
-        struct Selectors{
-            static let Tapped:Selector = "tapped:"
-        }
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

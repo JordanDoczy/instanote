@@ -21,7 +21,7 @@ class PressIndicatorView : UIView {
             return animation.delegate
         }
         set{
-            animation.delegate = newValue as! CAAnimationDelegate
+            animation.delegate = newValue as? CAAnimationDelegate
         }
     }
     
@@ -38,7 +38,7 @@ class PressIndicatorView : UIView {
     func initialize(){
         self.backgroundColor = UIColor.clear
         
-        let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: (frame.size.width - 10)/2, startAngle: 0.0, endAngle: CGFloat(M_PI * 2.0), clockwise: true)
+        let circlePath = UIBezierPath(arcCenter: CGPoint(x: frame.size.width / 2.0, y: frame.size.height / 2.0), radius: (frame.size.width - 10)/2, startAngle: 0.0, endAngle: CGFloat(Double.pi * 2.0), clockwise: true)
 
         circleLayer.path = circlePath.cgPath
         circleLayer.fillColor = Colors.PrimaryTransparent.cgColor

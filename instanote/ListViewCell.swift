@@ -20,7 +20,6 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
             static let TagCell = "TagCell"
         }
         struct Selectors{
-            static let LabelLink:Selector = "labelLink:"
             static let Pressed:Selector = #selector(ListViewCell.pressed(_:))
         }
     }
@@ -31,7 +30,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         lazy.frame.size = CGSize(width: 15, height: 15)
         lazy.tintColor = UIColor.white
         lazy.backgroundColor = Colors.PrimaryTransparent
-        lazy.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
+        lazy.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
         return lazy
     }()
     fileprivate lazy var pressIndicator:UIView = { [unowned self] in

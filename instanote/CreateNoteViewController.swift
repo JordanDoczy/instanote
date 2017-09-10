@@ -73,7 +73,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                 lazy.image = UIImage(named: self.note!.imagePath!)
             }
             else {
-                UIImage.fetchImage(URL(string: self.note!.imagePath!)!) { image, response in
+                _ = UIImage.fetchImage(URL(string: self.note!.imagePath!)!) { (image, _) in
                     lazy.image = image
                 }
             }
@@ -357,7 +357,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         if isEditMode {
             RequestManager.updateNote(&note!, caption: text, photo: photo, location: annotation?.coordinate)
         } else {
-            RequestManager.createNote(text, photo: photo, location: annotation?.coordinate)
+            _ = RequestManager.createNote(text, photo: photo, location: annotation?.coordinate)
         }
         RequestManager.save()
         
@@ -520,7 +520,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             
         }
         
-        checkForMatch()
+        _ = checkForMatch()
         return true
     }
     

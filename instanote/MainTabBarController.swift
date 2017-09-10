@@ -33,7 +33,7 @@ class MainTabBarController : UITabBarController, UITabBarControllerDelegate {
         delegate = self
         
         if RequestManager.getNotes()?.count == 0 {
-            RequestManager.createNote("Here is a sample note to get you started! Tap on the image to see more, or press and hold to edit the note. Notes can have #tags too!", photo: Assets.SampleImage, location: CLLocationCoordinate2D(latitude:37.7887171, longitude:-122.4053574))
+            _ = RequestManager.createNote("Here is a sample note to get you started! Tap on the image to see more, or press and hold to edit the note. Notes can have #tags too!", photo: Assets.SampleImage, location: CLLocationCoordinate2D(latitude:37.7887171, longitude:-122.4053574))
             RequestManager.save()
 
         }

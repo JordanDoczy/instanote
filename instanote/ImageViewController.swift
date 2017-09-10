@@ -17,7 +17,6 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     fileprivate struct Constants{
         struct Selectors{
             static let DoubleTap:Selector = #selector(ImageViewController.doubleTap(_:))
-            static let Pinch:Selector = "pinch:"
         }
     }
     
@@ -80,7 +79,7 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
                 setImage(UIImage(named: imageURLString)!)
             }
             else if let imageURL = URL(string: imageURLString){
-                UIImage.fetchImage(imageURL) { [weak self] image, response in
+                _ = UIImage.fetchImage(imageURL) { [weak self] (image, _) in
                     if image != nil{
                         self?.setImage(image!)
                     }

@@ -154,7 +154,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
                      setImageForPin(view, image: UIImage(named: imageURLString)!)
                 }
                 else if let imageURL = URL(string: imageURLString){
-                    UIImage.fetchImage(imageURL){ [weak self] image, response in
+                    _ = UIImage.fetchImage(imageURL){ [weak self] (image, _) in
                         self?.setImageForPin(view, image: image!)
                     }
                 }
