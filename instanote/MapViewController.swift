@@ -18,21 +18,21 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
             static let AnnotationViewReuseIdentifier = "annotation"
         }
         struct Selectors {
-            static let AnnotationPressed:Selector = "annotationPressed:"
-            static let AnnotationTapped:Selector = "annotationTapped:"
+            static let AnnotationPressed:Selector = #selector(MapViewController.annotationPressed(_:))
+            static let AnnotationTapped:Selector = #selector(MapViewController.annotationTapped(_:))
         }
         struct Segues {
             static let EditNote = "Edit Note"
             static let ShowImage = "Show Image"
         }
 
-        static let ImageSize = CGRect(origin: CGPointZero, size: CGSize(width: 50, height: 50))
+        static let ImageSize = CGRect(origin: CGPoint.zero, size: CGSize(width: 50, height: 50))
     }
     
-    private var firstAppear:Bool = true
-    private var fetchedResultsController: NSFetchedResultsController!
-    private var selectedAnnotation:MKAnnotation?
-    private var selectedNote:Note?
+    fileprivate var firstAppear:Bool = true
+    fileprivate var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
+    fileprivate var selectedAnnotation:MKAnnotation?
+    fileprivate var selectedNote:Note?
     
     // MARK: IBOutlets
     @IBOutlet weak var mapView: MKMapView! {
@@ -42,7 +42,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
     }
 
     // MARK: IBActions
-    @IBAction func showAll(sender: UIBarButtonItem?=nil) {
+    @IBAction func showAll(_ sender: UIBarButtonItem?=nil) {
         mapView.showAnnotations(mapView.annotations, animated: true)
     }
     
@@ -54,7 +54,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         initializeFetchedResultsController()
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if firstAppear{
             showAll()
@@ -62,15 +62,15 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         }
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
     }
     
     
     // MARK: Overrides
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == Constants.Segues.EditNote || segue.identifier == Constants.Segues.ShowImage{
-            var destination = segue.destinationViewController
+            var destination = segue.destination
             
             if let navController = destination as? UINavigationController {
                 destination = navController.visibleViewController!
@@ -83,26 +83,26 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
     
     
     // MARK: UIGestureRecognizers
-    func annotationPressed(sender:UILongPressGestureRecognizer){
-        if sender.state == .Began {
+    func annotationPressed(_ sender:UILongPressGestureRecognizer){
+        if sender.state == .began {
             if let view = sender.view as? MKAnnotationView{
                 if let note = view.annotation {
                     selectedNote = note as? Note
-                    performSegueWithIdentifier(Constants.Segues.EditNote, sender: self)
+                    performSegue(withIdentifier: Constants.Segues.EditNote, sender: self)
                 }
             }
         }
     }
     
-    func annotationTapped(sender:UITapGestureRecognizer){
+    func annotationTapped(_ sender:UITapGestureRecognizer){
         if let view = sender.view as? MKPinAnnotationView {
             
             if view.annotation!.isEqual(selectedAnnotation){
                 selectedNote = view.annotation as? Note
-                performSegueWithIdentifier(Constants.Segues.ShowImage, sender: self)
+                performSegue(withIdentifier: Constants.Segues.ShowImage, sender: self)
             }
             else{
-                view.enabled = true
+                view.isEnabled = true
                 selectedAnnotation = view.annotation
                 mapView.selectAnnotation(view.annotation!, animated: true)
             }
@@ -110,14 +110,14 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
     }
 
     // MARK: NSFetchedResultsController Protocol
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         updateAnnotations()
     }
 
     
     // MARK: MapView Protocol
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        var view = mapView.dequeueReusableAnnotationViewWithIdentifier(Constants.CellIdentifiers.AnnotationViewReuseIdentifier)
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        var view = mapView.dequeueReusableAnnotationView(withIdentifier: Constants.CellIdentifiers.AnnotationViewReuseIdentifier)
         
         if view == nil {
             view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: Constants.CellIdentifiers.AnnotationViewReuseIdentifier)
@@ -129,12 +129,12 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         
         view!.leftCalloutAccessoryView = UIButton(frame: Constants.ImageSize)
         
-        let button = UIButton(type: .Custom)
+        let button = UIButton(type: .custom)
         var image = UIImage(named: Assets.Edit)
-        image = image?.imageWithRenderingMode(.AlwaysTemplate)
-        button.setImage(image, forState: .Normal)
+        image = image?.withRenderingMode(.alwaysTemplate)
+        button.setImage(image, for: UIControlState())
         button.tintColor = Colors.Primary
-        button.userInteractionEnabled = true
+        button.isUserInteractionEnabled = true
         button.sizeToFit()
         
         view!.rightCalloutAccessoryView = button
@@ -147,14 +147,14 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         return view
     }
     
-    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if let annotation = view.annotation as? Note {
             if let imageURLString = annotation.imagePath {
                 if imageURLString == Assets.SampleImage || imageURLString == Assets.DefaultImage{
                      setImageForPin(view, image: UIImage(named: imageURLString)!)
                 }
-                else if let imageURL = NSURL(string: imageURLString){
-                    UIImage.fetchImage(imageURL){ [weak self] image, response in
+                else if let imageURL = URL(string: imageURLString){
+                    _ = UIImage.fetchImage(imageURL){ [weak self] (image, _) in
                         self?.setImageForPin(view, image: image!)
                     }
                 }
@@ -162,42 +162,42 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         }
     }
     
-    func mapView(mapView: MKMapView, didDeselectAnnotationView view: MKAnnotationView) {
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         if selectedAnnotation != nil{
             if view.annotation!.isEqual(selectedAnnotation) {
                 mapView.selectAnnotation(view.annotation!, animated: false)
-                view.enabled = false
+                view.isEnabled = false
                 selectedAnnotation = nil
             }
         }
     }
     
-    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         selectedNote = view.annotation as? Note
         
         if control == view.leftCalloutAccessoryView{
-            performSegueWithIdentifier(Constants.Segues.ShowImage, sender: self)
+            performSegue(withIdentifier: Constants.Segues.ShowImage, sender: self)
         }
         else if control == view.rightCalloutAccessoryView{
-            performSegueWithIdentifier(Constants.Segues.EditNote, sender: self)
+            performSegue(withIdentifier: Constants.Segues.EditNote, sender: self)
         }
         
     }
     
     // MARK: Private Methods
-    private func setImageForPin(view:MKAnnotationView, image:UIImage){
+    fileprivate func setImageForPin(_ view:MKAnnotationView, image:UIImage){
         if view.leftCalloutAccessoryView == nil{
             view.leftCalloutAccessoryView = UIButton(frame: Constants.ImageSize)
-            view.leftCalloutAccessoryView!.contentMode  = .ScaleAspectFill
+            view.leftCalloutAccessoryView!.contentMode  = .scaleAspectFill
         }
         if let thumbnailImage = view.leftCalloutAccessoryView as? UIButton{
-            thumbnailImage.setImage(image, forState: .Normal)
+            thumbnailImage.setImage(image, for: UIControlState())
         }
         
     }
     
-    private func initializeFetchedResultsController() {
-        let request = NSFetchRequest(entityName: Entities.Note)
+    fileprivate func initializeFetchedResultsController() {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: Entities.Note)
         let sort = NSSortDescriptor(key: Note.Constants.Properties.Date, ascending: true)
         request.sortDescriptors = [sort]
         
@@ -213,7 +213,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         }
     }
     
-    private func updateAnnotations(){
+    fileprivate func updateAnnotations(){
         if mapView.annotations.count > 0 {
             mapView.removeAnnotations(mapView.annotations)
         }

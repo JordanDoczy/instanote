@@ -13,37 +13,37 @@ import UIKit
 extension CAShapeLayer{
     
     enum BorderType : UInt32 {
-        case Left
-        case Right
-        case Top
-        case Bottom
-        case All
+        case left
+        case right
+        case top
+        case bottom
+        case all
     }
     
-    static func getLine(rect:CGSize, borderOptions:[BorderType]?=[BorderType.All], color:CGColor?=nil, lineWidth:CGFloat?=nil)->CAShapeLayer{
+    static func getLine(_ rect:CGSize, borderOptions:[BorderType]?=[BorderType.all], color:CGColor?=nil, lineWidth:CGFloat?=nil)->CAShapeLayer{
         let path = UIBezierPath()
         
-        if borderOptions!.contains(BorderType.Top) || borderOptions!.contains(BorderType.All){
-            path.moveToPoint(CGPoint(x:0, y:0))
-            path.addLineToPoint(CGPoint(x: rect.width, y: 0))
+        if borderOptions!.contains(BorderType.top) || borderOptions!.contains(BorderType.all){
+            path.move(to: CGPoint(x:0, y:0))
+            path.addLine(to: CGPoint(x: rect.width, y: 0))
         }
-        if borderOptions!.contains(BorderType.Right) || borderOptions!.contains(BorderType.All){
-            path.moveToPoint(CGPoint(x:rect.width, y:0))
-            path.addLineToPoint(CGPoint(x: rect.width, y: rect.height))
+        if borderOptions!.contains(BorderType.right) || borderOptions!.contains(BorderType.all){
+            path.move(to: CGPoint(x:rect.width, y:0))
+            path.addLine(to: CGPoint(x: rect.width, y: rect.height))
             
         }
-        if borderOptions!.contains(BorderType.Bottom) || borderOptions!.contains(BorderType.All){
-            path.moveToPoint(CGPoint(x:rect.width, y:rect.height))
-            path.addLineToPoint(CGPoint(x: 0, y: rect.height))
+        if borderOptions!.contains(BorderType.bottom) || borderOptions!.contains(BorderType.all){
+            path.move(to: CGPoint(x:rect.width, y:rect.height))
+            path.addLine(to: CGPoint(x: 0, y: rect.height))
         }
-        if borderOptions!.contains(BorderType.Left) || borderOptions!.contains(BorderType.All){
-            path.moveToPoint(CGPoint(x:0, y:rect.height))
-            path.addLineToPoint(CGPoint(x: 0, y: 0))
+        if borderOptions!.contains(BorderType.left) || borderOptions!.contains(BorderType.all){
+            path.move(to: CGPoint(x:0, y:rect.height))
+            path.addLine(to: CGPoint(x: 0, y: 0))
         }
         
         let shapeLayer = CAShapeLayer()
-        shapeLayer.path = path.CGPath
-        shapeLayer.strokeColor = color ?? UIColor.blackColor().CGColor
+        shapeLayer.path = path.cgPath
+        shapeLayer.strokeColor = color ?? UIColor.black.cgColor
         shapeLayer.lineWidth = lineWidth ?? 1.0
         
         return shapeLayer

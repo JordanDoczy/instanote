@@ -15,15 +15,15 @@ extension UIImage{
         return max(size.width/size.height, size.height/size.width)
     }
     
-    static func fetchImage(url:NSURL,complete:(image:UIImage?, response:NSURLResponse?)->Void)->NSURLSessionDataTask {
-        let task = NSURLSession.sharedSession().dataTaskWithURL(url) { (data, response, error) -> Void in
+    static func fetchImage(_ url:URL,complete:@escaping (_ image:UIImage?, _ response:URLResponse?)->Void)->URLSessionDataTask {
+        let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, response, error) -> Void in
             if data != nil{
                 let image = UIImage(data: data!)
-                dispatch_async(dispatch_get_main_queue()){
-                    complete(image: image, response: response)
+                DispatchQueue.main.async{
+                    complete(image, response)
                 }
             }
-        }
+        }) 
         task.resume()
         return task
     }

@@ -15,16 +15,16 @@ class AnimatedTableView : UITableView  {
 
     func hide(){
         
-        if hidden == false{
+        if isHidden == false{
             layer.removeAllAnimations()
             
-            UIView.animateWithDuration(0.30, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .CurveLinear,
+            UIView.animate(withDuration: 0.30, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .curveLinear,
                 animations: { [unowned self] in
                     self.frame.origin.y = self.attachedView.frame.origin.y + self.attachedView.frame.height - self.frame.height
                     self.alpha = 0.5
                 },
                 completion: { [unowned self] success in
-                    self.hidden = true
+                    self.isHidden = true
                 })
         }
 
@@ -32,9 +32,9 @@ class AnimatedTableView : UITableView  {
     
     func show(){
         layer.removeAllAnimations()
-        hidden = false
+        isHidden = false
         
-        UIView.animateWithDuration(0.30, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .CurveLinear,
+        UIView.animate(withDuration: 0.30, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 0.0, options: .curveLinear,
             animations: { [unowned self] in
                 self.frame.origin.y = self.attachedView.frame.origin.y + self.attachedView.frame.height
                 self.alpha = 1.0

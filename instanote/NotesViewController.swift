@@ -8,17 +8,41 @@
 
 import UIKit
 import CoreData
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class NotesViewController: UITableViewController, NSFetchedResultsControllerDelegate, UISearchBarDelegate, UIGestureRecognizerDelegate, UIHelpViewDelegate, ListViewCellDelegate {
     
     // MARK: Private Members
-    private struct Constants {
+    fileprivate struct Constants {
         struct CellIdentifiers{
             static let ListViewCell = "ListViewCell"
         }
         struct Selectors {
-            static let CloseSearch:Selector = "closeSearch:"
-            static let CellSelected:Selector = "cellSelected:"
+            static let CloseSearch:Selector = #selector(NotesViewController.closeSearch(_:))
+            static let CellSelected:Selector = #selector(NotesViewController.cellSelected(_:))
         }
         struct Segues {
             static let EditNote = "Edit Note"
@@ -30,20 +54,20 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
     }
     
-    private lazy var helpView:HelpView = { [unowned self] in
+    fileprivate lazy var helpView:HelpView = { [unowned self] in
        let lazy = HelpView()
         self.view.superview!.addSubview(lazy)
         lazy.delegate = self
         return lazy
     }()
-    private var fetchImageOperationQueue:NSOperationQueue = NSOperationQueue()
-    private var fetchedResultsController: NSFetchedResultsController!
-    private var filteredResults:[Note]?
-    private var selectedCellIndexPath:NSIndexPath?
-    private var selectedNote:Note?
+    fileprivate var fetchImageOperationQueue:OperationQueue = OperationQueue()
+    fileprivate var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
+    fileprivate var filteredResults:[Note]?
+    fileprivate var selectedCellIndexPath:IndexPath?
+    fileprivate var selectedNote:Note?
     
-    private lazy var prototypeCell:ListViewCell = { [unowned self] in
-        var lazy = self.tableView.dequeueReusableCellWithIdentifier(Constants.CellIdentifiers.ListViewCell) as! ListViewCell
+    fileprivate lazy var prototypeCell:ListViewCell = { [unowned self] in
+        var lazy = self.tableView.dequeueReusableCell(withIdentifier: Constants.CellIdentifiers.ListViewCell) as! ListViewCell
         return lazy
     }()
     
@@ -57,7 +81,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     
     
     //MARK: IBActions
-    @IBAction func helpButtonHandler(sender: UIBarButtonItem) {
+    @IBAction func helpButtonHandler(_ sender: UIBarButtonItem) {
         helpView.show(view.superview!.frame)
     }
     
@@ -81,7 +105,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     
 
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         helpView.hide()
         reset()
@@ -89,14 +113,14 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     
     
     // MARK: UITapGestureRecognizers
-    func closeSearch(sender:UITapGestureRecognizer?=nil){
+    func closeSearch(_ sender:UITapGestureRecognizer?=nil){
         searchBar.resignFirstResponder()
     }
     
     // MARK: Overrides
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == Constants.Segues.EditNote{
-            var destination = segue.destinationViewController
+            var destination = segue.destination
             
             if let navController = destination as? UINavigationController {
                 destination = navController.visibleViewController!
@@ -108,24 +132,24 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     }
 
     // ignore taps for tableview so we don't override didSelectRowAtIndexPath
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return !(touch.view is UITableViewCell) && !(touch.view?.superview is UITableViewCell) && !(touch.view?.superview?.superview is UITableViewCell)
     }
     
     // MARK: Private Methods
-    func cellSelected(sender:UILongPressGestureRecognizer){
-        if sender.state == .Began {
+    func cellSelected(_ sender:UILongPressGestureRecognizer){
+        if sender.state == .began {
             
             if let cell = sender.view as? ListViewCell{
                 selectedNote = cell.note
             }
 
-            performSegueWithIdentifier(Constants.Segues.EditNote, sender: self)
+            performSegue(withIdentifier: Constants.Segues.EditNote, sender: self)
         }
     }
     
-    private func initializeFetchedResultsController() {
-        let request = NSFetchRequest(entityName: Entities.Note)
+    fileprivate func initializeFetchedResultsController() {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: Entities.Note)
         request.sortDescriptors = [NSSortDescriptor(key: Note.Constants.Properties.Date, ascending: false)]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: AppDelegate.sharedInstance().managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
@@ -137,19 +161,19 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
     }
 
-    private func getNoteAtIndexPath(indexPath:NSIndexPath)->Note?{
+    fileprivate func getNoteAtIndexPath(_ indexPath:IndexPath)->Note?{
         var note:Note?
         
         if filteredResults != nil && filteredResults?.count > indexPath.row {
                 note = filteredResults![indexPath.row]
         } else {
-            note = fetchedResultsController.objectAtIndexPath(indexPath) as? Note
+            note = fetchedResultsController.object(at: indexPath) as? Note
         }
         
         return note
     }
     
-    private func reset(){
+    fileprivate func reset(){
         filteredResults = nil
         tableView.reloadData()
         searchBar.text = ""
@@ -160,9 +184,9 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
 
     }
     
-    private func resetSelectedCell(){
+    fileprivate func resetSelectedCell(){
         if selectedCellIndexPath != nil {
-            if let cell = tableView.cellForRowAtIndexPath(selectedCellIndexPath!) as? ListViewCell{
+            if let cell = tableView.cellForRow(at: selectedCellIndexPath!) as? ListViewCell{
                 selectedCellIndexPath = nil
                 cell.resetConstraints()
             }
@@ -172,48 +196,48 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     
     // MARK: UIHelpView Protocol
     func helpViewDidHide() {
-        tableView.scrollEnabled = true
+        tableView.isScrollEnabled = true
     }
     func helpViewDidShow() {
-        tableView.scrollEnabled = false
+        tableView.isScrollEnabled = false
     }
     
     // MARK: ListViewCell Protocol
-    func listViewCellLinkClicked(data: String) {
+    func listViewCellLinkClicked(_ data: String) {
         searchBar(searchBar, textDidChange: data)
         searchBar.text = data
     }
     
-    func listViewCellSelected(cell:ListViewCell) {
+    func listViewCellSelected(_ cell:ListViewCell) {
         selectedNote = cell.note
-        performSegueWithIdentifier(Constants.Segues.EditNote, sender: self)
+        performSegue(withIdentifier: Constants.Segues.EditNote, sender: self)
     }
     
 
     // MARK: NSFetchedResultsController Protocol
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         resetSelectedCell()
         
         switch type {
-        case .Insert:
+        case .insert:
             if(newIndexPath != nil) {
                 tableView.beginUpdates()
-                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+                tableView.insertRows(at: [newIndexPath!], with: .fade)
                 tableView.endUpdates()
                 tableView.reloadData()
                 
-                if let _ = tableView.cellForRowAtIndexPath(newIndexPath!) {
-                    tableView.scrollToRowAtIndexPath(newIndexPath!, atScrollPosition: .None, animated: false)
+                if let _ = tableView.cellForRow(at: newIndexPath!) {
+                    tableView.scrollToRow(at: newIndexPath!, at: .none, animated: false)
                 }
                 
             }
-        case .Delete:
+        case .delete:
             if indexPath != nil{
                 filteredResults = nil
                 
                 tableView.beginUpdates()
-                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+                tableView.deleteRows(at: [indexPath!], with: .fade)
                 tableView.endUpdates()
                 
                 if let text = searchBar.text{
@@ -222,30 +246,30 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
                     }
                 }
             }
-        case .Move:
+        case .move:
             if(newIndexPath != nil) {
                 tableView.reloadData()
-                if let _ = tableView.cellForRowAtIndexPath(newIndexPath!) {
-                    tableView.scrollToRowAtIndexPath(newIndexPath!, atScrollPosition: .None, animated: false)
+                if let _ = tableView.cellForRow(at: newIndexPath!) {
+                    tableView.scrollToRow(at: newIndexPath!, at: .none, animated: false)
                 }
             }
             break
-        case .Update:
+        case .update:
             break
         }
 
     }
     
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
     
     // MARK: SearchBar Protocol
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         filteredResults = nil
 
         if searchText != "" {
@@ -254,7 +278,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
             var uniqueNotes = RequestManager.getNotes(searchText) ?? [Note]()
 
             // get tags that match the search
-            let tags = RequestManager.getTags(searchText.lowercaseString.stringByReplacingOccurrencesOfString("#", withString: ""))
+            let tags = RequestManager.getTags(searchText.lowercased().replacingOccurrences(of: "#", with: ""))
             
             // get notes from tags [[Note]] (array of array)
             let collectionsOfNotes = tags?.map(){ $0.notes?.map(){ $0 as! Note } }
@@ -282,12 +306,12 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         tableView.beginUpdates()
         tableView.endUpdates()
         
-        tableView.scrollRectToVisible(CGRectZero, animated: false)
+        tableView.scrollRectToVisible(CGRect.zero, animated: false)
 
     }
 
     // MARK: TableView Protocol
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         if filteredResults != nil {
             return 1
         } else {
@@ -295,17 +319,17 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
     }
     
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.CellIdentifiers.ListViewCell, forIndexPath: indexPath) as! ListViewCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.CellIdentifiers.ListViewCell, for: indexPath) as! ListViewCell
         
         if let note = getNoteAtIndexPath(indexPath){
 
             cell.note = note
-            cell.selectionStyle = .None;
+            cell.selectionStyle = .none;
             cell.resetConstraints()
             cell.delegate = self
         }
@@ -313,25 +337,25 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         return cell
     }
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.Delete) {
-            if let note = fetchedResultsController.objectAtIndexPath(indexPath) as? Note{
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            if let note = fetchedResultsController.object(at: indexPath) as? Note{
                 RequestManager.deleteNote(note)
             }
         }
     }
     
-    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        if let cell = tableView.cellForRowAtIndexPath(indexPath) as? ListViewCell{
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) as? ListViewCell{
             cell.resetConstraints()
             selectedCellIndexPath = nil
         }
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if indexPath != selectedCellIndexPath, let cell = tableView.cellForRowAtIndexPath(indexPath) as? ListViewCell{
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath != selectedCellIndexPath, let cell = tableView.cellForRow(at: indexPath) as? ListViewCell{
             
-            UIView.animateWithDuration(0.25, animations: { [weak self] in
+            UIView.animate(withDuration: 0.25, animations: { [weak self] in
                 cell.increaseImageSize(Constants.TableView.ImageMultiplier)
                 self?.view.layoutIfNeeded()
                 })
@@ -339,17 +363,17 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         selectedCellIndexPath = indexPath
         tableView.beginUpdates()
         tableView.endUpdates()
-        tableView.scrollToRowAtIndexPath(selectedCellIndexPath!, atScrollPosition: .None, animated: false)
+        tableView.scrollToRow(at: selectedCellIndexPath!, at: .none, animated: false)
     }
     
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if selectedCellIndexPath == indexPath {
             return Constants.TableView.SelectedRowHeight
         }
         return UITableViewAutomaticDimension
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if filteredResults != nil {
             return filteredResults?.count ?? 0
         } else {
@@ -359,9 +383,9 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
 
 
     // MARK: ScrollView Protocol
-    override func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if selectedCellIndexPath != nil{
-            if let cell = tableView.cellForRowAtIndexPath(selectedCellIndexPath!) as? ListViewCell{
+            if let cell = tableView.cellForRow(at: selectedCellIndexPath!) as? ListViewCell{
                 cell.resetConstraints()
                 selectedCellIndexPath = nil
                 tableView.beginUpdates()
@@ -370,7 +394,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
 
     }
-    override func scrollViewDidScroll(scrollView: UIScrollView) {
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         closeSearch()
     }
     

@@ -12,10 +12,10 @@ import AVFoundation
 
 class CameraViewController: UIViewController {
     
-    private struct Constants {
+    fileprivate struct Constants {
         struct Selectors {
-            static let Focus:Selector = "focus:"
-            static let ShutterPressed:Selector = "shutterPressed:"
+            static let Focus:Selector = #selector(CameraViewController.focus(_:))
+            static let ShutterPressed:Selector = #selector(CameraViewController.shutterPressed(_:))
         }
         struct Segues {
             static let CreateNote = "Create Note"
@@ -25,48 +25,48 @@ class CameraViewController: UIViewController {
     }
     
     // MARK: Private Members
-    private lazy var captureDevice : AVCaptureDevice? = {
-        let lazy = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
+    fileprivate lazy var captureDevice : AVCaptureDevice? = {
+        let lazy = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         return lazy
     }()
-    private lazy var captureSession:AVCaptureSession = {
+    fileprivate lazy var captureSession:AVCaptureSession = {
         let lazy = AVCaptureSession()
         lazy.sessionPreset = AVCaptureSessionPreset640x480
         return lazy
     }()
-    private var capturedImage:UIImage?
-    private var firstLoad:Bool = true
-    private var focusIndicator:UIImageView = {
-        let lazy = UIImageView(frame: CGRect(origin: CGPointZero, size: CGSize(width: 40, height: 40)))
+    fileprivate var capturedImage:UIImage?
+    fileprivate var firstLoad:Bool = true
+    fileprivate var focusIndicator:UIImageView = {
+        let lazy = UIImageView(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 40, height: 40)))
         lazy.image = UIImage(named: Assets.Focus)
-        lazy.hidden = true
+        lazy.isHidden = true
         lazy.alpha = 0.9
         return lazy
     }()
-    private var input:AVCaptureDeviceInput?
-    private var isUnwind:Bool{
+    fileprivate var input:AVCaptureDeviceInput?
+    fileprivate var isUnwind:Bool{
         return !(presentingViewController is MainTabBarController)
     }
-    private lazy var output:AVCaptureStillImageOutput = {
+    fileprivate lazy var output:AVCaptureStillImageOutput = {
         let lazy = AVCaptureStillImageOutput()
         lazy.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
         return lazy
     }()
-    private lazy var overlay:UIView = { [unowned self] in
+    fileprivate lazy var overlay:UIView = { [unowned self] in
         let lazy = UIView(frame: self.view.bounds)
         lazy.backgroundColor = Colors.Transparent
-        lazy.hidden = true
+        lazy.isHidden = true
         self.view.addSubview(lazy)
         return lazy
     }()
-    private var previewLayer:AVCaptureVideoPreviewLayer?
-    private lazy var previewView:UIView = {
+    fileprivate var previewLayer:AVCaptureVideoPreviewLayer?
+    fileprivate lazy var previewView:UIView = {
         let lazy = UIView()
         lazy.alpha = 0
         return lazy
     }()
-    private var spacer:CGFloat = 0
-    private var shutterButton = ShutterButton(frame: CGRect(origin: CGPointZero, size: CGSize(width: 80, height: 80)))
+    fileprivate var spacer:CGFloat = 0
+    fileprivate var shutterButton = ShutterButton(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 80, height: 80)))
     
     // MARK: View Controller Lifecycle
     override func viewDidLoad() {
@@ -74,43 +74,43 @@ class CameraViewController: UIViewController {
         setUpCamera()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if input != nil{
             startCamera()
         }
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if input != nil{
             stopCamera()
         }
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
     }
     
     // MARK: IBActions
-    @IBAction func close(sender: UIBarButtonItem) {
+    @IBAction func close(_ sender: UIBarButtonItem) {
         if isUnwind {
-            performSegueWithIdentifier(Constants.Segues.UnwindToCreateNote, sender: self)
+            performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
         } else {
-            performSegueWithIdentifier(Constants.Segues.UnwindToHome, sender: self)
+            performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
         }
     }
     
     
     // MARK: Overrides
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if capturedImage != nil {
             if segue.identifier == Constants.Segues.CreateNote || segue.identifier == Constants.Segues.UnwindToCreateNote{
-                var destination = segue.destinationViewController
+                var destination = segue.destination
                 if let navController = destination as? UINavigationController {
                     destination = navController.visibleViewController!
                 }
@@ -122,7 +122,7 @@ class CameraViewController: UIViewController {
     }
     
     // MARK: Camera Methods
-    private func setUpCamera(){
+    fileprivate func setUpCamera(){
         do {
             input = try AVCaptureDeviceInput(device: captureDevice)
             captureSession.addInput(input)
@@ -130,7 +130,7 @@ class CameraViewController: UIViewController {
 
             previewView.frame = CGRect(origin: CGPoint(x:spacer, y:spacer), size: CGSize(width: view.frame.width - (spacer * 2), height: view.frame.width - (spacer * 2)))
             previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-            previewLayer!.frame = CGRect(origin: CGPointZero, size: previewView.frame.size)
+            previewLayer!.frame = CGRect(origin: CGPoint.zero, size: previewView.frame.size)
             previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
             previewView.layer.addSublayer(previewLayer!)
             previewView.addSubview(focusIndicator)
@@ -150,65 +150,65 @@ class CameraViewController: UIViewController {
     }
 
     func startCamera(){
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) { [unowned self] () -> Void in
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async { [unowned self] () -> Void in
             self.captureSession.startRunning()
-            dispatch_async(dispatch_get_main_queue()) {
-                UIView.animateWithDuration(0.25){ [unowned self] in
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.25, animations: { [unowned self] in
                     self.previewView.alpha = 1
-                }
+                })
             }
         }
     }
     
     func stopCamera(){
-        overlay.hidden = true
+        overlay.isHidden = true
         shutterButton.reset()
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)) { [unowned self] () -> Void in
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async { [unowned self] () -> Void in
             self.captureSession.stopRunning()
         }
     }
     
-    func focus(sender:UITapGestureRecognizer){
-        func updateFocusPoint(point:CGPoint){
+    func focus(_ sender:UITapGestureRecognizer){
+        func updateFocusPoint(_ point:CGPoint){
             focusIndicator.center = point
-            focusIndicator.hidden = false
-            previewView.bringSubviewToFront(focusIndicator)
-            UIView.animateWithDuration(0.33, delay: 0, options: [.Repeat, .Autoreverse, .CurveEaseOut],
+            focusIndicator.isHidden = false
+            previewView.bringSubview(toFront: focusIndicator)
+            UIView.animate(withDuration: 0.33, delay: 0, options: [.repeat, .autoreverse, .curveEaseOut],
                 animations: { [unowned self] in
-                    self.focusIndicator.transform = CGAffineTransformMakeScale(1.05, 1.05)
+                    self.focusIndicator.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
                 },
                 completion: nil
             )
         }
 
-        let focusPoint = CGPoint(x: sender.locationInView(previewView).y / previewView.bounds.size.height, y: 1.0 - sender.locationInView(previewView).x / previewView.bounds.size.width)
+        let focusPoint = CGPoint(x: sender.location(in: previewView).y / previewView.bounds.size.height, y: 1.0 - sender.location(in: previewView).x / previewView.bounds.size.width)
         
         if let device = captureDevice {
             do {
                 try device.lockForConfiguration()
                 device.focusPointOfInterest = focusPoint
-                device.focusMode = AVCaptureFocusMode.ContinuousAutoFocus
+                device.focusMode = AVCaptureFocusMode.continuousAutoFocus
                 device.exposurePointOfInterest = focusPoint
-                device.exposureMode = AVCaptureExposureMode.ContinuousAutoExposure
+                device.exposureMode = AVCaptureExposureMode.continuousAutoExposure
                 device.unlockForConfiguration()
-                updateFocusPoint(sender.locationInView(previewView))
+                updateFocusPoint(sender.location(in: previewView))
             } catch {}
         }
     }
     
-    func shutterPressed(sender:UITapGestureRecognizer){
+    func shutterPressed(_ sender:UITapGestureRecognizer){
         shutterButton.depress()
         
-        if let videoConnection = output.connectionWithMediaType(AVMediaTypeVideo) {
-            output.captureStillImageAsynchronouslyFromConnection(videoConnection, completionHandler: { [unowned self] (sampleBuffer, error) in
+        if let videoConnection = output.connection(withMediaType: AVMediaTypeVideo) {
+            output.captureStillImageAsynchronously(from: videoConnection, completionHandler: { [unowned self] (sampleBuffer, error) in
                 let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-                let dataProvider = CGDataProviderCreateWithCFData(imageData)
-                if let cgImage = CGImageCreateWithJPEGDataProvider(dataProvider, nil, true, .RenderingIntentDefault) {
-                    self.capturedImage = UIImage(CGImage: cgImage, scale: 1.0, orientation: .Right)
+                let dataProvider = CGDataProvider(data: imageData! as CFData)
+                if let cgImage = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: .defaultIntent) {
+                    self.capturedImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
                     if self.isUnwind {
-                        self.performSegueWithIdentifier(Constants.Segues.UnwindToCreateNote, sender: self)
+                        self.performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
                     } else {
-                        self.performSegueWithIdentifier(Constants.Segues.CreateNote, sender: self)
+                        self.performSegue(withIdentifier: Constants.Segues.CreateNote, sender: self)
                     }
                 }
             })
@@ -218,14 +218,8 @@ class CameraViewController: UIViewController {
 
 class ShutterButton : UIButton{
     
-    private var innerCircle = InnerCircle(color: Colors.Primary)
-    private var innerCircleHighlight = InnerCircle(color: UIColor.whiteColor())
-    
-    private struct Constants{
-        struct Selectors{
-            static let Tapped:Selector = "tapped:"
-        }
-    }
+    fileprivate var innerCircle = InnerCircle(color: Colors.Primary)
+    fileprivate var innerCircleHighlight = InnerCircle(color: UIColor.white)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -238,10 +232,10 @@ class ShutterButton : UIButton{
     }
     
     func initialize(){
-        innerCircle.backgroundColor = UIColor.clearColor()
+        innerCircle.backgroundColor = UIColor.clear
         innerCircle.frame = frame
         
-        innerCircleHighlight.backgroundColor = UIColor.clearColor()
+        innerCircleHighlight.backgroundColor = UIColor.clear
         innerCircleHighlight.frame = frame
         innerCircleHighlight.alpha = 0
         
@@ -254,7 +248,7 @@ class ShutterButton : UIButton{
     }
     
     func press(){
-        UIView.animateWithDuration(0.1, delay: 0, options: [.CurveEaseOut],
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut],
             animations: { [unowned self] in
                 self.innerCircleHighlight.alpha = 0.5
             }, completion: nil)
@@ -262,37 +256,37 @@ class ShutterButton : UIButton{
     }
     
     func depress(){
-        UIView.animateWithDuration(0.1, delay: 0, options: [.CurveEaseOut],
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut],
             animations: { [unowned self] in
                 self.innerCircleHighlight.alpha = 0
             }, completion: nil)
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         press()
     }
     
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         depress()
     }
     
-    override func drawRect(rect: CGRect) {
-        UIColor.whiteColor().setFill()
+    override func draw(_ rect: CGRect) {
+        UIColor.white.setFill()
         createConcentricCircle(rect, percentage: 1).fill()
         
-        UIColor.blackColor().setFill()
+        UIColor.black.setFill()
         createConcentricCircle(rect, percentage: 0.95).fill()
     }
     
     class InnerCircle : UIView{
-        var color:UIColor = UIColor.clearColor()
+        var color:UIColor = UIColor.clear
         
         convenience init(color:UIColor){
             self.init()
             self.color = color
         }
         
-        override func drawRect(rect: CGRect) {
+        override func draw(_ rect: CGRect) {
             color.setFill()
             createConcentricCircle(rect, percentage: 0.85).fill()
         }
@@ -300,8 +294,8 @@ class ShutterButton : UIButton{
 }
 
 extension UIView{
-    func createConcentricCircle(rect:CGRect, percentage:CGFloat)->UIBezierPath {
-        let path = UIBezierPath(ovalInRect: CGRect(origin: CGPoint(x: rect.midX - rect.width * percentage/2, y: rect.midY - rect.height * percentage/2), size: CGSize(width: rect.width * percentage, height: rect.height * percentage)))
+    func createConcentricCircle(_ rect:CGRect, percentage:CGFloat)->UIBezierPath {
+        let path = UIBezierPath(ovalIn: CGRect(origin: CGPoint(x: rect.midX - rect.width * percentage/2, y: rect.midY - rect.height * percentage/2), size: CGSize(width: rect.width * percentage, height: rect.height * percentage)))
         return path
     }
 }

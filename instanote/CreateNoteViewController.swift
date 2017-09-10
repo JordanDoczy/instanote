@@ -33,7 +33,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     // MARK: Private Members
-    private struct Constants {
+    fileprivate struct Constants {
         struct AnnotationIdentifiers{
             static let MapAnnotation = "MapAnnotation"
         }
@@ -46,12 +46,12 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             static let UnwindToHome = "Unwind To Home"
         }
         struct Selectors{
-            static let CancelHandler:Selector = "cancelHandler:"
-            static let CenterMap:Selector = "centerMap"
-            static let DeleteHandler:Selector = "deleteHandler:"
-            static let DropPin:Selector = "dropPin:"
-            static let ForceSave:Selector = "forceSave"
-            static let KeyboardWillShow:Selector = "keyboardWillShow:"
+            static let CancelHandler:Selector = #selector(CreateNoteViewController.cancelHandler(_:))
+            static let CenterMap:Selector = #selector(CreateNoteViewController.centerMap)
+            static let DeleteHandler:Selector = #selector(CreateNoteViewController.deleteHandler(_:))
+            static let DropPin:Selector = #selector(CreateNoteViewController.dropPin(_:))
+            static let ForceSave:Selector = #selector(CreateNoteViewController.forceSave)
+            static let KeyboardWillShow:Selector = #selector(CreateNoteViewController.keyboardWillShow(_:))
         }
         struct Text{
             static let PlaceholderText = "Write a caption"
@@ -59,13 +59,13 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         }
     }
 
-    private var annotation:MapAnnotation?
-    private var attemptToSave:Bool = false
-    private var autoCompleteDataSource = [String]()
-    private var forceSaveTimer:NSTimer = NSTimer()
-    private lazy var imageView:UIImageView = { [unowned self] in
+    fileprivate var annotation:MapAnnotation?
+    fileprivate var attemptToSave:Bool = false
+    fileprivate var autoCompleteDataSource = [String]()
+    fileprivate var forceSaveTimer:Timer = Timer()
+    fileprivate lazy var imageView:UIImageView = { [unowned self] in
        let lazy = UIImageView()
-        lazy.contentMode = .ScaleAspectFill;
+        lazy.contentMode = .scaleAspectFill;
         lazy.clipsToBounds = true
         
         if self.note?.imagePath != nil {
@@ -73,43 +73,43 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                 lazy.image = UIImage(named: self.note!.imagePath!)
             }
             else {
-                UIImage.fetchImage(NSURL(string: self.note!.imagePath!)!) { image, response in
+                _ = UIImage.fetchImage(URL(string: self.note!.imagePath!)!) { (image, _) in
                     lazy.image = image
                 }
             }
         }
         return lazy
     }()
-    private var isEditMode:Bool{
+    fileprivate var isEditMode:Bool{
         return note != nil
     }
-    private lazy var locationManager:CLLocationManager = { [unowned self] in
+    fileprivate lazy var locationManager:CLLocationManager = { [unowned self] in
         let lazy = CLLocationManager()
         lazy.delegate = self
         lazy.desiredAccuracy = kCLLocationAccuracyBest
         return lazy
     }()
-    private lazy var mapView:MKMapView = {
+    fileprivate lazy var mapView:MKMapView = {
         let press = UILongPressGestureRecognizer(target: self, action: Constants.Selectors.DropPin)
         press.minimumPressDuration = 0.5
 
         let lazy = MKMapView()
-        lazy.userInteractionEnabled = true
+        lazy.isUserInteractionEnabled = true
         lazy.userLocation.title = ""
         lazy.delegate = self
         lazy.addGestureRecognizer(press)
 
         return lazy
     }()
-    private lazy var overlay:Overlay = { [unowned self] in
+    fileprivate lazy var overlay:Overlay = { [unowned self] in
         let lazy = Overlay()
-        lazy.effect = UIBlurEffect(style: .Light)
+        lazy.effect = UIBlurEffect(style: .light)
         lazy.frame = self.view.frame
-        lazy.hidden = true
+        lazy.isHidden = true
         return lazy
     }()
-    private var rangeToHash = NSRange()
-    private var tagSearch:String = ""
+    fileprivate var rangeToHash = NSRange()
+    fileprivate var tagSearch:String = ""
     
 
     
@@ -121,26 +121,26 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         didSet{
             autoCompleteTableView.delegate = self
             autoCompleteTableView.dataSource = self
-            autoCompleteTableView.scrollEnabled = true
-            autoCompleteTableView.hidden = true
-            autoCompleteTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: Constants.CellIdentifiers.AutoCompleteRowIdentifier)
+            autoCompleteTableView.isScrollEnabled = true
+            autoCompleteTableView.isHidden = true
+            autoCompleteTableView.register(UITableViewCell.self, forCellReuseIdentifier: Constants.CellIdentifiers.AutoCompleteRowIdentifier)
         }
     }
     @IBOutlet weak var cameraButton: UIButton! {
         didSet{
             cameraButton.backgroundColor = Colors.PrimaryTransparent
-            cameraButton.hidden = true
+            cameraButton.isHidden = true
         }
     }
     @IBOutlet weak var captionTextView: UITextView!{
         didSet{
             captionTextView.delegate = self
             captionTextView.text = note?.caption ?? Constants.Text.PlaceholderText
-            captionTextView.textColor = isEditMode ? Colors.Text : UIColor.lightGrayColor()
+            captionTextView.textColor = isEditMode ? Colors.Text : UIColor.lightGray
             captionTextView.textContainerInset = UIEdgeInsetsMake(10,10,0,10);
-            captionTextView.layer.borderColor = Colors.LightGray.CGColor
+            captionTextView.layer.borderColor = Colors.LightGray.cgColor
             captionTextView.layer.borderWidth = 1
-            captionTextView.userInteractionEnabled = true
+            captionTextView.isUserInteractionEnabled = true
         }
     }
 
@@ -153,9 +153,9 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         didSet{
             func createExpandIndicator()->UIView{
                 let view = UIImageView(image: UIImage(named: Assets.Expand))
-                view.image = view.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+                view.image = view.image!.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
                 view.frame.size = CGSize(width: 20, height: 20)
-                view.tintColor = UIColor.whiteColor()
+                view.tintColor = UIColor.white
                 view.backgroundColor = Colors.PrimaryTransparent
                 return view
             }
@@ -166,39 +166,39 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             if isEditMode {
                 toggleView.primaryView = imageView
                 toggleView.secondaryView = mapView
-                cameraButton.hidden = false
+                cameraButton.isHidden = false
             } else {
                 toggleView.primaryView = mapView
                 toggleView.secondaryView = imageView
-                cameraButton.hidden = true
+                cameraButton.isHidden = true
             }
             
-            mapView.scrollEnabled = mapView == toggleView.primaryView
+            mapView.isScrollEnabled = mapView == toggleView.primaryView
         }
     }
     
     
     // MARK: IBActions
-    @IBAction func createNote(segue:UIStoryboardSegue) {}
+    @IBAction func createNote(_ segue:UIStoryboardSegue) {}
 
-    @IBAction func saveHandler(sender: UIBarButtonItem?=nil) {
+    @IBAction func saveHandler(_ sender: UIBarButtonItem?=nil) {
         attemptSave()
     }
     
-    @IBAction func deleteHandler(sender: UIButton) {
+    @IBAction func deleteHandler(_ sender: UIButton) {
         showDeleteModal()
     }
     
-    @IBAction func cancelHandler(sender: UIButton?=nil) {
+    @IBAction func cancelHandler(_ sender: UIButton?=nil) {
         deleteModalPeek()
     }
 
-    @IBAction func cameraHandler(sender: UIButton) {
+    @IBAction func cameraHandler(_ sender: UIButton) {
         
         if isEditMode{
-            performSegueWithIdentifier(Constants.Segues.ChoosePhoto, sender: self)
+            performSegue(withIdentifier: Constants.Segues.ChoosePhoto, sender: self)
         } else{
-            performSegueWithIdentifier(Constants.Segues.UnwindToChoosePhoto, sender: self)
+            performSegue(withIdentifier: Constants.Segues.UnwindToChoosePhoto, sender: self)
         }
         
     }
@@ -207,12 +207,12 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Constants.Selectors.KeyboardWillShow, name: UIKeyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: Constants.Selectors.KeyboardWillShow, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
         if isEditMode {
             deleteModalPeek()
             overlay.show()
-            overlay.hidden = true
+            overlay.isHidden = true
             view.addSubview(overlay)
         } else {
             hideDeleteModal()
@@ -222,33 +222,33 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         locationManager.requestWhenInUseAuthorization()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         dismissButton.image = isEditMode ? UIImage(named: Assets.Close) : UIImage(named: Assets.Back)
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         forceSaveTimer.invalidate()
     }
 
     
     // MARK: Overrides
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         captionTextView.resignFirstResponder()
     }
     
     // MARK: Gesture Recognizers
-    func dropPin(sender:UILongPressGestureRecognizer){
-        let coordinate = mapView.convertPoint(sender.locationInView(mapView), toCoordinateFromView: mapView)
+    func dropPin(_ sender:UILongPressGestureRecognizer){
+        let coordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
 
-        if sender.state == UIGestureRecognizerState.Began {
-            if CLLocationManager.authorizationStatus() != CLAuthorizationStatus.AuthorizedWhenInUse && annotation == nil {
+        if sender.state == UIGestureRecognizerState.began {
+            if CLLocationManager.authorizationStatus() != CLAuthorizationStatus.authorizedWhenInUse && annotation == nil {
                 addPin(coordinate)
             }
             else if annotation != nil {
@@ -260,13 +260,13 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     
     // MARK: Show / Hide Methods
     func deleteModalPeek(){
-        if !overlay.hidden {
+        if !overlay.isHidden {
             overlay.hide()
         }
-        UIView.animateWithDuration(0.25) { [unowned self] in
+        UIView.animate(withDuration: 0.25, animations: { [unowned self] in
             self.deleteModalLayoutConstraint.constant = self.deleteButton.frame.height - self.deleteModal.frame.height
             self.view.layoutIfNeeded()
-        }
+        }) 
     }
     
     func hideDeleteModal(){
@@ -274,45 +274,45 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     func showDeleteModal(){
-        if overlay.hidden {
+        if overlay.isHidden {
             overlay.show()
-            view.bringSubviewToFront(deleteModal)
-            UIView.animateWithDuration(0.25, animations: { [unowned self] in
+            view.bringSubview(toFront: deleteModal)
+            UIView.animate(withDuration: 0.25, animations: { [unowned self] in
                 self.deleteModalLayoutConstraint.constant = 0
                 self.view.layoutIfNeeded()
             })
         } else {
             if isEditMode {
                 RequestManager.deleteNote(note!)
-                performSegueWithIdentifier(Constants.Segues.UnwindToHome, sender: self)
+                performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
             }
         }
     }
     
     func hideAutoComplete(){
-        if !autoCompleteTableView.hidden {
-            UIView.animateWithDuration(0.1,
+        if !autoCompleteTableView.isHidden {
+            UIView.animate(withDuration: 0.1,
                 animations: { [unowned self] in
                     self.autoCompleteTopLayoutConstraint.constant = self.autoCompleteTableView.frame.height
                     self.view.layoutIfNeeded()
                 },
                 completion: { [unowned self] success in
-                    self.autoCompleteTableView.hidden = true
+                    self.autoCompleteTableView.isHidden = true
                 })
         }
     }
     
     func showAutoComplete(){
-        autoCompleteTableView.hidden = false
-        UIView.animateWithDuration(0.1, animations: { [unowned self] in
+        autoCompleteTableView.isHidden = false
+        UIView.animate(withDuration: 0.1, animations: { [unowned self] in
             self.autoCompleteTopLayoutConstraint.constant = 0
             self.view.layoutIfNeeded()
         })
     }
     
-    func keyboardWillShow(notification:NSNotification){
-        if let rect = notification.userInfo?[UIKeyboardFrameEndUserInfoKey]?.CGRectValue {
-            let keyboardRect = view.convertRect(rect, fromView: nil)
+    func keyboardWillShow(_ notification:Notification){
+        if let rect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue {
+            let keyboardRect = view.convert(rect, from: nil)
             autoCompleteBottomLayoutConstraint.constant = keyboardRect.height
         }
     }
@@ -320,13 +320,13 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
 
 
     // MARK: Save Methods
-    private func attemptSave(){
+    fileprivate func attemptSave(){
         activityIndicator.startAnimating()
         
-        if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.AuthorizedWhenInUse && annotation == nil {
+        if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.authorizedWhenInUse && annotation == nil {
             attemptToSave = true
             locationManager.requestLocation()
-            forceSaveTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: Constants.Selectors.ForceSave, userInfo: nil, repeats: false)
+            forceSaveTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: Constants.Selectors.ForceSave, userInfo: nil, repeats: false)
         }
         else {
             save()
@@ -341,11 +341,11 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         }
     }
     
-    private func save(){
-        func compareImages(image1:UIImage, image2:UIImage)->Bool{
+    fileprivate func save(){
+        func compareImages(_ image1:UIImage, image2:UIImage)->Bool{
             let imgData1 = UIImagePNGRepresentation(image1)
             let imgData2 = UIImagePNGRepresentation(image2)
-            return imgData1!.isEqualToData(imgData2!)
+            return (imgData1! == imgData2!)
         }
         
         forceSaveTimer.invalidate()
@@ -357,28 +357,28 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         if isEditMode {
             RequestManager.updateNote(&note!, caption: text, photo: photo, location: annotation?.coordinate)
         } else {
-            RequestManager.createNote(text, photo: photo, location: annotation?.coordinate)
+            _ = RequestManager.createNote(text, photo: photo, location: annotation?.coordinate)
         }
         RequestManager.save()
         
-        performSegueWithIdentifier(Constants.Segues.UnwindToHome, sender: self)
+        performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
     }
     
         
     
     // MARK: LocationManager Protocol
-    func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-        if status == .AuthorizedWhenInUse {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedWhenInUse {
             mapView.showsUserLocation = true
             locationManager.requestLocation()
         }
     }
 
-    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         //print(error)
     }
     
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if annotation == nil, let coordinate = locations.first?.coordinate {
             addPin(coordinate)
         }
@@ -389,25 +389,25 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     
 
     // MARK: MapView Protocol
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         if annotation.isEqual(mapView.userLocation){ return nil }
         
-        let view = mapView.dequeueReusableAnnotationViewWithIdentifier(Constants.AnnotationIdentifiers.MapAnnotation) ?? MKPinAnnotationView(annotation: annotation, reuseIdentifier: Constants.AnnotationIdentifiers.MapAnnotation) as MKPinAnnotationView
+        let view = mapView.dequeueReusableAnnotationView(withIdentifier: Constants.AnnotationIdentifiers.MapAnnotation) ?? MKPinAnnotationView(annotation: annotation, reuseIdentifier: Constants.AnnotationIdentifiers.MapAnnotation) as MKPinAnnotationView
         
         view.annotation = annotation
-        view.draggable = mapView == toggleView.primaryView
-        view.userInteractionEnabled = true
+        view.isDraggable = mapView == toggleView.primaryView
+        view.isUserInteractionEnabled = true
         (view as! MKPinAnnotationView).animatesDrop = true
 
         return view
     }
     
-    func mapView(mapView: MKMapView, didAddAnnotationViews views: [MKAnnotationView]) {
-        performSelector(Constants.Selectors.CenterMap, withObject: nil, afterDelay: 0.5)
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+        perform(Constants.Selectors.CenterMap, with: nil, afterDelay: 0.5)
     }
     
-    func addPin(coordinate:CLLocationCoordinate2D){
+    func addPin(_ coordinate:CLLocationCoordinate2D){
         let span:MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
         let region:MKCoordinateRegion = MKCoordinateRegionMake(coordinate, span)
         
@@ -418,7 +418,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         mapView.addAnnotation(annotation!)
     }
     
-    func movePin(coordinate:CLLocationCoordinate2D){
+    func movePin(_ coordinate:CLLocationCoordinate2D){
         if annotation != nil{
             annotation!.coordinate = coordinate
             mapView.removeAnnotations(mapView.annotations)
@@ -431,65 +431,65 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         let coordinate = annotation?.coordinate ?? mapView.annotations.first?.coordinate
         
         if coordinate != nil{
-            mapView.setCenterCoordinate(coordinate!, animated:true)
+            mapView.setCenter(coordinate!, animated:true)
         }
         
     }
     
     // MARK: TableView Protocol
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell : UITableViewCell = tableView.dequeueReusableCellWithIdentifier(Constants.CellIdentifiers.AutoCompleteRowIdentifier, forIndexPath: indexPath) as UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell : UITableViewCell = tableView.dequeueReusableCell(withIdentifier: Constants.CellIdentifiers.AutoCompleteRowIdentifier, for: indexPath) as UITableViewCell
         cell.textLabel!.text = autoCompleteDataSource[indexPath.row]
         return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
-        if let selectedText = tableView.cellForRowAtIndexPath(indexPath)?.textLabel?.text{
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        if let selectedText = tableView.cellForRow(at: indexPath)?.textLabel?.text{
 
             var range = NSRange()
-            range.location = rangeToHash.location.successor()
-            range.length = rangeToHash.length.predecessor()
+            range.location = (rangeToHash.location + 1)
+            range.length = (rangeToHash.length - 1)
             
-            captionTextView.text = (captionTextView.text as NSString).stringByReplacingCharactersInRange(range, withString: selectedText)
+            captionTextView.text = (captionTextView.text as NSString).replacingCharacters(in: range, with: selectedText)
 
             hideAutoComplete()
         }
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return autoCompleteDataSource.count
     }
     
 
     // MARK: TextView Protocol
-    func textViewDidBeginEditing(textView: UITextView) {
-        if textView.textColor == UIColor.lightGrayColor() {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
             textView.text = nil
             textView.textColor = Colors.Text
         }
     }
     
-    func textViewDidEndEditing(textView: UITextView) {
+    func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = Constants.Text.PlaceholderText
-            textView.textColor = UIColor.lightGrayColor()
+            textView.textColor = UIColor.lightGray
         }
     }
     
-    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 
         func checkForMatch() ->Bool{
-            autoCompleteDataSource.removeAll(keepCapacity: false)
+            autoCompleteDataSource.removeAll(keepingCapacity: false)
             autoCompleteTableView.reloadData()
 
             if textView.text != nil {
-                let changedText = (textView.text! as NSString).stringByReplacingCharactersInRange(range, withString: text)
+                let changedText = (textView.text! as NSString).replacingCharacters(in: range, with: text)
                 
                 var rangeFromStart = NSRange()
                 rangeFromStart.location = 0
                 rangeFromStart.length = range.location
                 
-                let hashRange = (changedText as NSString).rangeOfString("#", options: .BackwardsSearch, range: rangeFromStart, locale: nil)
+                let hashRange = (changedText as NSString).range(of: "#", options: .backwards, range: rangeFromStart, locale: nil)
                 
                 if hashRange.location < changedText.characters.count{
                     
@@ -497,12 +497,12 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                     rangeToHash.location = hashRange.location
                     rangeToHash.length = range.location - hashRange.location + text.characters.count
 
-                    let whiteSpaceRange = (changedText as NSString).rangeOfString("[^\\w#]", options: .RegularExpressionSearch, range: rangeToHash, locale: nil)
+                    let whiteSpaceRange = (changedText as NSString).range(of: "[^\\w#]", options: .regularExpression, range: rangeToHash, locale: nil)
                     
                     if whiteSpaceRange.location > changedText.characters.count{
-                        tagSearch = (changedText as NSString).substringWithRange(rangeToHash)
+                        tagSearch = (changedText as NSString).substring(with: rangeToHash)
 
-                        if let tags = RequestManager.getTags(tagSearch.substringFromIndex(tagSearch.startIndex.successor())){
+                        if let tags = RequestManager.getTags(tagSearch.substring(from: tagSearch.characters.index(after: tagSearch.startIndex))){
                             autoCompleteDataSource = tags.map(){$0.name!}
                             autoCompleteTableView.reloadData()
                         }
@@ -520,7 +520,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             
         }
         
-        checkForMatch()
+        _ = checkForMatch()
         return true
     }
     
@@ -528,20 +528,20 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     // MARK: UIToggleView Protocol
     func toggleViewDidToggle(){
         
-        mapView.scrollEnabled = (mapView == toggleView.primaryView)
+        mapView.isScrollEnabled = (mapView == toggleView.primaryView)
         if annotation != nil {
-            mapView.setCenterCoordinate(annotation!.coordinate, animated: true)
-            if let annotationView = mapView.viewForAnnotation(annotation!){
-                annotationView.draggable = mapView.scrollEnabled
+            mapView.setCenter(annotation!.coordinate, animated: true)
+            if let annotationView = mapView.view(for: annotation!){
+                annotationView.isDraggable = mapView.isScrollEnabled
             }
         }
         
-        cameraButton.hidden = toggleView.primaryView != imageView
+        cameraButton.isHidden = toggleView.primaryView != imageView
 
-        if !cameraButton.hidden {
+        if !cameraButton.isHidden {
             cameraButton.frame.origin.y -= cameraButton.frame.height
             
-            UIView.animateWithDuration(0.30, delay: 0.07, options: .CurveEaseOut,
+            UIView.animate(withDuration: 0.30, delay: 0.07, options: .curveEaseOut,
                 animations: { [unowned self] in
                     self.cameraButton.frame.origin.y += self.cameraButton.frame.height
                 },
@@ -550,7 +550,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     func toggleViewWillToggle(){
-        cameraButton.hidden = true
+        cameraButton.isHidden = true
     }
 
 }
@@ -558,33 +558,33 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
 class Overlay : UIVisualEffectView {
     
 
-    func show(completion:((success:Bool)->Void)?=nil){
+    func show(_ completion:((_ success:Bool)->Void)?=nil){
         effect = nil
-        hidden = false
+        isHidden = false
         
-        UIView.animateWithDuration(0.25, delay: 0, options: .CurveEaseOut,
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut,
             animations: { [unowned self] in
-                self.effect = UIBlurEffect(style: .Light)
+                self.effect = UIBlurEffect(style: .light)
             },
             completion: { success in
                 if completion != nil {
-                    completion!(success:success)
+                    completion!(success)
                 }
             }
         )
     }
     
-    func hide(completion:((success:Bool)->Void)?=nil){
-        hidden = false
+    func hide(_ completion:((_ success:Bool)->Void)?=nil){
+        isHidden = false
         
-        UIView.animateWithDuration(0.25, delay: 0, options: .CurveEaseOut,
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut,
             animations: { [unowned self] in
                 self.effect = nil
             },
             completion: { [unowned self] success in
-                self.hidden = true
+                self.isHidden = true
                 if completion != nil {
-                    completion!(success:success)
+                    completion!(success)
                 }
             }
         )

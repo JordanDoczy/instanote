@@ -7,57 +7,81 @@
 //
 
 import UIKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
 
-class FetchImageOperation: NSOperation {
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+
+class FetchImageOperation: Operation {
 
     struct Constants{
         static let isExecuting = "isExecuting"
         static let isFinished = "isFinished"
         struct Selectors{
-            static let Start:Selector = "start"
-            static let Finished:Selector = "finished:"
+            static let Start:Selector = #selector(Operation.start)
+            static let Finished:Selector = #selector(FetchImageOperation.finished(_:))
         }
     }
     
-    var imageURL:NSURL?
+    var imageURL:URL?
     var image:UIImage?
     
-    required init(imageURL:NSURL){
+    required init(imageURL:URL){
         self.imageURL = imageURL
     }
     
-    override var asynchronous:Bool {
+    override var isAsynchronous:Bool {
         return true
     }
     
     var _isFinished = false
-    override var finished:Bool {
+    override var isFinished:Bool {
         get{
             return _isFinished
         }
     }
     
     var _isExecuting = false
-    override var executing:Bool {
+    override var isExecuting:Bool {
         get{
             return _isExecuting
         }
     }
     
     override func start() {
-        if self.cancelled { return }
+        if self.isCancelled { return }
 
 //        if !NSThread.isMainThread() {
 //            performSelectorOnMainThread(Constants.Selectors.Start, withObject: nil, waitUntilDone: false)
 //            return
 //        }
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [unowned self] in
-            self.willChangeValueForKey(Constants.isExecuting)
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.userInitiated).async { [unowned self] in
+            self.willChangeValue(forKey: Constants.isExecuting)
             self._isExecuting = true
-            self.didChangeValueForKey(Constants.isExecuting)
+            self.didChangeValue(forKey: Constants.isExecuting)
 
-            if let imageData = NSData(contentsOfURL: self.imageURL!) {
-                dispatch_async(dispatch_get_main_queue()) { [unowned self] in
+            if let imageData = try? Data(contentsOf: self.imageURL!) {
+                DispatchQueue.main.async { [unowned self] in
                     self.finished(imageData)
                 }
             } else {
@@ -67,35 +91,35 @@ class FetchImageOperation: NSOperation {
     }
     
     func failed(){
-        willChangeValueForKey(Constants.isExecuting)
-        willChangeValueForKey(Constants.isFinished)
+        willChangeValue(forKey: Constants.isExecuting)
+        willChangeValue(forKey: Constants.isFinished)
         
         _isExecuting = false
         _isFinished = true
         
-        didChangeValueForKey(Constants.isExecuting)
-        didChangeValueForKey(Constants.isFinished)
+        didChangeValue(forKey: Constants.isExecuting)
+        didChangeValue(forKey: Constants.isFinished)
     }
     
-    func finished(imageData:NSData){
+    func finished(_ imageData:Data){
 
-        if self.cancelled { return }
-        let imageData = NSData(contentsOfURL:imageURL!)
+        if self.isCancelled { return }
+        let imageData = try? Data(contentsOf: imageURL!)
         
-        if self.cancelled { return }
-        if imageData?.length > 0 {
+        if self.isCancelled { return }
+        if imageData?.count > 0 {
             image = UIImage(data:imageData!)
         }
         
-        if self.cancelled { return }
-        willChangeValueForKey(Constants.isExecuting)
-        willChangeValueForKey(Constants.isFinished)
+        if self.isCancelled { return }
+        willChangeValue(forKey: Constants.isExecuting)
+        willChangeValue(forKey: Constants.isFinished)
         
         _isExecuting = false
         _isFinished = true
         
-        didChangeValueForKey(Constants.isExecuting)
-        didChangeValueForKey(Constants.isFinished)
+        didChangeValue(forKey: Constants.isExecuting)
+        didChangeValue(forKey: Constants.isFinished)
     }
     
 }

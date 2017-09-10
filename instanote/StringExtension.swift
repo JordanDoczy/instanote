@@ -10,24 +10,24 @@ import Foundation
 
 extension String{
     
-    func rangesForRegex(regex: String!) -> [NSRange]? {
+    func rangesForRegex(_ regex: String!) -> [NSRange]? {
         
         do {
             let regex = try NSRegularExpression(pattern: regex, options: [])
             let nsString = self as NSString
-            let results = regex.matchesInString(self, options: [], range: NSMakeRange(0, nsString.length))
+            let results = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
             return results.map { $0.range }
         } catch { }
         return nil
     }
     
-    func matchesForRegex(regex: String!) -> [String]? {
+    func matchesForRegex(_ regex: String!) -> [String]? {
         
         do {
             let regex = try NSRegularExpression(pattern: regex, options: [])
             let nsString = self as NSString
-            let results = regex.matchesInString(self, options: [], range: NSMakeRange(0, nsString.length))
-            return results.map { nsString.substringWithRange($0.range)}
+            let results = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
+            return results.map { nsString.substring(with: $0.range)}
         } catch {}
 
         return nil

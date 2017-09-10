@@ -21,14 +21,14 @@ class Tag: NSManagedObject {
         }
     }
     
-    func addNote(note:Note){
-        mutableSetValueForKey(Constants.Relationships.Notes).addObject(note)
+    func addNote(_ note:Note){
+        mutableSetValue(forKey: Constants.Relationships.Notes).add(note)
     }
-    func removeNote(note:Note){
-        mutableSetValueForKey(Constants.Relationships.Notes).removeObject(note)
+    func removeNote(_ note:Note){
+        mutableSetValue(forKey: Constants.Relationships.Notes).remove(note)
     }
 
-    func debug(prepend:String=""){
+    func debug(_ prepend:String=""){
         print(prepend + name!)
     }
     

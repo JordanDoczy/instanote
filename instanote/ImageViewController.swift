@@ -14,14 +14,13 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     var note:Note?
 
     // MARK: Private Memebers
-    private struct Constants{
+    fileprivate struct Constants{
         struct Selectors{
-            static let DoubleTap:Selector = "doubleTap:"
-            static let Pinch:Selector = "pinch:"
+            static let DoubleTap:Selector = #selector(ImageViewController.doubleTap(_:))
         }
     }
     
-    private lazy var imageView:UIImageView = {
+    fileprivate lazy var imageView:UIImageView = {
         let lazy = UIImageView()
         return lazy
     }()
@@ -45,14 +44,14 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     }
     
     // MARK: Overrides
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden : Bool {
         return true
     }
     
     // MARK: UIGestureRecognizers
-    func doubleTap(sender:UITapGestureRecognizer){
+    func doubleTap(_ sender:UITapGestureRecognizer){
         
-        let pointInView = sender.locationInView(imageView)
+        let pointInView = sender.location(in: imageView)
         let zoomScale = scrollView.zoomScale > scrollView.minimumZoomScale ? scrollView.minimumZoomScale :scrollView.maximumZoomScale
         let scrollViewSize = scrollView.bounds.size
         let w = scrollViewSize.width / zoomScale
@@ -60,27 +59,27 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
         let x = pointInView.x - (w / 2.0)
         let y = pointInView.y - (h / 2.0)
         
-        let rectToZoomTo = CGRectMake(x, y, w, h);
-        scrollView.zoomToRect(rectToZoomTo, animated: true)
+        let rectToZoomTo = CGRect(x: x, y: y, width: w, height: h);
+        scrollView.zoom(to: rectToZoomTo, animated: true)
     }
     
     // MARK: ScrollView Protocol
-    func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
     }
     
-    func scrollViewDidZoom(scrollView: UIScrollView) {
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
         centerScrollViewContents()
     }
     
     // MARK: Private Methods
-    private func addPhoto(){
+    fileprivate func addPhoto(){
         if let imageURLString = note!.imagePath{
             if imageURLString == Assets.SampleImage || imageURLString == Assets.DefaultImage{
                 setImage(UIImage(named: imageURLString)!)
             }
-            else if let imageURL = NSURL(string: imageURLString){
-                UIImage.fetchImage(imageURL) { [weak self] image, response in
+            else if let imageURL = URL(string: imageURLString){
+                _ = UIImage.fetchImage(imageURL) { [weak self] (image, _) in
                     if image != nil{
                         self?.setImage(image!)
                     }
@@ -92,7 +91,7 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     }
     
     
-    private func setImage(image:UIImage){
+    fileprivate func setImage(_ image:UIImage){
         imageView.image = image
         imageView.frame.size = image.size
         
@@ -107,7 +106,7 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
         centerScrollViewContents()
     }
     
-    private func centerScrollViewContents() {
+    fileprivate func centerScrollViewContents() {
         let boundsSize = scrollView.bounds.size
         var contentsFrame = imageView.frame
         

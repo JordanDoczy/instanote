@@ -47,27 +47,27 @@ class Note: NSManagedObject, MKAnnotation {
 
     }
     var subtitle: String? {
-        let str:String? = date != nil ? formateDate(date!) : nil
+        let str:String? = date != nil ? formateDate(date! as Date) : nil
         return str != title ? str : nil
     }
     
-    func formateDate(date:NSDate)->String{
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateStyle = .ShortStyle
-        dateFormatter.timeStyle = .ShortStyle
+    func formateDate(_ date:Date)->String{
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
         dateFormatter.doesRelativeDateFormatting = true
-        return dateFormatter.stringFromDate(date)
+        return dateFormatter.string(from: date)
     }
     
-    func addTag(tag:Tag){
-        mutableSetValueForKey(Constants.Relationships.Tags).addObject(tag)
+    func addTag(_ tag:Tag){
+        mutableSetValue(forKey: Constants.Relationships.Tags).add(tag)
     }
     
-    func removeTag(tag:Tag){
-        mutableSetValueForKey(Constants.Relationships.Tags).removeObject(tag)
+    func removeTag(_ tag:Tag){
+        mutableSetValue(forKey: Constants.Relationships.Tags).remove(tag)
     }
     
-    func debug(prepend:String = "Note:"){
+    func debug(_ prepend:String = "Note:"){
         if caption != nil{
             print(prepend + caption!)
         }
@@ -76,7 +76,7 @@ class Note: NSManagedObject, MKAnnotation {
         }
         if tags != nil{
             for tag in tags!{
-                tag.debug("\ttag:")
+                (tag as AnyObject).debug("\ttag:")
             }
         }
         if location != nil {
