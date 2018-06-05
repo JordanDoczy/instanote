@@ -49,7 +49,7 @@ class ImageViewController : UIViewController, NoteDataSource, UIScrollViewDelega
     }
     
     // MARK: UIGestureRecognizers
-    func doubleTap(_ sender:UITapGestureRecognizer){
+    @objc func doubleTap(_ sender:UITapGestureRecognizer){
         
         let pointInView = sender.location(in: imageView)
         let zoomScale = scrollView.zoomScale > scrollView.minimumZoomScale ? scrollView.minimumZoomScale :scrollView.maximumZoomScale

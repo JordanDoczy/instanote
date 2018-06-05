@@ -24,7 +24,7 @@ class Location: NSManagedObject, MKAnnotation {
     }
     
     var coordinate: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: CLLocationDegrees(lat!), longitude: CLLocationDegrees(long!))
+        return CLLocationCoordinate2D(latitude: CLLocationDegrees(truncating: lat!), longitude: CLLocationDegrees(truncating: long!))
     }
 
     func addNote(_ note:Note){

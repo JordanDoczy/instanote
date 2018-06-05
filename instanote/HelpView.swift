@@ -32,23 +32,23 @@ class HelpView : UIVisualEffectView {
         }
     }
     
-    func close(_ sender:UITapGestureRecognizer){
+    @objc func close(_ sender:UITapGestureRecognizer){
         removeGestureRecognizer(sender)
         hide()
     }
 
     
-    fileprivate lazy var label:UILabel = { [unowned self] in
-       let lazy = UILabel()
-        lazy.text = "Tap an item to see more details.\rPress and hold to edit."
-        lazy.font = Fonts.Normal
-        lazy.textColor = Colors.Text
-        lazy.lineBreakMode = .byWordWrapping
-        lazy.numberOfLines = 0
-        lazy.textAlignment = .center
-        lazy.frame.size = CGSize(width: 300, height: 100)
-        self.addSubview(lazy)
-        return lazy
+    fileprivate lazy var label: UILabel = { [unowned self] in
+       let label = UILabel()
+        label.text = "Tap an item to see more details.\rPress and hold to edit."
+        label.font = Fonts.Normal
+        label.textColor = Colors.Text
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.frame = self.contentView.frame
+        self.contentView.addSubview(label)
+        return label
     }()
     
     func show(_ frame:CGRect){

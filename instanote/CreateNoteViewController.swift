@@ -244,7 +244,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     // MARK: Gesture Recognizers
-    func dropPin(_ sender:UILongPressGestureRecognizer){
+    @objc func dropPin(_ sender:UILongPressGestureRecognizer){
         let coordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
 
         if sender.state == UIGestureRecognizerState.began {
@@ -310,7 +310,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         })
     }
     
-    func keyboardWillShow(_ notification:Notification){
+    @objc func keyboardWillShow(_ notification:Notification){
         if let rect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue {
             let keyboardRect = view.convert(rect, from: nil)
             autoCompleteBottomLayoutConstraint.constant = keyboardRect.height
@@ -335,7 +335,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     
     
     // not private so forceTimer can call
-    func forceSave(){
+    @objc func forceSave(){
         if attemptToSave {
             save()
         }
@@ -426,7 +426,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         }
     }
     
-    func centerMap(){
+    @objc func centerMap(){
         
         let coordinate = annotation?.coordinate ?? mapView.annotations.first?.coordinate
         
@@ -491,18 +491,18 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                 
                 let hashRange = (changedText as NSString).range(of: "#", options: .backwards, range: rangeFromStart, locale: nil)
                 
-                if hashRange.location < changedText.characters.count{
+                if hashRange.location < changedText.count{
                     
                     rangeToHash = NSRange()
                     rangeToHash.location = hashRange.location
-                    rangeToHash.length = range.location - hashRange.location + text.characters.count
+                    rangeToHash.length = range.location - hashRange.location + text.count
 
                     let whiteSpaceRange = (changedText as NSString).range(of: "[^\\w#]", options: .regularExpression, range: rangeToHash, locale: nil)
                     
-                    if whiteSpaceRange.location > changedText.characters.count{
+                    if whiteSpaceRange.location > changedText.count{
                         tagSearch = (changedText as NSString).substring(with: rangeToHash)
-
-                        if let tags = RequestManager.getTags(tagSearch.substring(from: tagSearch.characters.index(after: tagSearch.startIndex))){
+                        let startIndex = tagSearch.index(after: tagSearch.startIndex)
+                        if let tags = RequestManager.getTags(String(tagSearch[startIndex...])) {
                             autoCompleteDataSource = tags.map(){$0.name!}
                             autoCompleteTableView.reloadData()
                         }

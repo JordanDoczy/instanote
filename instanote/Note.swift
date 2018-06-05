@@ -68,22 +68,22 @@ class Note: NSManagedObject, MKAnnotation {
     }
     
     func debug(_ prepend:String = "Note:"){
-        if caption != nil{
-            print(prepend + caption!)
+        if let caption = caption {
+            print(prepend + caption)
         }
-        if date != nil{
-            print("\tdate:"+"\(date!)")
+        if let date = date {
+            print("\tdate:"+"\(date)")
         }
-        if tags != nil{
-            for tag in tags!{
-                (tag as AnyObject).debug("\ttag:")
+        if let tags = tags {
+            tags.forEach { tag in
+                (tag as? Tag)?.debug("\ttag:")
             }
         }
-        if location != nil {
-            location!.debug("\tlocation:")
+        if let location = location {
+            location.debug("\tlocation:")
         }
-        if photo != nil {
-            print("\tphoto:"+photo!)
+        if let photo = photo {
+            print("\tphoto:"+photo)
         }
     }
 

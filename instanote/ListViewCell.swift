@@ -8,9 +8,9 @@
 
 import UIKit
 
-@objc protocol ListViewCellDelegate {
-    @objc optional func listViewCellLinkClicked(_ data:String)
-    @objc optional func listViewCellSelected(_ cell:ListViewCell)
+protocol ListViewCellDelegate: class {
+    func listViewCellLinkClicked(_ data:String)
+    func listViewCellSelected(_ cell:ListViewCell)
 }
 
 class ListViewCell: UITableViewCell, UITextViewDelegate {
@@ -18,9 +18,6 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     struct Constants {
         struct CellIdentifiers {
             static let TagCell = "TagCell"
-        }
-        struct Selectors{
-            static let Pressed:Selector = #selector(ListViewCell.pressed(_:))
         }
     }
     
@@ -84,13 +81,12 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                 
                 if let ranges = string.rangesForRegex("\\#+\\w+") {
                     
-                    var attributes = [String : Any]()
+                    var attributes = [NSAttributedStringKey : Any]()
                     let attributedString = NSMutableAttributedString(string: string, attributes: attributes)
-                    
-                    attributes[NSBackgroundColorAttributeName] = Colors.Tag
+                    attributes[.backgroundColor] = Colors.Tag
                     
                     _ = ranges.map() {
-                        attributes[NSLinkAttributeName] = URL(string: (string as NSString).substring(with: $0))
+                        attributes[.link] = URL(string: (string as NSString).substring(with: $0))
                         attributedString.setAttributes(attributes, range: $0)
 
                     }
@@ -112,7 +108,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
             labelForDate.text = newValue
         }
     }
-    weak var delegate:ListViewCellDelegate?
+    weak var delegate: ListViewCellDelegate?
     weak var imageFetchTask:URLSessionDataTask?
     var imageURL:String?=""{
         didSet{
@@ -162,31 +158,38 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     func initialize(){
-        let press = UILongPressGestureRecognizer(target: self, action: Constants.Selectors.Pressed)
+        let press = UILongPressGestureRecognizer(target: self, action: #selector(pressed(_:)))
         press.minimumPressDuration = 0.25
         addGestureRecognizer(press)
     }
     
-    func pressed(_ sender:UILongPressGestureRecognizer){
-        if sender.state == .began{
+    @objc func pressed(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
             pressIndicator.frame.size.width = 0
             UIView.animate(withDuration: 0.33,
-                animations: { [weak self] in
-                    if let cell = self{
-                        cell.pressIndicator.frame.size.width = cell.frame.width
-                    }
+                           animations: { [weak self] in
+                            if let cell = self {
+                                cell.pressIndicator.frame.size.width = cell.frame.width
+                            }
                 },
-                completion: { [weak self] success in
-                    if success {
-                        if let cell = self{
-                            cell.delegate?.listViewCellSelected?(cell)
-                        }
-                    }
-                })
-        }
-        else{
-            pressIndicator.frame.size.width = 0
+                           completion: { [weak self] success in
+                            if success, let cell = self {
+                                cell.delegate?.listViewCellSelected(cell)
+                            }
+            })
+        case .cancelled, .failed, .ended:
             pressIndicator.layer.removeAllAnimations()
+            UIView.animate(withDuration: 0.15,
+                           delay: 0.25,
+                           options: .curveLinear,
+                           animations: { [weak self] in
+                            if let cell = self {
+                                cell.pressIndicator.frame.size.width = 0
+                            }
+                },
+                           completion: nil)
+        default: break
         }
     }
     
@@ -196,7 +199,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
-        delegate?.listViewCellLinkClicked?(URL.absoluteString)
+        delegate?.listViewCellLinkClicked(URL.absoluteString)
         return false
     }
     

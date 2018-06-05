@@ -54,11 +54,11 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
     }
     
-    fileprivate lazy var helpView:HelpView = { [unowned self] in
-       let lazy = HelpView()
-        self.view.superview!.addSubview(lazy)
-        lazy.delegate = self
-        return lazy
+    fileprivate lazy var helpView: HelpView = { [unowned self] in
+       let helpView = HelpView()
+        self.view.addSubview(helpView)
+        helpView.delegate = self
+        return helpView
     }()
     fileprivate var fetchImageOperationQueue:OperationQueue = OperationQueue()
     fileprivate var fetchedResultsController: NSFetchedResultsController<NSFetchRequestResult>!
@@ -66,9 +66,9 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     fileprivate var selectedCellIndexPath:IndexPath?
     fileprivate var selectedNote:Note?
     
-    fileprivate lazy var prototypeCell:ListViewCell = { [unowned self] in
-        var lazy = self.tableView.dequeueReusableCell(withIdentifier: Constants.CellIdentifiers.ListViewCell) as! ListViewCell
-        return lazy
+    fileprivate lazy var prototypeCell: ListViewCell = { [unowned self] in
+        var prototypeCell = self.tableView.dequeueReusableCell(withIdentifier: Constants.CellIdentifiers.ListViewCell) as! ListViewCell
+        return prototypeCell
     }()
     
     
@@ -113,7 +113,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     
     
     // MARK: UITapGestureRecognizers
-    func closeSearch(_ sender:UITapGestureRecognizer?=nil){
+    @objc func closeSearch(_ sender:UITapGestureRecognizer?=nil){
         searchBar.resignFirstResponder()
     }
     
@@ -137,7 +137,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     
     // MARK: Private Methods
-    func cellSelected(_ sender:UILongPressGestureRecognizer){
+    @objc func cellSelected(_ sender:UILongPressGestureRecognizer){
         if sender.state == .began {
             
             if let cell = sender.view as? ListViewCell{

@@ -26,12 +26,12 @@ class CameraViewController: UIViewController {
     
     // MARK: Private Members
     fileprivate lazy var captureDevice : AVCaptureDevice? = {
-        let lazy = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
+        let lazy = AVCaptureDevice.default(for: AVMediaType.video)
         return lazy
     }()
     fileprivate lazy var captureSession:AVCaptureSession = {
         let lazy = AVCaptureSession()
-        lazy.sessionPreset = AVCaptureSessionPreset640x480
+        lazy.sessionPreset = AVCaptureSession.Preset.vga640x480
         return lazy
     }()
     fileprivate var capturedImage:UIImage?
@@ -124,14 +124,14 @@ class CameraViewController: UIViewController {
     // MARK: Camera Methods
     fileprivate func setUpCamera(){
         do {
-            input = try AVCaptureDeviceInput(device: captureDevice)
-            captureSession.addInput(input)
+            input = try AVCaptureDeviceInput(device: captureDevice!)
+            captureSession.addInput(input!)
             captureSession.addOutput(output)
 
             previewView.frame = CGRect(origin: CGPoint(x:spacer, y:spacer), size: CGSize(width: view.frame.width - (spacer * 2), height: view.frame.width - (spacer * 2)))
             previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             previewLayer!.frame = CGRect(origin: CGPoint.zero, size: previewView.frame.size)
-            previewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+            previewLayer!.videoGravity = AVLayerVideoGravity.resizeAspectFill
             previewView.layer.addSublayer(previewLayer!)
             previewView.addSubview(focusIndicator)
             previewView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: Constants.Selectors.Focus))
@@ -168,7 +168,7 @@ class CameraViewController: UIViewController {
         }
     }
     
-    func focus(_ sender:UITapGestureRecognizer){
+    @objc func focus(_ sender:UITapGestureRecognizer){
         func updateFocusPoint(_ point:CGPoint){
             focusIndicator.center = point
             focusIndicator.isHidden = false
@@ -187,21 +187,21 @@ class CameraViewController: UIViewController {
             do {
                 try device.lockForConfiguration()
                 device.focusPointOfInterest = focusPoint
-                device.focusMode = AVCaptureFocusMode.continuousAutoFocus
+                device.focusMode = AVCaptureDevice.FocusMode.continuousAutoFocus
                 device.exposurePointOfInterest = focusPoint
-                device.exposureMode = AVCaptureExposureMode.continuousAutoExposure
+                device.exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
                 device.unlockForConfiguration()
                 updateFocusPoint(sender.location(in: previewView))
             } catch {}
         }
     }
     
-    func shutterPressed(_ sender:UITapGestureRecognizer){
+    @objc func shutterPressed(_ sender:UITapGestureRecognizer){
         shutterButton.depress()
         
-        if let videoConnection = output.connection(withMediaType: AVMediaTypeVideo) {
+        if let videoConnection = output.connection(with: AVMediaType.video) {
             output.captureStillImageAsynchronously(from: videoConnection, completionHandler: { [unowned self] (sampleBuffer, error) in
-                let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
+                let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer!)
                 let dataProvider = CGDataProvider(data: imageData! as CFData)
                 if let cgImage = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: .defaultIntent) {
                     self.capturedImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)

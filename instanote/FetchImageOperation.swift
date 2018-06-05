@@ -101,7 +101,7 @@ class FetchImageOperation: Operation {
         didChangeValue(forKey: Constants.isFinished)
     }
     
-    func finished(_ imageData:Data){
+    @objc func finished(_ imageData:Data){
 
         if self.isCancelled { return }
         let imageData = try? Data(contentsOf: imageURL!)

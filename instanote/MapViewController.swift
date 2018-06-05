@@ -12,7 +12,7 @@ import MapKit
 
 class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, MKMapViewDelegate, UIGestureRecognizerDelegate {
  
-    // MARK: Private Members
+    // MARK: Private Members g
     struct Constants{
         struct CellIdentifiers{
             static let AnnotationViewReuseIdentifier = "annotation"
@@ -83,7 +83,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
     
     
     // MARK: UIGestureRecognizers
-    func annotationPressed(_ sender:UILongPressGestureRecognizer){
+    @objc func annotationPressed(_ sender:UILongPressGestureRecognizer){
         if sender.state == .began {
             if let view = sender.view as? MKAnnotationView{
                 if let note = view.annotation {
@@ -94,7 +94,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         }
     }
     
-    func annotationTapped(_ sender:UITapGestureRecognizer){
+    @objc func annotationTapped(_ sender:UITapGestureRecognizer){
         if let view = sender.view as? MKPinAnnotationView {
             
             if view.annotation!.isEqual(selectedAnnotation){

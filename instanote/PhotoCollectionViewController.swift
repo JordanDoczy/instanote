@@ -75,7 +75,7 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     }
     
     // MARK: UIGestureRecognizers
-    func showImage(_ sender:UITapGestureRecognizer){
+    @objc func showImage(_ sender:UITapGestureRecognizer){
         if let note = getNote(sender.location(in: collectionView)){
             selectedNote = note
             performSegue(withIdentifier: Constants.Segues.ShowImage, sender: self)

@@ -92,7 +92,7 @@ class UIToggleView : UIView {
         }
     }
     
-    func toggleView(_ sender:UITapGestureRecognizer?=nil){
+    @objc func toggleView(_ sender:UITapGestureRecognizer?=nil){
         
         
         expandIndicator?.removeFromSuperview()
