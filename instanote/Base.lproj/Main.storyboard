@@ -75,7 +75,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </activityIndicatorView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="95r-rK-n4I" customClass="UIToggleView" customModule="instanote" customModuleProvider="target">
-                                <rect key="frame" x="-4" y="99" width="383" height="415"/>
+                                <rect key="frame" x="-4" y="99" width="383" height="411"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TU2-tt-jHt">
@@ -96,45 +96,6 @@
                                 <rect key="frame" x="-4" y="100" width="383" height="454"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </tableView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DbR-GZ-wba">
-                                <rect key="frame" x="-4" y="514" width="383" height="40"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sLk-Ge-fyu">
-                                        <rect key="frame" x="0.0" y="0.0" width="383" height="40"/>
-                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="40" id="nfg-mw-en3"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <state key="normal" title="Delete">
-                                            <color key="titleColor" red="1" green="0.26760249349999998" blue="0.25974084739999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="deleteHandler:" destination="sZ0-dk-D6D" eventType="touchUpInside" id="ugj-GY-cNI"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F4H-R3-3Bn">
-                                        <rect key="frame" x="0.0" y="40" width="383" height="40"/>
-                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <state key="normal" title="Cancel">
-                                            <color key="titleColor" red="0.0039215686274509803" green="0.47843137254901957" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="cancelHandler:" destination="sZ0-dk-D6D" eventType="touchUpInside" id="5q5-LC-NX1"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="F4H-R3-3Bn" firstAttribute="trailing" secondItem="sLk-Ge-fyu" secondAttribute="trailing" id="1ns-TV-wle"/>
-                                    <constraint firstItem="sLk-Ge-fyu" firstAttribute="leading" secondItem="DbR-GZ-wba" secondAttribute="leading" id="92j-ru-KRB"/>
-                                    <constraint firstItem="F4H-R3-3Bn" firstAttribute="height" secondItem="sLk-Ge-fyu" secondAttribute="height" id="avK-tF-pHG"/>
-                                    <constraint firstItem="F4H-R3-3Bn" firstAttribute="top" secondItem="sLk-Ge-fyu" secondAttribute="bottom" id="ccc-xN-G3A"/>
-                                    <constraint firstItem="F4H-R3-3Bn" firstAttribute="leading" secondItem="sLk-Ge-fyu" secondAttribute="leading" id="fdE-XQ-gtc"/>
-                                    <constraint firstItem="sLk-Ge-fyu" firstAttribute="top" secondItem="DbR-GZ-wba" secondAttribute="top" id="fe0-IK-nyN"/>
-                                    <constraint firstAttribute="trailing" secondItem="sLk-Ge-fyu" secondAttribute="trailing" id="jtP-X6-nh7"/>
-                                </constraints>
-                            </view>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="caption" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="o5x-tQ-Uzy">
                                 <rect key="frame" x="-4" y="0.0" width="383" height="100"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -145,26 +106,37 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" keyboardType="twitter"/>
                             </textView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1C-VF-6FW">
+                                <rect key="frame" x="0.0" y="510" width="375" height="44"/>
+                                <items>
+                                    <barButtonItem systemItem="trash" id="MOP-pZ-CXu">
+                                        <inset key="imageInsets" minX="10" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                        <connections>
+                                            <action selector="onDeletePressed:" destination="sZ0-dk-D6D" id="IU2-Sq-Wet"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                                <color key="tintColor" red="0.70588235294117652" green="0.29411764705882354" blue="0.54509803921568623" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" red="0.89999997615814209" green="0.89999997615814209" blue="0.89999997615814209" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="b1C-VF-6FW" firstAttribute="trailing" secondItem="tbF-rX-x25" secondAttribute="trailing" id="10F-Il-jGG"/>
+                            <constraint firstItem="b1C-VF-6FW" firstAttribute="top" secondItem="95r-rK-n4I" secondAttribute="bottom" id="31c-fc-aLp"/>
                             <constraint firstItem="TU2-tt-jHt" firstAttribute="trailing" secondItem="95r-rK-n4I" secondAttribute="trailing" constant="-4" id="6rM-Or-MYR"/>
-                            <constraint firstItem="DbR-GZ-wba" firstAttribute="leading" secondItem="xTK-uN-Q9Y" secondAttribute="leadingMargin" constant="-20" id="7iV-7U-mB7"/>
                             <constraint firstItem="FOL-g9-OUC" firstAttribute="trailing" secondItem="o5x-tQ-Uzy" secondAttribute="trailing" id="8oG-8F-10N"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="DbR-GZ-wba" secondAttribute="trailing" constant="-20" id="BHM-jJ-EU8"/>
+                            <constraint firstItem="b1C-VF-6FW" firstAttribute="bottom" secondItem="tbF-rX-x25" secondAttribute="bottom" id="C5N-Cg-D2p"/>
                             <constraint firstItem="95r-rK-n4I" firstAttribute="top" secondItem="o5x-tQ-Uzy" secondAttribute="bottom" constant="-1" id="EfI-ha-HqW"/>
                             <constraint firstItem="TU2-tt-jHt" firstAttribute="top" secondItem="95r-rK-n4I" secondAttribute="top" id="Et7-cs-Nbs"/>
                             <constraint firstItem="o5x-tQ-Uzy" firstAttribute="top" secondItem="tbF-rX-x25" secondAttribute="top" id="UVF-tf-JZJ"/>
-                            <constraint firstItem="tbF-rX-x25" firstAttribute="bottom" secondItem="sLk-Ge-fyu" secondAttribute="bottom" id="WA9-r5-hCS"/>
                             <constraint firstItem="FOL-g9-OUC" firstAttribute="top" secondItem="o5x-tQ-Uzy" secondAttribute="bottom" id="Zol-RY-suE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="95r-rK-n4I" secondAttribute="trailing" constant="-20" id="aUa-Ih-icI"/>
+                            <constraint firstItem="b1C-VF-6FW" firstAttribute="leading" secondItem="tbF-rX-x25" secondAttribute="leading" id="d7d-Te-KME"/>
                             <constraint firstItem="95r-rK-n4I" firstAttribute="leading" secondItem="xTK-uN-Q9Y" secondAttribute="leadingMargin" constant="-20" id="fPD-uo-5jq"/>
                             <constraint firstAttribute="trailingMargin" secondItem="o5x-tQ-Uzy" secondAttribute="trailing" constant="-20" id="gyL-1Z-PZ6"/>
                             <constraint firstItem="tbF-rX-x25" firstAttribute="bottom" secondItem="FOL-g9-OUC" secondAttribute="bottom" id="h8q-6K-FqW"/>
                             <constraint firstItem="o5x-tQ-Uzy" firstAttribute="leading" secondItem="xTK-uN-Q9Y" secondAttribute="leadingMargin" constant="-20" id="hvC-b4-oRh"/>
                             <constraint firstItem="FOL-g9-OUC" firstAttribute="leading" secondItem="o5x-tQ-Uzy" secondAttribute="leading" id="iuY-ta-a3m"/>
-                            <constraint firstItem="DbR-GZ-wba" firstAttribute="top" secondItem="95r-rK-n4I" secondAttribute="bottom" id="naC-OM-CBf"/>
-                            <constraint firstItem="tbF-rX-x25" firstAttribute="bottom" secondItem="DbR-GZ-wba" secondAttribute="bottom" id="s9z-ac-sJh"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="tbF-rX-x25"/>
                     </view>
@@ -189,9 +161,6 @@
                         <outlet property="autoCompleteTopLayoutConstraint" destination="Zol-RY-suE" id="p1o-VQ-duP"/>
                         <outlet property="cameraButton" destination="TU2-tt-jHt" id="QQV-NB-AmE"/>
                         <outlet property="captionTextView" destination="o5x-tQ-Uzy" id="YMS-mN-3wz"/>
-                        <outlet property="deleteButton" destination="sLk-Ge-fyu" id="bvr-Ym-ZXW"/>
-                        <outlet property="deleteModal" destination="DbR-GZ-wba" id="6On-ru-Yl2"/>
-                        <outlet property="deleteModalLayoutConstraint" destination="s9z-ac-sJh" id="lrM-J4-oBn"/>
                         <outlet property="dismissButton" destination="l8I-GO-dHc" id="ZaH-oC-JZm"/>
                         <outlet property="saveButton" destination="6P7-2c-CtZ" id="AKH-3d-VxX"/>
                         <outlet property="toggleView" destination="95r-rK-n4I" id="wMt-Ac-bUy"/>
@@ -415,7 +384,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                        <color key="selectedImageTintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="selectedImageTintColor" red="0.70588235290000001" green="0.29411764709999999" blue="0.5450980392" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </tabBar>
                     <connections>
                         <segue destination="Xl2-YO-nz2" kind="presentation" identifier="Choose Photo" id="RbL-3b-xMF"/>
@@ -684,6 +653,6 @@
     <inferredMetricsTieBreakers>
         <segue reference="YsJ-fE-B1V"/>
         <segue reference="tCD-1x-c8N"/>
-        <segue reference="P0N-Vc-95L"/>
+        <segue reference="RbL-3b-xMF"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -46,9 +46,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             static let UnwindToHome = "Unwind To Home"
         }
         struct Selectors{
-            static let CancelHandler:Selector = #selector(CreateNoteViewController.cancelHandler(_:))
             static let CenterMap:Selector = #selector(CreateNoteViewController.centerMap)
-            static let DeleteHandler:Selector = #selector(CreateNoteViewController.deleteHandler(_:))
             static let DropPin:Selector = #selector(CreateNoteViewController.dropPin(_:))
             static let ForceSave:Selector = #selector(CreateNoteViewController.forceSave)
             static let KeyboardWillShow:Selector = #selector(CreateNoteViewController.keyboardWillShow(_:))
@@ -144,9 +142,6 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         }
     }
 
-    @IBOutlet weak var deleteButton: UIButton!
-    @IBOutlet weak var deleteModal: UIView!
-    @IBOutlet weak var deleteModalLayoutConstraint: NSLayoutConstraint!
     @IBOutlet weak var dismissButton: UIBarButtonItem!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var toggleView: UIToggleView! {
@@ -181,18 +176,14 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     // MARK: IBActions
     @IBAction func createNote(_ segue:UIStoryboardSegue) {}
 
+    @IBAction func onDeletePressed(_ sender: UIBarButtonItem) {
+        showDeleteModal()
+    }
+    
     @IBAction func saveHandler(_ sender: UIBarButtonItem?=nil) {
         attemptSave()
     }
     
-    @IBAction func deleteHandler(_ sender: UIButton) {
-        showDeleteModal()
-    }
-    
-    @IBAction func cancelHandler(_ sender: UIButton?=nil) {
-        deleteModalPeek()
-    }
-
     @IBAction func cameraHandler(_ sender: UIButton) {
         
         if isEditMode{
@@ -210,12 +201,11 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         NotificationCenter.default.addObserver(self, selector: Constants.Selectors.KeyboardWillShow, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
         if isEditMode {
-            deleteModalPeek()
             overlay.show()
             overlay.isHidden = true
             view.addSubview(overlay)
         } else {
-            hideDeleteModal()
+            overlay.hide()
         }
         
         hideAutoComplete()
@@ -259,33 +249,25 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     
     
     // MARK: Show / Hide Methods
-    func deleteModalPeek(){
-        if !overlay.isHidden {
-            overlay.hide()
-        }
-        UIView.animate(withDuration: 0.25, animations: { [unowned self] in
-            self.deleteModalLayoutConstraint.constant = self.deleteButton.frame.height - self.deleteModal.frame.height
-            self.view.layoutIfNeeded()
-        }) 
-    }
-    
-    func hideDeleteModal(){
-        self.deleteModalLayoutConstraint.constant = -deleteModal.frame.height
-    }
-    
     func showDeleteModal(){
         if overlay.isHidden {
             overlay.show()
-            view.bringSubview(toFront: deleteModal)
-            UIView.animate(withDuration: 0.25, animations: { [unowned self] in
-                self.deleteModalLayoutConstraint.constant = 0
-                self.view.layoutIfNeeded()
-            })
-        } else {
-            if isEditMode {
-                RequestManager.deleteNote(note!)
-                performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
+            
+            let alertView = UIAlertController()
+            let delete = UIAlertAction(title: "Delete?", style: .destructive) { [weak self] _ in
+                guard let note = self?.note else { return }
+                RequestManager.deleteNote(note)
+                self?.performSegue(withIdentifier: Constants.Segues.UnwindToHome, sender: self)
             }
+            
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in
+                self?.overlay.hide()
+            }
+            
+            alertView.addAction(delete)
+            alertView.addAction(cancel)
+            present(alertView, animated: true, completion: nil)
+            
         }
     }
     
@@ -510,17 +492,16 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
                 }
             }
             
-            if autoCompleteDataSource.count <= 0 {
-                hideAutoComplete()
-            } else {
-                showAutoComplete()
-            }
-            
             return autoCompleteDataSource.count > 0
             
         }
         
-        _ = checkForMatch()
+        if checkForMatch() {
+            showAutoComplete()
+        } else {
+            hideAutoComplete()
+        }
+        
         return true
     }
     

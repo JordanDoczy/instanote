@@ -17,15 +17,9 @@ import UIKit
 class UIToggleView : UIView {
 
     // MARK: Private Memebers
-    fileprivate struct Constants{
-        struct Selectors{
-            static let ToggleView:Selector = #selector(UIToggleView.toggleView(_:))
-        }
-    }
-    
-    fileprivate lazy var tap:UITapGestureRecognizer = { [unowned self] in
-        let lazy = UITapGestureRecognizer(target: self, action: Constants.Selectors.ToggleView)
-        return lazy
+    fileprivate lazy var tap: UITapGestureRecognizer = { [unowned self] in
+        let tap = UITapGestureRecognizer(target: self, action: #selector(toggleView(_:)))
+        return tap
     }()
     
     fileprivate var border:CAShapeLayer?
