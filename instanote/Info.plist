@@ -15,11 +15,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4</string>
+	<string>1.4.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -32,7 +32,7 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>"always"</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Enable location services to add locations to your notes!</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Enable photo library permissions to attach photos to your notes!</string>
 	<key>UILaunchStoryboardName</key>
