@@ -26,11 +26,8 @@ class Note: NSManagedObject, MKAnnotation {
             static let Date = "date"
             static let Photo = "photo"
         }
-        
     }
-    
-    
-    
+
     var coordinate: CLLocationCoordinate2D {
         return location?.coordinate ?? CLLocationCoordinate2D()
     }

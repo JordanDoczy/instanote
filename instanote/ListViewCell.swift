@@ -23,7 +23,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
     
     fileprivate lazy var expandIndicator:UIView = {
         let lazy = UIImageView(image: UIImage(named: Assets.Expand))
-        lazy.image = lazy.image!.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
+        lazy.image = lazy.image!.withRenderingMode(UIImage.RenderingMode.alwaysTemplate)
         lazy.frame.size = CGSize(width: 15, height: 15)
         lazy.tintColor = UIColor.white
         lazy.backgroundColor = Colors.PrimaryTransparent
@@ -67,7 +67,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
             textViewForCaption.text = note?.caption
             textViewForCaption.isUserInteractionEnabled = true
             textViewForCaption.isScrollEnabled = false
-            textViewForCaption.textContainerInset = UIEdgeInsetsMake(0,-5,0,0);
+            textViewForCaption.textContainerInset = UIEdgeInsets(top: 0,left: -5,bottom: 0,right: 0);
 
         }
     }
@@ -81,7 +81,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                 
                 if let ranges = string.rangesForRegex("\\#+\\w+") {
                     
-                    var attributes = [NSAttributedStringKey : Any]()
+                    var attributes = [NSAttributedString.Key : Any]()
                     let attributedString = NSMutableAttributedString(string: string, attributes: attributes)
                     attributes[.backgroundColor] = Colors.Tag
                     
@@ -93,10 +93,6 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
                     
                     textViewForCaption.attributedText = attributedString
                 }
-                
-                
-                
-                
             }
         }
     }
@@ -147,7 +143,7 @@ class ListViewCell: UITableViewCell, UITextViewDelegate {
         }
     }
     
-    override required init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override required init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         initialize()
     }

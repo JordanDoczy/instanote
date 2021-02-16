@@ -56,13 +56,13 @@ class UIToggleView : UIView {
             if expandIndicator != nil{
                 expandIndicator!.frame.origin = CGPoint(x: secondaryView!.frame.width - expandIndicator!.frame.width, y: 0)
                 secondaryView!.addSubview(expandIndicator!)
-                secondaryView!.bringSubview(toFront: expandIndicator!)
+                secondaryView!.bringSubviewToFront(expandIndicator!)
             }
             
             if !subviews.contains(secondaryView!) {
                 addSubview(secondaryView!)
             }
-            bringSubview(toFront: secondaryView!)
+            bringSubviewToFront(secondaryView!)
         }
     }
     

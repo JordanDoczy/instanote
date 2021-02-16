@@ -54,8 +54,7 @@ class PressIndicatorView : UIView {
         animation.duration = duration
         animation.fromValue = 0
         animation.toValue = 1
-        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-//        animation.delegate = self
+        animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.linear)
         circleLayer.strokeEnd = 1.0
         circleLayer.add(animation, forKey: "animateCircle")
     }

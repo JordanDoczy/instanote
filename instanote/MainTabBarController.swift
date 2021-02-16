@@ -51,20 +51,17 @@ class MainTabBarController : UITabBarController, UITabBarControllerDelegate {
                 performSegue(withIdentifier: Constants.Segues.ChoosePhoto, sender: self)
             }
             else{
-                previousSelectedIndex = tabBar.items?.index(of: item) ?? 0
+                previousSelectedIndex = tabBar.items?.firstIndex(of: item) ?? 0
             }
         }
     }
     
-    override func unwind(for unwindSegue: UIStoryboardSegue, towardsViewController subsequentVC: UIViewController) {
+    override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
         selectedIndex = previousSelectedIndex
     }
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool{
         return !(viewController is CameraTabBarController)
     }
-    
 
-    
-    
 }

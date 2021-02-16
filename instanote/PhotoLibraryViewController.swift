@@ -47,7 +47,7 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
 
         
         switch(PHPhotoLibrary.authorizationStatus()){
-        case .authorized:
+        case .authorized, .limited:
             loadData()
         case .denied:
             break
@@ -61,13 +61,15 @@ class PhotoLibraryViewController : UICollectionViewController, UICollectionViewD
             }
         case .restricted:
             break
+        @unknown default:
+            break
         }
     }
     
     func loadData(){
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        results = PHAsset.fetchAssets(with: .image, options: options) as! PHFetchResult<AnyObject>
+        results = PHAsset.fetchAssets(with: .image, options: options) as? PHFetchResult<AnyObject>
         if results.count > 0 {
             collectionView?.reloadData()
         }

@@ -97,7 +97,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         }
 
         tableView.estimatedRowHeight = Constants.TableView.EstimatedRowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.delegate = self
         
         setUpCloseSearchTap()
@@ -256,6 +256,8 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
             break
         case .update:
             break
+        @unknown default:
+            break
         }
 
     }
@@ -337,8 +339,8 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.delete) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCell.EditingStyle.delete) {
             if let note = fetchedResultsController.object(at: indexPath) as? Note{
                 RequestManager.deleteNote(note)
             }
@@ -370,7 +372,7 @@ class NotesViewController: UITableViewController, NSFetchedResultsControllerDele
         if selectedCellIndexPath == indexPath {
             return Constants.TableView.SelectedRowHeight
         }
-        return UITableViewAutomaticDimension
+        return UITableView.automaticDimension
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

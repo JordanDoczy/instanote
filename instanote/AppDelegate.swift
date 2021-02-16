@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window?.tintColor = Colors.Primary
         
         return true
@@ -115,7 +115,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func saveImage(_ image:UIImage)->String?{
         
-        if let imageData = UIImageJPEGRepresentation(image, 1.0){
+        if let imageData = image.jpegData(compressionQuality: 1.0){
             let fileName = "\(Date.timeIntervalSinceReferenceDate).jpg"
             let imageURL = applicationDocumentsDirectory.appendingPathComponent(fileName)
             try? imageData.write(to: imageURL, options: [.atomic])

@@ -135,7 +135,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
             captionTextView.delegate = self
             captionTextView.text = note?.caption ?? Constants.Text.PlaceholderText
             captionTextView.textColor = isEditMode ? Colors.Text : UIColor.lightGray
-            captionTextView.textContainerInset = UIEdgeInsetsMake(10,10,0,10);
+            captionTextView.textContainerInset = UIEdgeInsets(top: 10,left: 10,bottom: 0,right: 10);
             captionTextView.layer.borderColor = Colors.LightGray.cgColor
             captionTextView.layer.borderWidth = 1
             captionTextView.isUserInteractionEnabled = true
@@ -148,7 +148,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         didSet{
             func createExpandIndicator()->UIView{
                 let view = UIImageView(image: UIImage(named: Assets.Expand))
-                view.image = view.image!.withRenderingMode(UIImageRenderingMode.alwaysTemplate)
+                view.image = view.image!.withRenderingMode(UIImage.RenderingMode.alwaysTemplate)
                 view.frame.size = CGSize(width: 20, height: 20)
                 view.tintColor = UIColor.white
                 view.backgroundColor = Colors.PrimaryTransparent
@@ -197,9 +197,12 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     // MARK: View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        NotificationCenter.default.addObserver(self, selector: Constants.Selectors.KeyboardWillShow, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
+        NotificationCenter.default.addObserver(
+            self,
+            selector: Constants.Selectors.KeyboardWillShow,
+            name: UIResponder.keyboardDidShowNotification, object: nil)
+
         if isEditMode {
             overlay.show()
             overlay.isHidden = true
@@ -237,7 +240,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     @objc func dropPin(_ sender:UILongPressGestureRecognizer){
         let coordinate = mapView.convert(sender.location(in: mapView), toCoordinateFrom: mapView)
 
-        if sender.state == UIGestureRecognizerState.began {
+        if sender.state == UIGestureRecognizer.State.began {
             if CLLocationManager.authorizationStatus() != CLAuthorizationStatus.authorizedWhenInUse && annotation == nil {
                 addPin(coordinate)
             }
@@ -293,7 +296,7 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     @objc func keyboardWillShow(_ notification:Notification){
-        if let rect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue {
+        if let rect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue {
             let keyboardRect = view.convert(rect, from: nil)
             autoCompleteBottomLayoutConstraint.constant = keyboardRect.height
         }
@@ -325,8 +328,8 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     
     fileprivate func save(){
         func compareImages(_ image1:UIImage, image2:UIImage)->Bool{
-            let imgData1 = UIImagePNGRepresentation(image1)
-            let imgData2 = UIImagePNGRepresentation(image2)
+            let imgData1 = image1.pngData()
+            let imgData2 = image2.pngData()
             return (imgData1! == imgData2!)
         }
         
@@ -390,8 +393,8 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
     }
     
     func addPin(_ coordinate:CLLocationCoordinate2D){
-        let span:MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
-        let region:MKCoordinateRegion = MKCoordinateRegionMake(coordinate, span)
+        let span:MKCoordinateSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        let region:MKCoordinateRegion = MKCoordinateRegion(center: coordinate, span: span)
         
         mapView.setRegion(region, animated: false)
         

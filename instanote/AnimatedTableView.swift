@@ -14,7 +14,6 @@ class AnimatedTableView : UITableView  {
     var attachedView:UIView = UIView()
 
     func hide(){
-        
         if isHidden == false{
             layer.removeAllAnimations()
             
@@ -27,7 +26,6 @@ class AnimatedTableView : UITableView  {
                     self.isHidden = true
                 })
         }
-
     }
     
     func show(){

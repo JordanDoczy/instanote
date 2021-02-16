@@ -150,7 +150,7 @@ class PhotoCollectionViewController: UICollectionViewController, NSFetchedResult
     
         if let count = fetchedResultsController.fetchedObjects?.count {
             if count > 0 {
-                collectionView?.scrollToItem(at: fetchedResultsController.indexPath(forObject: (fetchedResultsController.fetchedObjects!.first)!)!, at: UICollectionViewScrollPosition(), animated: false)
+                collectionView?.scrollToItem(at: fetchedResultsController.indexPath(forObject: (fetchedResultsController.fetchedObjects!.first)!)!, at: UICollectionView.ScrollPosition(), animated: false)
             }
         }
         

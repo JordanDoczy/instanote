@@ -132,7 +132,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
         let button = UIButton(type: .custom)
         var image = UIImage(named: Assets.Edit)
         image = image?.withRenderingMode(.alwaysTemplate)
-        button.setImage(image, for: UIControlState())
+        button.setImage(image, for: UIControl.State())
         button.tintColor = Colors.Primary
         button.isUserInteractionEnabled = true
         button.sizeToFit()
@@ -191,7 +191,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate, M
             view.leftCalloutAccessoryView!.contentMode  = .scaleAspectFill
         }
         if let thumbnailImage = view.leftCalloutAccessoryView as? UIButton{
-            thumbnailImage.setImage(image, for: UIControlState())
+            thumbnailImage.setImage(image, for: UIControl.State())
         }
         
     }

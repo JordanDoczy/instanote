@@ -47,11 +47,11 @@ class CameraViewController: UIViewController {
     fileprivate var isUnwind:Bool{
         return !(presentingViewController is MainTabBarController)
     }
-    fileprivate lazy var output:AVCaptureStillImageOutput = {
-        let lazy = AVCaptureStillImageOutput()
-        lazy.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+    fileprivate lazy var output:AVCapturePhotoOutput = {
+        let lazy = AVCapturePhotoOutput()
         return lazy
     }()
+    
     fileprivate lazy var overlay:UIView = { [unowned self] in
         let lazy = UIView(frame: self.view.bounds)
         lazy.backgroundColor = Colors.Transparent
@@ -172,7 +172,7 @@ class CameraViewController: UIViewController {
         func updateFocusPoint(_ point:CGPoint){
             focusIndicator.center = point
             focusIndicator.isHidden = false
-            previewView.bringSubview(toFront: focusIndicator)
+            previewView.bringSubviewToFront(focusIndicator)
             UIView.animate(withDuration: 0.33, delay: 0, options: [.repeat, .autoreverse, .curveEaseOut],
                 animations: { [unowned self] in
                     self.focusIndicator.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
@@ -198,23 +198,43 @@ class CameraViewController: UIViewController {
     
     @objc func shutterPressed(_ sender:UITapGestureRecognizer){
         shutterButton.depress()
-        
-        if let videoConnection = output.connection(with: AVMediaType.video) {
-            output.captureStillImageAsynchronously(from: videoConnection, completionHandler: { [unowned self] (sampleBuffer, error) in
-                let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer!)
-                let dataProvider = CGDataProvider(data: imageData! as CFData)
-                if let cgImage = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: .defaultIntent) {
-                    self.capturedImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
-                    if self.isUnwind {
-                        self.performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
-                    } else {
-                        self.performSegue(withIdentifier: Constants.Segues.CreateNote, sender: self)
-                    }
-                }
-            })
-        }
+
+        let settings = AVCapturePhotoSettings()
+        let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
+        let previewFormat = [
+            kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
+            kCVPixelBufferWidthKey as String: 160,
+            kCVPixelBufferHeightKey as String: 160
+        ]
+        settings.previewPhotoFormat = previewFormat
+        output.capturePhoto(with: settings, delegate: self)
     }
 }
+
+extension CameraViewController: AVCapturePhotoCaptureDelegate {
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+
+        if let error = error {
+            print(error.localizedDescription)
+        }
+
+        guard let imageData = photo.fileDataRepresentation() else {
+            return
+        }
+        
+        let img = UIImage(data: imageData)
+        
+        capturedImage = img
+        
+        if isUnwind {
+            performSegue(withIdentifier: Constants.Segues.UnwindToCreateNote, sender: self)
+        } else {
+            performSegue(withIdentifier: Constants.Segues.CreateNote, sender: self)
+        }
+
+    }
+}
+
 
 class ShutterButton : UIButton{
     

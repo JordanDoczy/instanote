@@ -63,7 +63,7 @@ class HelpView : UIVisualEffectView {
             isHidden = false
             
             isUserInteractionEnabled = true
-            superview?.bringSubview(toFront: self)
+            superview?.bringSubviewToFront(self)
             
             self.frame = frame
             label.frame = frame

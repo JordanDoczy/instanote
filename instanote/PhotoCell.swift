@@ -36,7 +36,6 @@ class PhotoCell: UICollectionViewCell {
                         if self?.assetRequested == Int32(id) {
                             self?.imageView.image = image
                         }
-                        
                     }
                 }
                 
