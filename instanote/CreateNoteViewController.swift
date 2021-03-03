@@ -339,10 +339,11 @@ class CreateNoteViewController: UIViewController, CLLocationManagerDelegate, UIT
         let photo:String? = image != nil ? AppDelegate.sharedInstance().saveImage(image!) : note?.photo != nil ? note!.photo : nil
         
         let text = captionTextView.text != Constants.Text.PlaceholderText ? captionTextView.text : ""
+        let location = annotation?.coordinate ?? CLLocationCoordinate2D()
         if isEditMode {
-            RequestManager.updateNote(&note!, caption: text, photo: photo, location: annotation?.coordinate)
+            RequestManager.updateNote(&note!, caption: text, photo: photo, location: location)
         } else {
-            _ = RequestManager.createNote(text, photo: photo, location: annotation?.coordinate)
+            _ = RequestManager.createNote(text, photo: photo, location: location)
         }
         RequestManager.save()
         
