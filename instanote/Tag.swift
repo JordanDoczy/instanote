@@ -27,9 +27,34 @@ class Tag: NSManagedObject {
     func removeNote(_ note:Note){
         mutableSetValue(forKey: Constants.Relationships.Notes).remove(note)
     }
+}
 
-    func debug(_ prepend:String=""){
-        print(prepend + name!)
+// MARK: CoreData
+extension Tag {
+
+    @NSManaged var name: String?
+    @NSManaged var notes: NSSet?
+
+}
+
+// MARK: Fetch Requests
+extension Tag {
+    static func getTagRequest(with name: String) -> NSFetchRequest<Tag> {
+        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
+        request.predicate = NSPredicate(format: "name = %@", name)
+        return request
+    }
+
+    static var getTagsRequest: NSFetchRequest<Tag> {
+        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
+        return request
     }
     
+    static func getTagsRequestWith(with namePrefix: String) -> NSFetchRequest<Tag> {
+        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Tag.name), ascending: true)]
+        request.predicate = NSPredicate(format: "name BEGINSWITH[c] %@", namePrefix)
+        return request
+    }
 }
+

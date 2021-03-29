@@ -12,7 +12,7 @@ import CoreLocation
 import MapKit
 
 class Location: NSManagedObject, MKAnnotation {
-
+    
     struct Constants{
         struct Relationships {
             static let Notes = "notes"
@@ -33,10 +33,29 @@ class Location: NSManagedObject, MKAnnotation {
     func removeNote(_ note:Note){
         mutableSetValue(forKey: Constants.Relationships.Notes).remove(note)
     }
-    func debug(_ prepend:String=""){
-        if lat != nil && long != nil {
-            print(prepend + "\(lat!)" + ":" + "\(long!)")
-        }
-    }
+}
 
+// MARK: CoreData
+extension Location {
+
+    @NSManaged var lat: NSNumber?
+    @NSManaged var long: NSNumber?
+    @NSManaged var notes: NSSet?
+
+}
+
+// MARK: Fetch Requests
+extension Location {
+    static var getLocationsRequest: NSFetchRequest<Location> {
+        let request = Location.fetchRequest() as! NSFetchRequest<Location>
+        return request
+    }
+    
+    static func getLocationsRequest(with coordinate: CLLocationCoordinate2D) -> NSFetchRequest<Location> {
+        let request = Location.fetchRequest() as! NSFetchRequest<Location>
+        let latPredicate = NSPredicate(format: "lat = %d", coordinate.latitude)
+        let longPredicate = NSPredicate(format: "long = %d", coordinate.longitude)
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [latPredicate, longPredicate])
+        return request
+    }
 }

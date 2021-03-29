@@ -8,13 +8,10 @@
 
 import Foundation
 import CoreData
-import CoreLocation
 import MapKit
+import SwiftUI
 
-protocol NoteDataSource {
-    var note: Note? { get set }
-}
-class Note: NSManagedObject, MKAnnotation {
+class Note: NSManagedObject, Identifiable {
     
     struct Constants{
         struct Relationships {
@@ -28,60 +25,121 @@ class Note: NSManagedObject, MKAnnotation {
         }
     }
 
-    var coordinate: CLLocationCoordinate2D {
-        return location?.coordinate ?? CLLocationCoordinate2D()
+    override func prepareForDeletion() {
+        super.prepareForDeletion()
+        _ = deletePhoto()
+    }
+
+    func addTag(_ tag:Tag) {
+        mutableSetValue(forKey: Constants.Relationships.Tags).add(tag)
     }
     
-    var imagePath: String? {
-        if photo != nil {
-            return AppDelegate.sharedInstance().getFilePath(photo!)
+    func removeTag(_ tag:Tag) {
+        mutableSetValue(forKey: Constants.Relationships.Tags).remove(tag)
+    }
+}
+
+// MARK: Attributed String
+extension Note {
+    
+    var captionFormatted: NSMutableAttributedString? {
+        guard let caption = caption,
+              let ranges = caption.rangesForRegex("\\#+\\w+") else {
+            return nil
         }
-        return nil
+        
+        var attributes = [NSAttributedString.Key : Any]()
+        attributes[.font] = UIFont.preferredFont(forTextStyle: .body)
+        attributes[NSAttributedString.Key.foregroundColor] = UIColor.white
+        let attributedString = NSMutableAttributedString(string: caption, attributes: attributes)
+
+        _ = ranges.map() {
+            attributes[.link] = URL(string: (caption as NSString).substring(with: $0))
+            attributes[.backgroundColor] = Color.primaryColor.toUIColor().withAlphaComponent(0.8)
+            attributedString.setAttributes(attributes, range: $0)
+        }
+
+        return attributedString
+    }
+}
+
+
+// MARK: CoreData
+extension Note {
+
+    @NSManaged var date: Date?
+    @NSManaged var photo: String?
+    @NSManaged var caption: String?
+    @NSManaged var location: Location?
+    @NSManaged var tags: NSSet?
+
+}
+
+// MARK: Photo
+extension Note {
+    
+    var imagePath: String? {
+        guard let photo = photo else { return nil }
+        return FileManager.default.getFilePath(photo)
+    }
+    
+    func deletePhoto() -> Bool {
+        if let imagePath = imagePath, let imageURL = URL(string: imagePath) {
+            return FileManager.default.deleteImage(imageURL) // OK with dependency here, since FileManager.default is a native object
+        }
+        return false
+    }
+    
+    func savePhoto(uiImage: UIImage) -> Bool {
+        guard let path = FileManager.default.saveImage(uiImage) else {
+            return false
+        }
+        
+        photo = path
+        return true
+    }
+}
+
+// MARK: MKAnnotation
+extension Note: MKAnnotation {
+    
+    var coordinate: CLLocationCoordinate2D {
+        return location?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
     }
     
     var title: String? {
         return caption != nil ? caption : ""
 
     }
+    
     var subtitle: String? {
+        func formateDate(_ date:Date) -> String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            dateFormatter.timeStyle = .short
+            dateFormatter.doesRelativeDateFormatting = true
+            return dateFormatter.string(from: date)
+        }
+        
         let str:String? = date != nil ? formateDate(date! as Date) : nil
         return str != title ? str : nil
     }
-    
-    func formateDate(_ date:Date)->String{
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
-        dateFormatter.doesRelativeDateFormatting = true
-        return dateFormatter.string(from: date)
-    }
-    
-    func addTag(_ tag:Tag){
-        mutableSetValue(forKey: Constants.Relationships.Tags).add(tag)
-    }
-    
-    func removeTag(_ tag:Tag){
-        mutableSetValue(forKey: Constants.Relationships.Tags).remove(tag)
-    }
-    
-    func debug(_ prepend:String = "Note:"){
-        if let caption = caption {
-            print(prepend + caption)
-        }
-        if let date = date {
-            print("\tdate:"+"\(date)")
-        }
-        if let tags = tags {
-            tags.forEach { tag in
-                (tag as? Tag)?.debug("\ttag:")
-            }
-        }
-        if let location = location {
-            location.debug("\tlocation:")
-        }
-        if let photo = photo {
-            print("\tphoto:"+photo)
-        }
-    }
 
+}
+
+// MARK: Fetch Requests
+extension Note {
+    
+    static var getNotesRequest: NSFetchRequest<Note> {
+        let request = Note.fetchRequest() as! NSFetchRequest<Note>
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Note.date), ascending: false)]
+        return request
+    }
+    
+    static func getNotesRequestWith(with captionPrefix: String) -> NSFetchRequest<Note> {
+        let request = Note.fetchRequest() as! NSFetchRequest<Note>
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Note.caption), ascending: true)]
+        request.predicate = NSPredicate(format: "caption BEGINSWITH[c] %@", captionPrefix)
+        return request
+    }
 }
