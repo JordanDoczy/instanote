@@ -13,7 +13,8 @@ import CoreLocation
 struct InstaMainApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject var service = RealNoteService(context: PersistenceFactory.getContext())
+    var service: NoteService = MockNoteService()
+        //RealNoteService(context: PersistenceFactory.getContext())
 
     func addExampleNote() {
         _ = service.createNote(caption: "Welcome! Click me to edit, or click the ⊕ buttom below to create new notes. Add #hashtags to notes to make searching #easy!",
@@ -24,36 +25,20 @@ struct InstaMainApp: App {
         UserDefaults.standard.isFirstLaunch = false
     }
 
+    init() {
+        // TESTING
+//        MockData.CreateTestData(service: service)
+        
+        if UserDefaults.standard.isFirstLaunch { // TODO: check for notes?
+            addExampleNote()
+        } else {
+            UserDefaults.standard.isFirstLaunch = false
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
-            InstaMainView(service: service)
-                .onAppear() {
-                    if UserDefaults.standard.isFirstLaunch && service.notes.isEmpty {
-                        addExampleNote()
-                    }
-                }
+            InstaMainView(viewModel: .init(service: service))
         }
     }
 }
-
-
-// used to generate mock data on launch
-//@main
-//struct InstaMainAppTest: App {
-//
-//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-//    @StateObject var service = RealNoteService(context: PersistenceFactory.getContainer().viewContext)
-//
-//    func forTestingCreateSampleData() {
-//        MockData.CreateTestData(service: service)
-//    }
-//
-//    var body: some Scene {
-//        WindowGroup {
-//            InstaMainView(service: service)
-//                .onAppear() {
-//                    forTestingCreateSampleData()
-//                }
-//        }
-//    }
-//}

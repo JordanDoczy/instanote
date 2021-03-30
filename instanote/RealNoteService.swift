@@ -9,18 +9,27 @@
 import Foundation
 import CoreData
 import SwiftUI
+import Combine
 
-class RealNoteService: NSObject, ObservableObject, NoteService  {
+class RealNoteService: NSObject, NoteService  {
 
-    @Published var notes: [Note] = []
-    
+    var publisher = CurrentValueSubject<[Note], Never>([])
+
     internal var context: NSManagedObjectContext
-    private var controller: NSFetchedResultsController<Note> = NSFetchedResultsController()
+    
+    // controller used to monitor updates and publish results
+    private lazy var controller: NSFetchedResultsController<Note> = { [unowned self] in
+        let controller = NSFetchedResultsController(fetchRequest: Note.getNotesRequest,
+                                                    managedObjectContext: self.context,
+                                                    sectionNameKeyPath: nil, cacheName: nil)
+        controller.delegate = self
+        return controller
+    }()
     
     init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
-        requestNotes()
+        publisher.send(requestNotes())
     }
     
     func debug() {
@@ -32,21 +41,15 @@ class RealNoteService: NSObject, ObservableObject, NoteService  {
     }
     
     // MARK: Request Methods
-    /// persistent request
-    func requestNotes() {
-        controller = NSFetchedResultsController(fetchRequest: Note.getNotesRequest,
-                                                    managedObjectContext: context,
-                                                    sectionNameKeyPath: nil, cacheName: nil)
-        controller.delegate = self
+    func requestNotes() -> [Note] {
         try? controller.performFetch()
-        notes = controller.fetchedObjects ?? []
+        return controller.fetchedObjects ?? []
     }
 
     /// single request
-    func requestNotes(with captionPrefix: String) {
+    func filter(by captionPrefix: String) -> [Note] {
         guard !captionPrefix.isEmpty else {
-            requestNotes()
-            return
+            return requestNotes()
         }
 
         // search by caption
@@ -61,7 +64,7 @@ class RealNoteService: NSObject, ObservableObject, NoteService  {
         // combine result from caption search and tag search
         uniqueNotes = uniqueNotes.union(Set<Note>(notesFromTags ?? []))
 
-        notes = Array(uniqueNotes)
+        return Array(uniqueNotes)
     }
 
     
@@ -247,6 +250,6 @@ extension RealNoteService: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         guard let items = controller.fetchedObjects as? [Note]
         else { return }
-        notes = items
+        publisher.send(items)
     }
 }

@@ -6,13 +6,13 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Foundation
+import Combine
 import CoreLocation
 import SwiftUI
 
 protocol NoteService {
-    
-    var notes: [Note] { get }
+
+    var publisher: CurrentValueSubject<[Note], Never> { get }
 
     func createNote(caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?) -> Note
     func deleteAll()
@@ -21,12 +21,13 @@ protocol NoteService {
     func getTags(_ searchString: String) -> [Tag]?
     func getTags() -> [Tag]?
     func save()
-    func requestNotes()
-    func requestNotes(with captionPrefix: String)
+    func requestNotes() -> [Note]
+    func filter(by captionPrefix: String) -> [Note]
     func updateNote(_ note: Note, caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?)
 }
 
 extension NoteService {
+
     func createNote(caption: String? = nil, uiImage: UIImage? = nil, location: CLLocationCoordinate2D? = nil) -> Note {
         createNote(caption: caption, uiImage: uiImage, location: location)
     }

@@ -35,6 +35,7 @@
 		E694E7ED260526D600300F3C /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E694E7EC260526D500300F3C /* CameraView.swift */; };
 		E698D3B41C208C72004DCD5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E698D3B31C208C72004DCD5F /* Assets.xcassets */; };
 		E698D3BA1C208CAE004DCD5F /* instanote.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E698D3B81C208CAE004DCD5F /* instanote.xcdatamodeld */; };
+		E698FBA326124EF800CA6131 /* EnvironmentValues+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E698FBA226124EF800CA6131 /* EnvironmentValues+Extensions.swift */; };
 		E6ACCB4B25FA75AB00A22A5F /* InstantMainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB4A25FA75AB00A22A5F /* InstantMainApp.swift */; };
 		E6ACCB5D25FA8E3400A22A5F /* AppDelegateSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB5C25FA8E3400A22A5F /* AppDelegateSwiftUI.swift */; };
 		E6ACCB6625FA9C8300A22A5F /* FileManager+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB6525FA9C8300A22A5F /* FileManager+Extensions.swift */; };
@@ -77,6 +78,7 @@
 		E698D3B11C208C63004DCD5F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E698D3B31C208C72004DCD5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E698D3B91C208CAE004DCD5F /* instanote.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = instanote.xcdatamodel; sourceTree = "<group>"; };
+		E698FBA226124EF800CA6131 /* EnvironmentValues+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+Extensions.swift"; sourceTree = "<group>"; };
 		E6ACCB4A25FA75AB00A22A5F /* InstantMainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstantMainApp.swift; sourceTree = "<group>"; };
 		E6ACCB5025FA775B00A22A5F /* InstaMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstaMainView.swift; sourceTree = "<group>"; };
 		E6ACCB5C25FA8E3400A22A5F /* AppDelegateSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateSwiftUI.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 			children = (
 				E688CB0C260E751000B5D450 /* CLLocationCoordinate2D+Extensions.swift */,
 				E631C3B61C1BA38800BB5692 /* Color+Extensions.swift */,
+				E698FBA226124EF800CA6131 /* EnvironmentValues+Extensions.swift */,
 				E6ACCB6525FA9C8300A22A5F /* FileManager+Extensions.swift */,
 				E66D6F36260CD08800C9D8FC /* LinearGradient+Extensions.swift */,
 				E602E94E1C1E0F6200D9ED9B /* String+Extensions.swift */,
@@ -210,8 +213,8 @@
 			isa = PBXGroup;
 			children = (
 				E6C4A85526079B43006F2A8C /* NoteService.swift */,
-				E694E7DE2605066300300F3C /* RealNoteService.swift */,
 				E66F6653260A25D200D32733 /* MockNoteService.swift */,
+				E694E7DE2605066300300F3C /* RealNoteService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6176715260A83C300DC6618 /* MapView.swift in Sources */,
+				E698FBA326124EF800CA6131 /* EnvironmentValues+Extensions.swift in Sources */,
 				E688CB0D260E751000B5D450 /* CLLocationCoordinate2D+Extensions.swift in Sources */,
 				E694E7E826050A3300300F3C /* EditNoteView.swift in Sources */,
 				E66F665D260A35F400D32733 /* LocationManager.swift in Sources */,

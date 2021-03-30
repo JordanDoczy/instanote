@@ -12,19 +12,19 @@ import Combine
 
 struct InstaMainView: View {
 
-    @ObservedObject var service: RealNoteService
-    @State private var isPresented: Bool = false
-    @State private var selectedNote: Note? = nil
-    
+    @ObservedObject var viewModel: ViewModel
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            NoteListView(service: service, selectedNote: $selectedNote)
-            .sheet(isPresented: $isPresented) {
-                EditNoteView(viewModel: EditNoteView.EditNoteViewModel(service: service, note: selectedNote))
-            }
+            NoteListView(viewModel: .init(service: viewModel.service, selectedNote: $viewModel.selectedNote))
+                .sheet(isPresented: $viewModel.isPresented) {
+                    viewModel.selectedNote = nil
+                } content: {
+                    EditNoteView(viewModel: .init(service: viewModel.service, note: viewModel.selectedNote))
+                }
             Button { // create new note button
-                selectedNote = nil // for new notes, selectedNote will be empty
-                isPresented = true // force the sheet to present
+                viewModel.selectedNote = nil // for new notes, selectedNote will be empty
+                viewModel.isPresented = true // force the sheet to present
             } label: {
                 Image(systemName: "plus")
                     .frame(width: 75, height: 75)
@@ -37,19 +37,24 @@ struct InstaMainView: View {
             }
             .buttonStyle(PlainButtonStyle())
         }
+    }
+}
+
+extension InstaMainView {
+    class ViewModel: ObservableObject {
+        var service: NoteService
+
+        @Published var isPresented: Bool = false
         
-        /// State Management: we have two properties that control state: `isPresented` and `selectedNote`
-        /// `isPresented` controls the presentation of the sheet
-        /// `selectedNote` controls which note to present
-        /// We monitor both, this is due to the fact that `onChange` will only occur when the value of `selectedNote` changes
         /// When a note is selected from the `NoteListView` we toggle `isPresented` to `true` to present the note
-        /// When `isPresented` is set to `false` we set `selectedNote` to `nil`to allow the user to click on that item again
-        
-        .onChange(of: selectedNote) { _ in
-            isPresented = selectedNote != nil
+        @Published var selectedNote: Note? = nil {
+            didSet {
+                isPresented = selectedNote != nil
+            }
         }
-        .onChange(of: isPresented) { _ in
-            selectedNote = isPresented ? selectedNote : nil
+        
+        init(service: NoteService) {
+            self.service = service
         }
     }
 }
@@ -59,6 +64,6 @@ struct InstaMainView_Previews: PreviewProvider {
     static let service = MockNoteService()
 
     static var previews: some View {
-        InstaMainView(service: service)
+        InstaMainView(viewModel: .init(service: service))
     }
 }

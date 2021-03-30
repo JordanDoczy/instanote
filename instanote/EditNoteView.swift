@@ -12,7 +12,7 @@ import CoreData
 import Combine
 
 struct EditNoteView: View {
-    @ObservedObject var viewModel: EditNoteViewModel
+    @ObservedObject var viewModel: ViewModel
     
     @Environment(\.presentationMode) var presentationMode
     @State private var showingDeleteActionSheet = false
@@ -69,6 +69,7 @@ struct EditNoteView: View {
                                 
                             }
                             TextEditor(text: $viewModel.caption) // note caption & tags
+                                .keyboardType(.twitter)
                                 .font(.body)
                                 .frame(maxWidth: .infinity, maxHeight: 200.0)
                                 .padding(15)
@@ -142,7 +143,7 @@ extension EditNoteView {
         static var maxTagMatches = 3
     }
     
-    class EditNoteViewModel: ObservableObject {
+    class ViewModel: ObservableObject {
 
         @ObservedObject var locationManager = LocationManager()
         
@@ -353,8 +354,7 @@ struct EditNoteView_Previews: PreviewProvider {
     static let service = MockNoteService()
     
     static var previews: some View {
-        EditNoteView(viewModel: EditNoteView.EditNoteViewModel(service: service,
-                                                               note: service.notes.first!))
-        EditNoteView(viewModel: EditNoteView.EditNoteViewModel(service: service))
+//        EditNoteView(viewModel: .init(service: service, note: nil)) // TODO: fix
+        EditNoteView(viewModel: .init(service: service))
     }
 }

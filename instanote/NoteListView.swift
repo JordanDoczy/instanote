@@ -1,5 +1,5 @@
 //
-//  NoteListView2.swift
+//  NoteListView.swift
 //  InstaNote
 //
 //  Created by Jordan Doczy on 3/11/21.
@@ -7,41 +7,68 @@
 //
 
 import SwiftUI
+import Combine
 
 struct NoteListView: View {
 
-    @ObservedObject var service: RealNoteService
-    @Binding var selectedNote: Note?
-    @State private var searchText = ""
+    @ObservedObject var viewModel: ViewModel
 
     var body: some View {
         ZStack {
             LinearGradient(.darker, .dark)
                 .ignoresSafeArea(edges: .all)
             VStack {
-                SearchBar(text: $searchText)
+                SearchBar(text: $viewModel.searchText)
                 List {
-                    ForEach(service.notes) { note in
-                        NoteRow(model: NoteRow.NoteRowModel(note: note), searchText: $searchText)
+                    ForEach(viewModel.notes) { note in
+                        NoteRow(model: NoteRow.NoteRowModel(note: note), searchText: $viewModel.searchText)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0))
                             .onTapGesture {
-                                selectedNote = note
+                                viewModel.selectedNote = note
                             }
                     }
                 }
             }
         }
-        .onChange(of: searchText) { _ in
-            service.requestNotes(with: searchText)
-        }
         .onTapGesture {
             hideKeyboard()
         }
     }
+}
+
+extension NoteListView {
+    class ViewModel: ObservableObject {
+        @Published var notes: [Note] = []
+        @Published var searchText: String = "" {
+            didSet {
+                filter(by: searchText)
+            }
+        }
+        @Binding var selectedNote: Note?
+
+        private let service: NoteService
+        private var subscriber: AnyCancellable? = nil
+
+        init(service: NoteService, selectedNote: Binding<Note?>) {
+            self.service = service
+            self._selectedNote = selectedNote
+            
+            subscriber = service.publisher.sink { [weak self] notes in
+                self?.notes = notes
+            }
+        }
+        
+        func filter(by searchText: String) {
+            notes = service.filter(by: searchText)
+        }
+    }
+}
+
+extension NoteListView {
     
     struct NoteRow: View {
-        
+
         class NoteRowModel: ObservableObject {
             @Published var imagePath: String? = nil
             @Published var caption: NSAttributedString = NSAttributedString()
@@ -56,14 +83,11 @@ struct NoteListView: View {
         }
         
         @ObservedObject var model: NoteRowModel
-        @Binding var searchText: String
+        @Binding var searchText: String // TODO: move to model?
         
         var body: some View {
             
             ZStack (alignment: .bottomLeading) {
-                LinearGradient(gradient:
-                                Gradient(colors: [Color.primaryColorLight, Color.primaryColor]),
-                               startPoint: .top, endPoint: .bottom)
                 if let imagePath = model.imagePath {
                     ImageView(with: imagePath)
                         .frame(maxWidth: .infinity)
@@ -89,10 +113,9 @@ struct NoteListView: View {
 }
 
 struct NoteListView_Previews: PreviewProvider {
-    
-    static let service = MockNoteService()
-    
+
     static var previews: some View {
-        NoteListView(service: service, selectedNote: .constant(service.notes.first!))
+        NoteListView(viewModel: .init(service: MockNoteService(),
+                                      selectedNote: .constant(nil)))
     }
 }
