@@ -18,7 +18,7 @@ class MockNoteService: NoteService {
         publisher.send(requestNotes())
     }
     
-    // used for testing
+    /// used for testing
     var testNote: Note {
         createNote(caption: MockData.captions[0], photo: MockData.photos[0], loc: MockData.locations[0])
     }
@@ -36,24 +36,11 @@ class MockNoteService: NoteService {
         return note
     }
 
-    // TODO: fix?
     func createNote(caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?) -> Note {
         let note = Note(context: context)
         note.caption = caption
         return note
     }
-    
-    func deleteAll() {}
-    
-    func deleteNote(_ note: Note) {}
-    
-    func rollback() {}
-    
-    func getTags(_ searchString: String) -> [Tag]? { return nil }
-    
-    func getTags() -> [Tag]? { return nil }
-    
-    func save() { }
     
     func requestNotes() -> [Note] {
         var notes: [Note] = []
@@ -63,7 +50,13 @@ class MockNoteService: NoteService {
         return notes
     }
     
-    func filter(by captionPrefix: String) -> [Note] {
-        return []
-    }
+    func deleteAll() {}
+    func deleteNote(_ note: Note) {}
+    func filter(by captionPrefix: String) -> [Note] { return [] }
+    func getTags(_ searchString: String) -> [Tag]? { return nil }
+    func getTags() -> [Tag]? { return nil }
+    func rollback() {}
+    func save() { }
+    func updateNote(_ note: Note, caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?) {}
+
 }

@@ -12,7 +12,6 @@ import CoreLocation
 
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
-//    internal let publisher = PassthroughSubject<Void, Never>() // TODO: TEST
     
     @Published var status: CLAuthorizationStatus? {
         didSet {

@@ -17,12 +17,12 @@ protocol NoteService {
     func createNote(caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?) -> Note
     func deleteAll()
     func deleteNote(_ note: Note)
-    func rollback()
+    func filter(by captionPrefix: String) -> [Note]
     func getTags(_ searchString: String) -> [Tag]?
     func getTags() -> [Tag]?
-    func save()
     func requestNotes() -> [Note]
-    func filter(by captionPrefix: String) -> [Note]
+    func rollback()
+    func save()
     func updateNote(_ note: Note, caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?)
 }
 
