@@ -14,7 +14,6 @@ import Combine
 class RealNoteService: NSObject, NoteService  {
 
     var publisher = CurrentValueSubject<[Note], Never>([])
-
     internal var context: NSManagedObjectContext
     
     // controller used to monitor updates and publish results

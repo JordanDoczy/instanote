@@ -21,7 +21,7 @@ struct NoteListView: View {
                 SearchBar(text: $viewModel.searchText)
                 List {
                     ForEach(viewModel.notes) { note in
-                        NoteRow(model: NoteRow.NoteRowModel(note: note), searchText: $viewModel.searchText)
+                        NoteRow(viewModel: .init(note: note, searchText: $viewModel.searchText))
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0))
                             .onTapGesture {
@@ -69,26 +69,26 @@ extension NoteListView {
     
     struct NoteRow: View {
 
-        class NoteRowModel: ObservableObject {
+        class ViewModel: ObservableObject {
             @Published var imagePath: String? = nil
             @Published var caption: NSAttributedString = NSAttributedString()
             @Published var subtitle: String = ""
+            @Binding var searchText: String
             
-            convenience init(note: Note) {
-                self.init()
+            init(note: Note, searchText: Binding<String>) {
+                self._searchText = searchText
                 imagePath = note.imagePath
                 caption = note.captionFormatted ?? NSAttributedString()
                 subtitle = note.subtitle ?? ""
             }
         }
         
-        @ObservedObject var model: NoteRowModel
-        @Binding var searchText: String // TODO: move to model?
+        @ObservedObject var viewModel: ViewModel
         
         var body: some View {
             
             ZStack (alignment: .bottomLeading) {
-                if let imagePath = model.imagePath {
+                if let imagePath = viewModel.imagePath {
                     ImageView(with: imagePath)
                         .frame(maxWidth: .infinity)
                         .clipped()
@@ -96,9 +96,9 @@ extension NoteListView {
                 }
                 
                 VStack (alignment: .leading) {
-                    Text(model.subtitle)
+                    Text(viewModel.subtitle)
                         .font(Font.subheadline.bold()).padding([.top,.bottom], 1).foregroundColor(.white)
-                    TextView(text: $model.caption, selectedText: $searchText)
+                    TextView(text: $viewModel.caption, selectedText: $viewModel.searchText)
                         .frame(maxHeight: 75) // TODO: remove fixed height, needs to be dynamic
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

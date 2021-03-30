@@ -12,7 +12,7 @@ import CoreData
 import Combine
 
 struct EditNoteView: View {
-    @ObservedObject var viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel // TODO: clean up view model 
     
     @Environment(\.presentationMode) var presentationMode
     @State private var showingDeleteActionSheet = false
@@ -354,7 +354,7 @@ struct EditNoteView_Previews: PreviewProvider {
     static let service = MockNoteService()
     
     static var previews: some View {
-//        EditNoteView(viewModel: .init(service: service, note: nil)) // TODO: fix
+        EditNoteView(viewModel: .init(service: service, note: service.testNote))
         EditNoteView(viewModel: .init(service: service))
     }
 }

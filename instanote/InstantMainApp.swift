@@ -13,8 +13,7 @@ import CoreLocation
 struct InstaMainApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    var service: NoteService = MockNoteService()
-        //RealNoteService(context: PersistenceFactory.getContext())
+    var service: NoteService = RealNoteService(context: PersistenceFactory.getContext())
 
     func addExampleNote() {
         _ = service.createNote(caption: "Welcome! Click me to edit, or click the ⊕ buttom below to create new notes. Add #hashtags to notes to make searching #easy!",
@@ -24,12 +23,20 @@ struct InstaMainApp: App {
         service.save()
         UserDefaults.standard.isFirstLaunch = false
     }
+    
+    func addTestData() {
+        for i in 0 ..< MockData.captions.count {
+            let note = service.createNote(caption: MockData.captions[i],
+                                          uiImage: nil,
+                                          location: CLLocationCoordinate2D(latitude: MockData.locations[i].lat, longitude: MockData.locations[i].long))
+            note.photo = MockData.photos[i]
+        }
+    }
 
     init() {
-        // TESTING
-//        MockData.CreateTestData(service: service)
+//        addTestData()
         
-        if UserDefaults.standard.isFirstLaunch { // TODO: check for notes?
+        if UserDefaults.standard.isFirstLaunch && service.publisher.value.isEmpty {
             addExampleNote()
         } else {
             UserDefaults.standard.isFirstLaunch = false
