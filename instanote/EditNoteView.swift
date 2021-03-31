@@ -364,7 +364,6 @@ struct EditNoteView_Previews: PreviewProvider {
     static let service = MockNoteService()
     
     static var previews: some View {
-        EditNoteView(viewModel: .init(service: service, note: service.testNote))
         EditNoteView(viewModel: .init(service: service))
     }
 }

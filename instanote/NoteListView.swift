@@ -11,7 +11,7 @@ import Combine
 
 struct NoteListView: View {
 
-    @ObservedObject var viewModel: ViewModel
+    @StateObject var viewModel: ViewModel
 
     var body: some View {
         ZStack {
@@ -58,7 +58,7 @@ extension NoteListView {
                 self?.notes = notes
             }
         }
-        
+
         func filter(by searchText: String) {
             notes = service.filter(by: searchText)
         }
@@ -83,7 +83,7 @@ extension NoteListView {
             }
         }
         
-        @ObservedObject var viewModel: ViewModel
+        @StateObject var viewModel: ViewModel
         
         var body: some View {
             
