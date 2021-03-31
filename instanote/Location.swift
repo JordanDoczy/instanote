@@ -17,10 +17,6 @@ class Location: NSManagedObject, MKAnnotation {
         struct Relationships {
             static let Notes = "notes"
         }
-        struct Properties {
-            static let Latitude = "lat"
-            static let Longitude = "long"
-        }
     }
     
     var coordinate: CLLocationCoordinate2D {

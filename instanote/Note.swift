@@ -18,11 +18,6 @@ class Note: NSManagedObject, Identifiable {
             static let Tags = "tags"
             static let Location = "location"
         }
-        struct Properties {
-            static let Caption = "caption"
-            static let Date = "date"
-            static let Photo = "photo"
-        }
     }
 
     override func prepareForDeletion() {

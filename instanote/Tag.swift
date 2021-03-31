@@ -16,9 +16,6 @@ class Tag: NSManagedObject {
         struct Relationships {
             static let Notes = "notes"
         }
-        struct Properties {
-            static let Name = "name"
-        }
     }
     
     func addNote(_ note:Note){

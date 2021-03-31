@@ -210,8 +210,8 @@
 			isa = PBXGroup;
 			children = (
 				E6C4A85526079B43006F2A8C /* NoteService.swift */,
-				E694E7DE2605066300300F3C /* RealNoteService.swift */,
 				E66F6653260A25D200D32733 /* MockNoteService.swift */,
+				E694E7DE2605066300300F3C /* RealNoteService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -457,7 +457,7 @@
 				INFOPLIST_FILE = instanote/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -475,7 +475,7 @@
 				INFOPLIST_FILE = instanote/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.1;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;

@@ -12,10 +12,8 @@ import CoreLocation
 
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
-    internal let objectWillChange = PassthroughSubject<Void, Never>()
     
     @Published var status: CLAuthorizationStatus? {
-        willSet { objectWillChange.send() }
         didSet {
             if let status = status {
                 if status == .authorizedAlways || status == .authorizedWhenInUse {
@@ -25,13 +23,8 @@ class LocationManager: NSObject, ObservableObject {
         }
     }
     
-    @Published var location: CLLocation? {
-        willSet { objectWillChange.send() }
-    }
-    
-    @Published var placemark: CLPlacemark? {
-        willSet { objectWillChange.send() }
-    }
+    @Published var location: CLLocation?
+    @Published var placemark: CLPlacemark?
 
     override init() {
         super.init()

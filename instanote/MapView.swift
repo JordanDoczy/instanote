@@ -38,8 +38,11 @@ struct MapView: UIViewRepresentable {
 
 struct MapView_Previews: PreviewProvider {
 
+    static let location = MockData.locations[0]
+    
     static var previews: some View {
-        MapView(location: CLLocationCoordinate2D(latitude: MockData.locations.first![0], longitude: MockData.locations.first![1]), title: "annotation")
+        MapView(location: CLLocationCoordinate2D(latitude: location.lat, longitude: location.long),
+                title: "annotation")
         
     }
 }
