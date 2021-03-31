@@ -134,12 +134,7 @@ extension EditNoteView {
         @Published var caption: String {
             didSet {
                 tagRange = nil
-                
-                guard !caption.isEmpty else {
-                    caption = Constants.defaultText
-                    return
-                }
-                
+
                 if caption.count > Constants.maxCaptionCharacterCount {
                     caption = oldValue
                 } else {

@@ -10,9 +10,9 @@ import SwiftUI
 import Combine
 
 struct NoteListView: View {
-
+    
     @StateObject var viewModel: ViewModel
-
+    
     var body: some View {
         ZStack {
             LinearGradient(.darker, .dark)
@@ -46,19 +46,21 @@ extension NoteListView {
             }
         }
         @Binding var selectedNote: Note?
-
+        
         private let service: NoteService
         private var subscriber: AnyCancellable? = nil
-
+        
         init(service: NoteService, selectedNote: Binding<Note?>) {
             self.service = service
             self._selectedNote = selectedNote
             
-            subscriber = service.publisher.sink { [weak self] notes in
-                self?.notes = notes
-            }
+            subscriber = service.publisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] notes in
+                    self?.notes = notes
+                }
         }
-
+        
         func filter(by searchText: String) {
             notes = service.filter(by: searchText)
         }
@@ -68,7 +70,7 @@ extension NoteListView {
 extension NoteListView {
     
     struct NoteRow: View {
-
+        
         class ViewModel: ObservableObject {
             @Published var imagePath: String? = nil
             @Published var caption: NSAttributedString = NSAttributedString()
@@ -83,7 +85,7 @@ extension NoteListView {
             }
         }
         
-        @StateObject var viewModel: ViewModel
+        @ObservedObject var viewModel: ViewModel
         
         var body: some View {
             
@@ -113,7 +115,7 @@ extension NoteListView {
 }
 
 struct NoteListView_Previews: PreviewProvider {
-
+    
     static var previews: some View {
         NoteListView(viewModel: .init(service: MockNoteService(),
                                       selectedNote: .constant(nil)))

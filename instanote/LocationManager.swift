@@ -44,12 +44,16 @@ class LocationManager: NSObject, ObservableObject {
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        self.status = status
+        DispatchQueue.main.async { [weak self] in
+            self?.status = status
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        self.location = location
+        DispatchQueue.main.async { [weak self] in
+            self?.location = location
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
