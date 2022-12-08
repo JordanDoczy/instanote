@@ -5,18 +5,18 @@ import SharedModels
 import Storage
 import XCTest
 
-final class StorageClientTests: XCTestCase {
+final class AppDatabaseTests: XCTestCase {
 
-    var storageClient: StorageClient!
+    var appDatabase: AppDatabase!
+    var writer: DatabaseWriter!
     
     override func setUp() async throws {
-        self.storageClient = update(StorageClient.liveValue) {
-            $0?.database = try! Database(DatabaseQueue())
-        }
+        self.writer = try! DatabaseQueue()
+        self.appDatabase = .live(writer: writer)
     }
 
     func testSetUp() throws {
-        try storageClient.database.writer?.read { db in
+        try writer.read { db in
             try XCTAssert(db.tableExists("note"))
             try XCTAssertEqual(
                 db.columns(in: "note").map(\.name),
@@ -37,7 +37,7 @@ final class StorageClientTests: XCTestCase {
         }
     }
     
-    func testSaveNoteNoTags() {
+    func testSaveNoteNoTags() throws {
         let note = Note(
             id: "id",
             caption: "some caption",
@@ -45,16 +45,16 @@ final class StorageClientTests: XCTestCase {
             date: Date(timeIntervalSinceNow: 0)
         )
         
-        storageClient.save(note: note)
+        try appDatabase.save(note: note)
         
-        let tags: [Tag] = storageClient.fetchAllTags()
+        let tags: [Tag] = try appDatabase.fetchAllTags()
         XCTAssertTrue(tags.isEmpty)
         
-        let storedNote = storageClient.fetchAllNotes()
+        let storedNote = try appDatabase.fetchAllNotes()
         XCTAssertEqual(1, storedNote.count)
     }
     
-    func testSaveNoteWithTags() {
+    func testSaveNoteWithTags() throws {
         let note = Note(
             id: "id",
             caption: "some caption #tag1 and then later #tag2",
@@ -62,14 +62,14 @@ final class StorageClientTests: XCTestCase {
             date: Date(timeIntervalSinceNow: 0)
         )
         
-        storageClient.save(note: note)
+        try appDatabase.save(note: note)
         
-        let tags: [Tag] = storageClient.fetchAllTags()
+        let tags: [Tag] = try appDatabase.fetchAllTags()
         
         XCTAssertEqual(["tag1", "tag2"], tags.map(\.tag))
     }
     
-    func testSaveNoteWithTagsThatAlreadyExist() {
+    func testSaveNoteWithTagsThatAlreadyExist() throws {
         let note1 = Note(
             id: "id1",
             caption: "some caption #tag1 and then later #tag2",
@@ -84,14 +84,14 @@ final class StorageClientTests: XCTestCase {
             date: Date(timeIntervalSinceNow: 0)
         )
         
-        storageClient.save(note: note1)
-        let tags: [Tag] = storageClient.fetchAllTags()
+        try appDatabase.save(note: note1)
+        let tags: [Tag] = try appDatabase.fetchAllTags()
         XCTAssertEqual(["tag1", "tag2"], tags.map(\.tag))
         
-        storageClient.save(note: note2)
-        let tagsNewer: [Tag] = storageClient.fetchAllTags()
+        try appDatabase.save(note: note2)
+        let tagsNewer: [Tag] = try appDatabase.fetchAllTags()
         
-        XCTAssertEqual(2, storageClient.fetchAllNotes().count)
+        XCTAssertEqual(2, try appDatabase.fetchAllNotes().count)
         XCTAssertEqual(["tag1", "tag2", "newTag"], tagsNewer.map(\.tag))
     }
     
@@ -110,15 +110,14 @@ final class StorageClientTests: XCTestCase {
             date: Date(timeIntervalSinceNow: 0)
         )
         
-        storageClient.save(note: note1)
-        storageClient.save(note: note2)
+        try appDatabase.save(note: note1)
+        try appDatabase.save(note: note2)
 
-        guard let tag = storageClient.fetchTagMatching(predicate: "tag1") else {
+        guard let tag = try appDatabase.fetchTagMatching(predicate: "tag1") else {
             return XCTFail()
         }
 
-        let notes = storageClient.fetchNotesFromTag(tag: tag)
+        let notes = try appDatabase.fetchNotesFromTag(tag: tag)
         XCTAssertEqual(notes.map(\.id), ["id1", "id2"])
-        
     }
 }

@@ -1,22 +1,41 @@
 import Dependencies
 import Foundation
 import GRDB
+import SharedModels
 
-extension Database: DependencyKey {
-    static public var liveValue = try! Self(Self.createWriter())
+extension AppDatabase: DependencyKey {
 
-    public init(_ writer: DatabaseWriter) throws {
-        self.writer = writer
+    static public func live(writer: DatabaseWriter) -> Self {
+       var migrator = DatabaseMigrator()
+       Self.registerModels(migrator: &migrator)
+       try? migrator.migrate(writer)
 
-        var migrator = DatabaseMigrator()
-        Self.registerModels(migrator: &migrator)
-        try migrator.migrate(writer)
+        return .init(
+            writer: writer,
+            _save: { database, record in
+                try record.save(database)
+            },
+            _fetchAllNotes: Note.fetchAll,
+            _fetchNotesMatching: { database, predicate in
+                let request = Note.filter(Note.Columns.caption.like("%\(predicate)%"))
+                return try Note.fetchAll(database, request)
+            },
+            _fetchNotesFromTag: { database, tag in
+                try tag.notesRequest.fetchAll(database)
+            },
+            _fetchAllTags: Tag.fetchAll,
+            _fetchTagMatching: { database, predicate in
+                try Tag.filter(Tag.Columns.tag == predicate).fetchOne(database)
+            }
+        )
     }
 
-    static func createWriter() throws -> DatabaseWriter {
+    static public var liveValue = live(writer: try! createWriter())
+
+    private static func createWriter() throws -> DatabaseWriter {
         let folderURL = try FileManager.default
-                .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-                .appending(path: "database", directoryHint: .isDirectory)
+            .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            .appending(path: "database", directoryHint: .isDirectory)
 
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
 
