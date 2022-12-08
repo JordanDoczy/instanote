@@ -1,6 +1,5 @@
 import Dependencies
 import Foundation
-import GRDB
 import SharedExtensions
 import SharedModels
 
@@ -8,66 +7,21 @@ public struct AppDatabase {
 
     @Dependency(\.uuid) var uuid
 
-    var writer: DatabaseWriter
-
-    private var reader: DatabaseReader {
-        writer
-    }
-
-    var _save: (Database, PersistableRecord) throws -> ()
-    var _fetchAllNotes: (Database) throws -> [Note]
-    var _fetchNotesMatching: (Database, String) throws -> [Note]
-    var _fetchNotesFromTag: (Database, Tag) throws -> [Note]
-    var _fetchAllTags: (Database) throws -> [Tag]
-    var _fetchTagMatching: (Database, String) throws -> Tag?
+    public var save: (Any) throws -> ()
+    public var fetchAllNotes: () throws -> [Note]
+    public var fetchNotesMatching: (String) throws -> [Note]
+    public var fetchNotesFromTag: (Tag) throws -> [Note]
+    public var fetchAllTags: () throws -> [Tag]
+    public var fetchTagMatching: (String) throws -> Tag?
 
     public func save(note: Note) throws {
-        let tags = try fetchOrCreateTagsFromCaption(caption: note.caption)
+        try save(note)
 
-        try writer.write { database in
-            try _save(database, note)
-
-            try tags.forEach { tag in
-                if try !tag.exists(database) {
-                    try _save(database, tag)
-                }
-
-                try _save(database, NoteTag(noteId: note.id, tagId: tag.id))
+        try fetchOrCreateTagsFromCaption(caption: note.caption)
+            .forEach { tag in
+                try save(tag)
+                try save(NoteTag(noteId: note.id, tagId: tag.id))
             }
-        }
-    }
-}
-
-// Public API
-extension AppDatabase {
-    public func fetchAllNotes() throws -> [Note] {
-        try reader.read {
-            try _fetchAllNotes($0)
-        }
-    }
-
-    public func fetchNotesMatching(predicate: String) throws -> [Note] {
-        try reader.read {
-            try _fetchNotesMatching($0, predicate)
-        }
-    }
-
-    public func fetchNotesFromTag(tag: Tag) throws -> [Note] {
-        try reader.read {
-            try _fetchNotesFromTag($0, tag)
-        }
-    }
-
-    public func fetchAllTags() throws -> [Tag] {
-        try reader.read {
-            try _fetchAllTags($0)
-        }
-    }
-
-    public func fetchTagMatching(predicate: String) throws -> Tag? {
-        try reader.read {
-            try _fetchTagMatching($0, predicate)
-        }
     }
 
     public func fetchOrCreateTagsFromCaption(caption: String) throws -> [Tag] {
@@ -76,7 +30,7 @@ extension AppDatabase {
                 $0.replacingOccurrences(of: "#", with: "", options: .literal, range: nil)
             }
             .map {
-                (try fetchTagMatching(predicate: $0)) ?? .init( id: "\(uuid().uuidString)", tag: $0)
+                (try fetchTagMatching($0)) ?? .init( id: "\(uuid().uuidString)", tag: $0)
             }
     }
 }
@@ -84,19 +38,17 @@ extension AppDatabase {
 import XCTestDynamicOverlay
 extension AppDatabase: TestDependencyKey {
     static public let testValue = Self(
-        writer: try! DatabaseQueue(),
-        _save: XCTUnimplemented("\(Self.self).save"),
-        _fetchAllNotes: XCTUnimplemented("\(Self.self).fetchAllNotes", placeholder: []),
-        _fetchNotesMatching: XCTUnimplemented("\(Self.self).fetchNotesMatching", placeholder: []),
-        _fetchNotesFromTag: XCTUnimplemented("\(Self.self).fetchNotesFromTag", placeholder: []),
-        _fetchAllTags: XCTUnimplemented("\(Self.self).fetchAllTags", placeholder: []),
-        _fetchTagMatching: XCTUnimplemented("\(Self.self).fetchTagMatching", placeholder: nil)
+        save: XCTUnimplemented("\(Self.self).save"),
+        fetchAllNotes: XCTUnimplemented("\(Self.self).fetchAllNotes", placeholder: []),
+        fetchNotesMatching: XCTUnimplemented("\(Self.self).fetchNotesMatching", placeholder: []),
+        fetchNotesFromTag: XCTUnimplemented("\(Self.self).fetchNotesFromTag", placeholder: []),
+        fetchAllTags: XCTUnimplemented("\(Self.self).fetchAllTags", placeholder: []),
+        fetchTagMatching: XCTUnimplemented("\(Self.self).fetchTagMatching", placeholder: nil)
     )
 
     static public let previewValue = Self(
-        writer: try! DatabaseQueue(),
-        _save: { _, _ in },
-        _fetchAllNotes: { _ in
+        save: { _ in },
+        fetchAllNotes: {
             [
                 .init(
                     id: "id1",
@@ -110,10 +62,10 @@ extension AppDatabase: TestDependencyKey {
                     date: .now)
             ]
         },
-        _fetchNotesMatching: { _, _ in [] },
-        _fetchNotesFromTag: { _, _ in [] },
-        _fetchAllTags: { _ in [] },
-        _fetchTagMatching: { _, _ in nil }
+        fetchNotesMatching: { _ in [] },
+        fetchNotesFromTag: { _ in [] },
+        fetchAllTags: { [] },
+        fetchTagMatching: { _ in nil }
     )
 }
 

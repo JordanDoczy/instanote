@@ -113,11 +113,11 @@ final class AppDatabaseTests: XCTestCase {
         try appDatabase.save(note: note1)
         try appDatabase.save(note: note2)
 
-        guard let tag = try appDatabase.fetchTagMatching(predicate: "tag1") else {
+        guard let tag = try appDatabase.fetchTagMatching("tag1") else {
             return XCTFail()
         }
 
-        let notes = try appDatabase.fetchNotesFromTag(tag: tag)
+        let notes = try appDatabase.fetchNotesFromTag(tag)
         XCTAssertEqual(notes.map(\.id), ["id1", "id2"])
     }
 }
