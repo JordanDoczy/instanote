@@ -7,7 +7,7 @@ import XCTest
 
 final class AppDatabaseTests: XCTestCase {
 
-    var appDatabase: AppDatabase!
+    var appDatabase: DatabaseClient!
     var writer: DatabaseWriter!
     
     override func setUp() async throws {

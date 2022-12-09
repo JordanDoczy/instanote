@@ -6,9 +6,10 @@ struct instanoteApp: App {
     var body: some Scene {
         WindowGroup {
             ListView(store:.init(
-                initialState: .init(title: "Notes", notes: []),
+                initialState: .init(),
                 reducer: ListViewFeature()
-                    .dependency(\.storageClient, .previewValue)
+                    .dependency(\.databaseClient, .previewValue)
+                    .dependency(\.fileClient, .previewValue)
             ))
         }
     }

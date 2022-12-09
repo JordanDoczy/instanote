@@ -20,7 +20,9 @@ extension FileClient: TestDependencyKey {
 
     static public let previewValue = Self(
         deleteImage: { _ in },
-        getImage: { _ in nil },
+        getImage: { _ in
+            UIImage(systemName: "photo")
+        },
         saveImage: { _, _ in }
     )
 }

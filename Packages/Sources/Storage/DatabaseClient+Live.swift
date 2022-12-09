@@ -3,7 +3,7 @@ import Foundation
 import GRDB
 import SharedModels
 
-extension AppDatabase: DependencyKey {
+extension DatabaseClient: DependencyKey {
 
     static public func live(writer: DatabaseWriter) -> Self {
         var migrator = DatabaseMigrator()

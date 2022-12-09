@@ -8,10 +8,12 @@ let package = Package(
         .iOS(.v16),
     ],
     products: [
+        .library(name: "CreateNoteFeature", targets: ["CreateNoteFeature"]),
         .library(name: "FileClient", targets: ["FileClient"]),
         .library(name: "ListFeature", targets: ["ListFeature"]),
         .library(name: "SharedExtensions", targets: ["SharedExtensions"]),
         .library(name: "SharedModels", targets: ["SharedModels"]),
+        .library(name: "SharedViews", targets: ["SharedViews"]),
         .library(name: "Storage", targets: ["Storage"])
     ],
     dependencies: [
@@ -21,6 +23,13 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-overture", .upToNextMajor(from: "0.5.0")),
     ],
     targets: [
+        .target(
+            name: "CreateNoteFeature",
+            dependencies: [
+                "SharedViews",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
         .target(
             name: "FileClient",
             dependencies: [
@@ -39,6 +48,7 @@ let package = Package(
         .target(
             name: "ListFeature",
             dependencies: [
+                "CreateNoteFeature",
                 "FileClient",
                 "SharedModels",
                 "Storage",
@@ -58,6 +68,10 @@ let package = Package(
         .testTarget(
             name: "SharedModelsTests",
             dependencies: ["SharedModels"]
+        ),
+        .target(
+            name: "SharedViews",
+            dependencies: []
         ),
         .target(
             name: "Storage",

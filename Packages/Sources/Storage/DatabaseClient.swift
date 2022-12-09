@@ -3,7 +3,7 @@ import Foundation
 import SharedExtensions
 import SharedModels
 
-public struct AppDatabase {
+public struct DatabaseClient {
 
     @Dependency(\.uuid) var uuid
 
@@ -36,7 +36,7 @@ public struct AppDatabase {
 }
 
 import XCTestDynamicOverlay
-extension AppDatabase: TestDependencyKey {
+extension DatabaseClient: TestDependencyKey {
     static public let testValue = Self(
         save: XCTUnimplemented("\(Self.self).save"),
         fetchAllNotes: XCTUnimplemented("\(Self.self).fetchAllNotes", placeholder: []),
@@ -70,8 +70,8 @@ extension AppDatabase: TestDependencyKey {
 }
 
 extension DependencyValues {
-    public var database: AppDatabase {
-        get { self[AppDatabase.self] }
-        set { self[AppDatabase.self] = newValue }
+    public var databaseClient: DatabaseClient {
+        get { self[DatabaseClient.self] }
+        set { self[DatabaseClient.self] = newValue }
     }
 }
