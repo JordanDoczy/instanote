@@ -15,7 +15,7 @@ struct EditNoteView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             GeometryReader { frame in
                 ZStack(alignment: .topLeading) {
                     Color.darker.ignoresSafeArea()
@@ -40,16 +40,17 @@ struct EditNoteView: View {
         }
     }
     
-    func content(size: CGSize) -> AnyView {
+    @ViewBuilder
+    func content(size: CGSize) -> some View {
         switch viewModel.state {
         case let .picture(.some(image)):
-            return AnyView (photoView(image: image, size: size))
+            photoView(image: image, size: size)
         case let .map(.some(location)):
-            return AnyView(MapView(location: location, title: viewModel.caption))
+            MapView(location: location, title: viewModel.caption)
         case .camera:
-            return AnyView(ChoosePhotoView(outputImage: $viewModel.uiImage))
+            ChoosePhotoView(outputImage: $viewModel.uiImage)
         default:
-            return AnyView(EmptyView())
+            EmptyView()
         }
     }
     
@@ -103,8 +104,9 @@ struct EditNoteView: View {
                         .font(.body)
                         .frame(maxWidth: .infinity, maxHeight: 200.0)
                         .padding(15)
-                        .foregroundColor(.white)
-                        .accentColor(.white)
+                        .foregroundStyle(.white)
+                        .tint(.white)
+                        .scrollContentBackground(.hidden)
                         .onTapGesture {
                             if viewModel.caption == Constants.defaultText {
                                 viewModel.caption = ""
@@ -165,7 +167,12 @@ extension EditNoteView {
         @ObservationIgnored private let service: NoteService
         @ObservationIgnored private var tagRange: Range<String.Index>? = nil
         
-        init(service: NoteService, caption: String? = nil, imagePath: String? = nil, location: CLLocationCoordinate2D? = nil) {
+        /// `currentLocation` is used for notes without a location; tests pass a stub so they don't touch CoreLocation.
+        init(service: NoteService,
+             caption: String? = nil,
+             imagePath: String? = nil,
+             location: CLLocationCoordinate2D? = nil,
+             currentLocation: @escaping () async -> CLLocationCoordinate2D? = CurrentLocation.coordinate) {
             self.service = service
             self.storedCaption = caption ?? Constants.defaultText
             self.location = location
@@ -184,7 +191,7 @@ extension EditNoteView {
 
             if location == nil {
                 locationTask = Task { [weak self] in
-                    let coordinate = await CurrentLocation.coordinate()
+                    let coordinate = await currentLocation()
                     guard let self, self.location == nil else { return }
                     self.location = coordinate
                 }
@@ -195,11 +202,14 @@ extension EditNoteView {
             locationTask?.cancel()
         }
         
-        convenience init(service: NoteService, note: Note?) {
+        convenience init(service: NoteService,
+                         note: Note?,
+                         currentLocation: @escaping () async -> CLLocationCoordinate2D? = CurrentLocation.coordinate) {
             self.init(service: service,
                       caption: note?.caption ?? nil,
                       imagePath: note?.imagePath ?? nil,
-                      location: note?.location?.coordinate)
+                      location: note?.location?.coordinate,
+                      currentLocation: currentLocation)
             
             self.note = note
         }
@@ -338,7 +348,7 @@ extension EditNoteView {
                                 .foregroundColor(.white)
                         }
                     }
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .cancellationAction) {
                         Button {
                             cancelAction()
                         } label: {
@@ -347,7 +357,7 @@ extension EditNoteView {
                                 .foregroundColor(.white)
                         }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .confirmationAction) {
                         Button {
                             saveAction()
                         } label: {
@@ -368,25 +378,17 @@ extension EditNoteView {
         
         func body(content: Content) -> some View {
             content
-                .actionSheet(isPresented: $isPresented) {
-                    ActionSheet(title: Text(""),
-                                message: Text("Are you sure you want to delete?"),
-                                buttons: [
-                                    .destructive(Text("Delete")) {
-                                        deleteAction()
-                                    },
-                                    .cancel()
-                                ])
+                .confirmationDialog("Delete Note", isPresented: $isPresented, titleVisibility: .hidden) {
+                    Button("Delete", role: .destructive) {
+                        deleteAction()
+                    }
+                } message: {
+                    Text("Are you sure you want to delete?")
                 }
         }
     }
 }
 
-struct EditNoteView_Previews: PreviewProvider {
-    
-    static let service = MockNoteService()
-    
-    static var previews: some View {
-        EditNoteView(viewModel: .init(service: service))
-    }
+#Preview {
+    EditNoteView(viewModel: .init(service: MockNoteService(), currentLocation: { nil }))
 }

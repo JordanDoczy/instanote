@@ -14,7 +14,7 @@ struct InstaMainViewModelTests {
         defer { TestFixtures.removeAllNotes(from: service) }
         let note = service.createNote(caption: "tap me", uiImage: TestFixtures.image(width: 4, height: 4), location: TestFixtures.coordinate)
         service.save()
-        let viewModel = InstaMainView.ViewModel(service: service)
+        let viewModel = InstaMainView.ViewModel(service: service, currentLocation: TestFixtures.noLocation)
 
         viewModel.noteList.onSelect(note)
 
@@ -24,7 +24,7 @@ struct InstaMainViewModelTests {
     }
 
     @Test func plusButtonOpensANewNote() throws {
-        let viewModel = InstaMainView.ViewModel(service: TestFixtures.makeService())
+        let viewModel = InstaMainView.ViewModel(service: TestFixtures.makeService(), currentLocation: TestFixtures.noLocation)
 
         viewModel.edit(nil)
 

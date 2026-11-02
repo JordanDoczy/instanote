@@ -35,25 +35,21 @@ nonisolated class Note: NSManagedObject, Identifiable {
 
 // MARK: Attributed String
 extension Note {
-    
-    var captionFormatted: NSMutableAttributedString? {
-        guard let caption = caption,
-              let ranges = caption.rangesForRegex("\\#+\\w+") else {
-            return nil
-        }
-        
-        var attributes = [NSAttributedString.Key : Any]()
-        attributes[.font] = UIFont.preferredFont(forTextStyle: .body)
-        attributes[NSAttributedString.Key.foregroundColor] = UIColor.white
-        let attributedString = NSMutableAttributedString(string: caption, attributes: attributes)
 
-        _ = ranges.map() {
-            attributes[.link] = URL(string: (caption as NSString).substring(with: $0))
-            attributes[.backgroundColor] = Color.primaryColor.toUIColor().withAlphaComponent(0.8)
-            attributedString.setAttributes(attributes, range: $0)
-        }
+    /// The caption with each hashtag highlighted and linked; the link URL is the tag text, e.g. "#beach".
+    var captionText: AttributedString {
+        guard let caption else { return AttributedString() }
 
-        return attributedString
+        var text = AttributedString(caption)
+        for range in caption.hashtagRanges {
+            guard let lower = AttributedString.Index(range.lowerBound, within: text),
+                  let upper = AttributedString.Index(range.upperBound, within: text)
+            else { continue }
+
+            text[lower..<upper].link = URL(string: String(caption[range]))
+            text[lower..<upper].backgroundColor = Color.primaryColor.opacity(0.8)
+        }
+        return text
     }
 }
 

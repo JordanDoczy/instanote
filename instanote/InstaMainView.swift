@@ -6,6 +6,7 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
+import CoreLocation
 import Observation
 import SwiftUI
 
@@ -15,10 +16,12 @@ struct InstaMainView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            NoteListView(viewModel: viewModel.noteList)
-                .sheet(item: $viewModel.editor) { editor in
-                    EditNoteView(viewModel: editor)
-                }
+            NavigationStack {
+                NoteListView(viewModel: viewModel.noteList)
+            }
+            .sheet(item: $viewModel.editor) { editor in
+                EditNoteView(viewModel: editor)
+            }
             Button { // create new note button
                 viewModel.edit(nil)
             } label: {
@@ -33,6 +36,8 @@ struct InstaMainView: View {
             }
             .buttonStyle(PlainButtonStyle())
         }
+        // The app's palette is dark, so system controls (search field, sheets) should match.
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -46,9 +51,12 @@ extension InstaMainView {
         var editor: EditNoteView.ViewModel?
 
         private let service: NoteService
+        private let currentLocation: () async -> CLLocationCoordinate2D?
 
-        init(service: NoteService) {
+        init(service: NoteService,
+             currentLocation: @escaping () async -> CLLocationCoordinate2D? = CurrentLocation.coordinate) {
             self.service = service
+            self.currentLocation = currentLocation
             self.noteList = NoteListView.ViewModel(service: service)
             noteList.onSelect = { [weak self] note in
                 self?.edit(note)
@@ -57,7 +65,7 @@ extension InstaMainView {
 
         /// Opens the editor for `note`, or for a new note when `note` is nil.
         func edit(_ note: Note?) {
-            editor = EditNoteView.ViewModel(service: service, note: note)
+            editor = EditNoteView.ViewModel(service: service, note: note, currentLocation: currentLocation)
         }
     }
 }

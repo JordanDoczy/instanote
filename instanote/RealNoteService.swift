@@ -238,13 +238,9 @@ final class RealNoteService: NSObject, NoteService  {
     
     func updateTags(for note: Note, caption: String) {
         note.tags = nil // clear all tags
-        if let tags = caption.matchesForRegex("\\#+\\w+") {
-            tags.forEach { item in
-                let string = item.replacingOccurrences(of: "#", with: "", options: .literal, range: nil)
-                
-                if let tag = getTag(string) ?? createTag(string) {
-                    note.addTag(tag)
-                }
+        for name in caption.hashtagNames {
+            if let tag = getTag(name) ?? createTag(name) {
+                note.addTag(tag)
             }
         }
     }

@@ -11,6 +11,9 @@ enum TestFixtures {
 
     static let coordinate = CLLocationCoordinate2D(latitude: 37.7619920, longitude: -122.4347360)
 
+    /// Stands in for the real location lookup so tests never show the permission prompt.
+    static func noLocation() async -> CLLocationCoordinate2D? { nil }
+
     /// A solid-color image. `orientation` lets tests mimic camera photos whose pixels are stored sideways.
     static func image(width: CGFloat, height: CGFloat, orientation: UIImage.Orientation = .up) -> UIImage {
         let format = UIGraphicsImageRendererFormat()

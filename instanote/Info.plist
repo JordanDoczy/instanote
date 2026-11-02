@@ -26,8 +26,6 @@
 	<string>Enable camera permissions to attach photos to your notes!</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Enable location services to add locations to your notes!</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Enable photo library permissions to attach photos to your notes!</string>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen</string>
 	<key>UIRequiredDeviceCapabilities</key>

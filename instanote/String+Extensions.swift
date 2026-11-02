@@ -9,27 +9,14 @@
 import Foundation
 
 extension String {
-    
-    func rangesForRegex(_ regex: String!) -> [NSRange]? {
-        
-        do {
-            let regex = try NSRegularExpression(pattern: regex, options: [])
-            let nsString = self as NSString
-            let results = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
-            return results.map { $0.range }
-        } catch { }
-        return nil
-    }
-    
-    func matchesForRegex(_ regex: String!) -> [String]? {
-        
-        do {
-            let regex = try NSRegularExpression(pattern: regex, options: [])
-            let nsString = self as NSString
-            let results = regex.matches(in: self, options: [], range: NSMakeRange(0, nsString.length))
-            return results.map { nsString.substring(with: $0.range)}
-        } catch {}
 
-        return nil
+    /// Ranges of hashtags: one or more "#" followed by word characters, e.g. "#beach" or "##beach".
+    var hashtagRanges: [Range<String.Index>] {
+        ranges(of: /#+\w+/)
+    }
+
+    /// Tag names without the leading "#", in the order they appear.
+    var hashtagNames: [String] {
+        hashtagRanges.map { self[$0].replacingOccurrences(of: "#", with: "") }
     }
 }

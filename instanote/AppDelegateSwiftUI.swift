@@ -13,10 +13,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        UITableViewCell.appearance().backgroundColor = .clear
-        UITableView.appearance().backgroundColor = .clear
-        UITableView.appearance().separatorColor = .clear
-        UITextView.appearance().backgroundColor = .clear
         UITabBar.appearance().isTranslucent = false
         UITabBar.appearance().barTintColor = Color.darker.toUIColor()
 

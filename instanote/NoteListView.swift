@@ -14,26 +14,23 @@ struct NoteListView: View {
     @Bindable var viewModel: ViewModel
 
     var body: some View {
-        ZStack {
-            LinearGradient(.darker, .dark)
-                .ignoresSafeArea(edges: .all)
-            VStack {
-                SearchBar(text: $viewModel.searchText)
-                List {
-                    ForEach(viewModel.notes) { note in
-                        NoteRow(note: note, searchText: $viewModel.searchText)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0))
-                            .onTapGesture {
-                                viewModel.onSelect(note)
-                            }
+        List {
+            ForEach(viewModel.notes) { note in
+                NoteRow(note: note, searchText: $viewModel.searchText)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0))
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.onSelect(note)
                     }
-                }
             }
         }
-        .onTapGesture {
-            hideKeyboard()
-        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.immediately)
+        .background(LinearGradient(.darker, .dark).ignoresSafeArea())
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
     }
 }
 
@@ -81,8 +78,16 @@ extension NoteListView {
                 VStack (alignment: .leading) {
                     Text(note.subtitle ?? "")
                         .font(Font.subheadline.bold()).padding([.top,.bottom], 1).foregroundColor(.white)
-                    TextView(text: note.captionFormatted ?? NSAttributedString(), selectedText: $searchText)
-                        .frame(maxHeight: 75) // TODO: remove fixed height, needs to be dynamic
+                    Text(note.captionText)
+                        .font(.body)
+                        .foregroundStyle(.white)
+                        .tint(.white)
+                        .lineLimit(3)
+                        // Tapping a hashtag searches for it instead of opening a URL.
+                        .environment(\.openURL, OpenURLAction { url in
+                            searchText = url.absoluteString
+                            return .handled
+                        })
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(15)
@@ -96,5 +101,8 @@ extension NoteListView {
 }
 
 #Preview {
-    NoteListView(viewModel: .init(service: MockNoteService()))
+    NavigationStack {
+        NoteListView(viewModel: .init(service: MockNoteService()))
+    }
+    .preferredColorScheme(.dark)
 }

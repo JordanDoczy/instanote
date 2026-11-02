@@ -15,7 +15,7 @@ struct EditNoteViewModelTests {
         let note = service.createNote(caption: "hello", uiImage: TestFixtures.image(width: 4, height: 4), location: TestFixtures.coordinate)
         service.save()
 
-        let viewModel = EditNoteView.ViewModel(service: service, note: note)
+        let viewModel = EditNoteView.ViewModel(service: service, note: note, currentLocation: TestFixtures.noLocation)
 
         #expect(viewModel.hasImage)
         guard case .picture(.some) = viewModel.state else {
@@ -31,7 +31,7 @@ struct EditNoteViewModelTests {
         service.save()
         let originalPhoto = try #require(note.photo)
 
-        let viewModel = EditNoteView.ViewModel(service: service, note: note)
+        let viewModel = EditNoteView.ViewModel(service: service, note: note, currentLocation: TestFixtures.noLocation)
         viewModel.caption = "hello again"
         viewModel.save()
 
@@ -46,7 +46,7 @@ struct EditNoteViewModelTests {
         service.save()
         let originalPhoto = try #require(note.photo)
 
-        let viewModel = EditNoteView.ViewModel(service: service, note: note)
+        let viewModel = EditNoteView.ViewModel(service: service, note: note, currentLocation: TestFixtures.noLocation)
         viewModel.uiImage = TestFixtures.image(width: 8, height: 8)
         viewModel.save()
 
@@ -71,7 +71,7 @@ struct EditNoteViewModelTests {
         let note = service.createNote(caption: "no location", uiImage: TestFixtures.image(width: 4, height: 4))
         service.save()
 
-        let viewModel = EditNoteView.ViewModel(service: service, note: note)
+        let viewModel = EditNoteView.ViewModel(service: service, note: note, currentLocation: TestFixtures.noLocation)
 
         #expect(viewModel.location == nil)
     }

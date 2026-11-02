@@ -16,10 +16,10 @@ struct ChoosePhotoView: View {
         TabView {
             CameraView(outputImage: $outputImage)
             .tabItem { Label("Camera", systemImage: "camera.fill")  }
-            ImagePicker(outputImage: $outputImage)
+            PhotoLibraryView(outputImage: $outputImage)
             .tabItem { Label("Library", systemImage: "photo.on.rectangle.angled") }
         }
-        .accentColor(Color.primaryColor)
+        .tint(Color.primaryColor)
     }
 }
 
