@@ -38,6 +38,7 @@ struct EditNoteView: View {
                 dismiss()
             })
         }
+        .tint(Color.primaryColor)
     }
     
     @ViewBuilder
@@ -55,21 +56,27 @@ struct EditNoteView: View {
     }
     
     func navigation(size: CGSize) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            EditNoteNavItem(myState: .picture(image: viewModel.uiImage), state: $viewModel.state)
-            EditNoteNavItem(myState: .map(location: viewModel.location), state: $viewModel.state)
-            EditNoteNavItem(myState: .camera, state: $viewModel.state)
-            Button {
-                viewModel.showingDeleteActionSheet = true
-            } label: {
-                Image(systemName: "trash.fill")
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
-                    .background(Color.primaryColor.opacity(0.75))
+        // One container lets the glass buttons blend together as a single rail.
+        GlassEffectContainer(spacing: 8) {
+            VStack(spacing: 8) {
+                EditNoteNavItem(myState: .picture(image: viewModel.uiImage), state: $viewModel.state)
+                EditNoteNavItem(myState: .map(location: viewModel.location), state: $viewModel.state)
+                EditNoteNavItem(myState: .camera, state: $viewModel.state)
+                Button {
+                    viewModel.showingDeleteActionSheet = true
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .frame(width: 50, height: 50)
+                        .foregroundStyle(.white)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .accessibilityLabel("Delete")
             }
         }
         .opacity(viewModel.hasImage ? 1 : 0)
-        .position(x: 25, y: size.height/1.5)
+        .position(x: 37, y: size.height/1.5)
     }
 
     func photoView(image: UIImage, size: CGSize) -> some View {
@@ -310,6 +317,15 @@ extension EditNoteView {
             case .map: return "mappin.and.ellipse"
             }
         }
+
+        /// Spoken by VoiceOver for the side buttons.
+        var title: String {
+            switch self {
+            case .picture: return "Photo"
+            case .camera: return "Change Photo"
+            case .map: return "Map"
+            }
+        }
     }
     
     struct EditNoteNavItem: View {
@@ -319,15 +335,21 @@ extension EditNoteView {
         @Binding var state: EditNoteViewState
         
         var body: some View {
+            let isSelected = state == myState
             Button {
                 state = myState
             } label: {
                 Image(systemName: myState.icon)
                     .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
-                    .background(state == myState ? Color.lightGray.opacity(0.75) : Color.primaryColor.opacity(0.75))
+                    .foregroundStyle(.white)
+                    .contentShape(Circle())
             }
-            .disabled(state == myState)
+            .buttonStyle(.plain)
+            // The current screen's button is tinted; the others are clear glass.
+            .glassEffect(isSelected ? .regular.tint(.primaryColor).interactive() : .regular.interactive(), in: .circle)
+            .disabled(isSelected)
+            .accessibilityLabel(myState.title)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
         }
     }
     
@@ -339,35 +361,17 @@ extension EditNoteView {
         
         func body(content: Content) -> some View {
             content
+                .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        VStack {
-                            Text(title)
-                                .font(Font.headline)
-                                .foregroundColor(.white)
-                        }
-                    }
+                    // iOS 26 shows these as glass close (✕) and prominent confirm (✓) buttons.
                     ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            cancelAction()
-                        } label: {
-                            Text("Cancel")
-                                .font(Font.body)
-                                .foregroundColor(.white)
-                        }
+                        Button(role: .cancel, action: cancelAction)
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            saveAction()
-                        } label: {
-                            Text("Done")
-                                .font(Font.body)
-                                .foregroundColor(.white)
-                        }
+                        Button(role: .confirm, action: saveAction)
                     }
                 }
-                .modifier(NavigationBarModifier(backgroundColor: Color.primaryColor.toUIColor(), textColor: .white))
         }
     }
     
@@ -389,6 +393,16 @@ extension EditNoteView {
     }
 }
 
-#Preview {
+#Preview("New Note") {
     EditNoteView(viewModel: .init(service: MockNoteService(), currentLocation: { nil }))
+        .preferredColorScheme(.dark)
+}
+
+#Preview("With Photo") {
+    let viewModel = EditNoteView.ViewModel(service: MockNoteService(),
+                                           caption: "Sunny day at the beach #beach",
+                                           location: CLLocationCoordinate2D(latitude: 20.7984, longitude: -156.3319))
+    viewModel.uiImage = UIImage(named: "hula")
+    return EditNoteView(viewModel: viewModel)
+        .preferredColorScheme(.dark)
 }

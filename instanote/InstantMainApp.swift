@@ -12,7 +12,6 @@ import CoreLocation
 @main
 struct InstaMainApp: App {
 
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     private let service: NoteService
     @State private var mainViewModel: InstaMainView.ViewModel
 

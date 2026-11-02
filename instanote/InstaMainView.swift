@@ -26,15 +26,14 @@ struct InstaMainView: View {
                 viewModel.edit(nil)
             } label: {
                 Image(systemName: "plus")
-                    .frame(width: 75, height: 75)
                     .font(Font.system(size: 25).bold())
-                    .foregroundColor(.darker)
-                    .background(Color.primaryColor)
-                    .clipShape(Circle())
-                    .shadow(color: .darker, radius: 2, x: 2, y: 2)
-                    .shadow(color: .primaryColorLight, radius: 2, x: -2, y: -2)
+                    .foregroundStyle(Color.darker)
+                    .frame(width: 75, height: 75)
+                    .contentShape(Circle())
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
+            .glassEffect(.regular.tint(.primaryColor).interactive(), in: .circle)
+            .accessibilityLabel("New Note")
         }
         // The app's palette is dark, so system controls (search field, sheets) should match.
         .preferredColorScheme(.dark)
