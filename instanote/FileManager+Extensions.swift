@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-extension FileManager {
+// FileManager is thread-safe, and Note calls these from nonisolated Core Data callbacks.
+nonisolated extension FileManager {
     
     private var applicationDocumentsDirectory: URL {
         let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -19,9 +20,13 @@ extension FileManager {
     func saveImage(_ image: UIImage) -> String? {
         
         if let imageData = image.jpegData(compressionQuality: 1.0) {
-            let fileName = "\(Date.timeIntervalSinceReferenceDate).jpg"
+            let fileName = "\(UUID().uuidString).jpg"
             let imageURL = applicationDocumentsDirectory.appendingPathComponent(fileName)
-            try? imageData.write(to: imageURL, options: [.atomic])
+            do {
+                try imageData.write(to: imageURL, options: [.atomic])
+            } catch {
+                return nil
+            }
             return fileName
         }
         return nil

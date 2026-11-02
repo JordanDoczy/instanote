@@ -6,43 +6,42 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
 import MapKit
+import SwiftUI
 
-struct MapView: UIViewRepresentable {
+struct MapView: View {
 
-    var location: CLLocationCoordinate2D
-    var title: String
+    let location: CLLocationCoordinate2D
+    let title: String
 
-    func makeUIView(context: Context) -> MKMapView {
-        MKMapView(frame: .zero)
+    @State private var position: MapCameraPosition
+
+    init(location: CLLocationCoordinate2D, title: String) {
+        self.location = location
+        self.title = title
+        _position = State(initialValue: Self.position(for: location))
     }
 
-    func updateUIView(_ view: MKMapView, context: Context) {
+    var body: some View {
+        Map(position: $position) {
+            Marker(title, coordinate: location)
+                .tint(Color.primaryColor)
+        }
+        // A new note's location can arrive while the map is showing.
+        .onChange(of: location) { _, newLocation in
+            withAnimation {
+                position = Self.position(for: newLocation)
+            }
+        }
+    }
 
-        view.mapType = MKMapType.standard
-
-        let span = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-        let region = MKCoordinateRegion(center: location, span: span)
-        view.setRegion(region, animated: true)
-
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = location
-        annotation.title = title
-
-        view.addAnnotation(annotation)
-        
+    private static func position(for location: CLLocationCoordinate2D) -> MapCameraPosition {
+        .region(MKCoordinateRegion(center: location, span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)))
     }
 }
 
-struct MapView_Previews: PreviewProvider {
-
-    static let location = MockData.locations[0]
-    
-    static var previews: some View {
-        MapView(location: CLLocationCoordinate2D(latitude: location.lat, longitude: location.long),
-                title: "annotation")
-        
-    }
+#Preview {
+    let location = MockData.locations[0]
+    MapView(location: CLLocationCoordinate2D(latitude: location.lat, longitude: location.long),
+            title: "annotation")
 }

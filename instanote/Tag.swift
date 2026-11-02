@@ -7,51 +7,15 @@
 //
 
 import Foundation
-import CoreData
+import SwiftData
 
+@Model
+final class Tag {
+    /// The tag without its "#", e.g. "beach".
+    var name: String?
+    var notes: [Note]? = []
 
-class Tag: NSManagedObject {
-
-    struct Constants{
-        struct Relationships {
-            static let Notes = "notes"
-        }
-    }
-    
-    func addNote(_ note:Note){
-        mutableSetValue(forKey: Constants.Relationships.Notes).add(note)
-    }
-    func removeNote(_ note:Note){
-        mutableSetValue(forKey: Constants.Relationships.Notes).remove(note)
+    init(name: String) {
+        self.name = name
     }
 }
-
-// MARK: CoreData
-extension Tag {
-
-    @NSManaged var name: String?
-    @NSManaged var notes: NSSet?
-
-}
-
-// MARK: Fetch Requests
-extension Tag {
-    static func getTagRequest(with name: String) -> NSFetchRequest<Tag> {
-        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
-        request.predicate = NSPredicate(format: "name = %@", name)
-        return request
-    }
-
-    static var getTagsRequest: NSFetchRequest<Tag> {
-        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
-        return request
-    }
-    
-    static func getTagsRequestWith(with namePrefix: String) -> NSFetchRequest<Tag> {
-        let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
-        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Tag.name), ascending: true)]
-        request.predicate = NSPredicate(format: "name BEGINSWITH[c] %@", namePrefix)
-        return request
-    }
-}
-

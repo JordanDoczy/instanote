@@ -6,17 +6,16 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
+import CoreLocation
+import Observation
 import SwiftUI
-import MapKit
-import CoreData
-import Combine
 
 struct EditNoteView: View {
-    @ObservedObject var viewModel: ViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Bindable var viewModel: ViewModel
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             GeometryReader { frame in
                 ZStack(alignment: .topLeading) {
                     Color.darker.ignoresSafeArea()
@@ -28,48 +27,56 @@ struct EditNoteView: View {
             .modifier(EditNoteNavigationModifier(title: viewModel.title,
                  cancelAction: {
                     viewModel.cancel()
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                  },
                  saveAction: {
                     viewModel.save()
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                  }))
             .modifier(EditNoteDeleteActionSheetModifier(isPresented: $viewModel.showingDeleteActionSheet) {
                 viewModel.delete()
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             })
         }
+        .tint(Color.primaryColor)
     }
     
-    func content(size: CGSize) -> AnyView {
+    @ViewBuilder
+    func content(size: CGSize) -> some View {
         switch viewModel.state {
         case let .picture(.some(image)):
-            return AnyView (photoView(image: image, size: size))
+            photoView(image: image, size: size)
         case let .map(.some(location)):
-            return AnyView(MapView(location: location, title: viewModel.caption))
+            MapView(location: location, title: viewModel.caption)
         case .camera:
-            return AnyView(ChoosePhotoView(outputImage: $viewModel.uiImage))
+            ChoosePhotoView(outputImage: $viewModel.uiImage)
         default:
-            return AnyView(EmptyView())
+            EmptyView()
         }
     }
     
     func navigation(size: CGSize) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            EditNoteNavItem(myState: .picture(image: viewModel.uiImage), state: $viewModel.state)
-            EditNoteNavItem(myState: .map(location: viewModel.location), state: $viewModel.state)
-            EditNoteNavItem(myState: .camera, state: $viewModel.state)
-            Button {
-                viewModel.showingDeleteActionSheet = true
-            } label: {
-                Image(systemName: "trash.fill")
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
-                    .background(Color.primaryColor.opacity(0.75))
+        // One container lets the glass buttons blend together as a single rail.
+        GlassEffectContainer(spacing: 8) {
+            VStack(spacing: 8) {
+                EditNoteNavItem(myState: .picture(image: viewModel.uiImage), state: $viewModel.state)
+                EditNoteNavItem(myState: .map(location: viewModel.location), state: $viewModel.state)
+                EditNoteNavItem(myState: .camera, state: $viewModel.state)
+                Button {
+                    viewModel.showingDeleteActionSheet = true
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .frame(width: 50, height: 50)
+                        .foregroundStyle(.white)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .accessibilityLabel("Delete")
             }
         }
         .opacity(viewModel.hasImage ? 1 : 0)
-        .position(x: 25, y: size.height/1.5)
+        .position(x: 37, y: size.height/1.5)
     }
 
     func photoView(image: UIImage, size: CGSize) -> some View {
@@ -104,8 +111,9 @@ struct EditNoteView: View {
                         .font(.body)
                         .frame(maxWidth: .infinity, maxHeight: 200.0)
                         .padding(15)
-                        .foregroundColor(.white)
-                        .accentColor(.white)
+                        .foregroundStyle(.white)
+                        .tint(.white)
+                        .scrollContentBackground(.hidden)
                         .onTapGesture {
                             if viewModel.caption == Constants.defaultText {
                                 viewModel.caption = ""
@@ -122,31 +130,32 @@ struct EditNoteView: View {
 extension EditNoteView {
     
     struct Constants {
-        static var defaultText = "Enter your caption here."
-        static var maxCaptionCharacterCount = 123
-        static var maxTagMatches = 3
+        static let defaultText = "Enter your caption here."
+        static let maxCaptionCharacterCount = 123
+        static let maxTagMatches = 3
     }
     
-    class ViewModel: ObservableObject {
-        
-        @ObservedObject var locationManager = LocationManager()
-        
-        @Published var caption: String {
-            didSet {
-                tagRange = nil
+    @Observable
+    final class ViewModel: Identifiable {
 
-                if caption.count > Constants.maxCaptionCharacterCount {
-                    caption = oldValue
-                } else {
-                    tagRange = updateTags(oldValue: oldValue, newValue: caption)
+        /// Edits longer than `maxCaptionCharacterCount` are rejected.
+        var caption: String {
+            get { storedCaption }
+            set {
+                guard newValue.count <= Constants.maxCaptionCharacterCount else {
+                    storedCaption = storedCaption // still notify, so the text field reverts
+                    return
                 }
+                let oldValue = storedCaption
+                storedCaption = newValue
+                tagRange = updateTags(oldValue: oldValue, newValue: newValue)
             }
         }
-        @Published var location: CLLocationCoordinate2D? = nil
-        @Published var showingDeleteActionSheet = false
-        @Published var state = EditNoteViewState.camera
-        @Published var tags: [String] = []
-        @Published var uiImage: UIImage? = nil {
+        var location: CLLocationCoordinate2D? = nil
+        var showingDeleteActionSheet = false
+        var state = EditNoteViewState.camera
+        var tags: [String] = []
+        var uiImage: UIImage? = nil {
             didSet {
                 if uiImage != nil {
                     state = .picture(image: uiImage!)
@@ -157,36 +166,57 @@ extension EditNoteView {
         var hasImage: Bool { uiImage != nil }
         var title: String { note == nil ? "Create Note" : "Edit Note" }
         
-        private var subscriber: AnyCancellable? = nil
-        private var note: Note?
-        private var service: NoteService
-        private var tagRange: Range<String.Index>? = nil
+        private var storedCaption: String
+        @ObservationIgnored private var locationTask: Task<Void, Never>? = nil
+        @ObservationIgnored private var note: Note?
+        /// The photo the note already had, so saving can tell whether the user picked a new one.
+        @ObservationIgnored private var originalImage: UIImage? = nil
+        @ObservationIgnored private let service: NoteService
+        @ObservationIgnored private var tagRange: Range<String.Index>? = nil
         
-        init(service: NoteService, caption: String? = nil, imagePath: String? = nil, location: CLLocationCoordinate2D? = nil) {
+        /// `currentLocation` is used for notes without a location; tests pass a stub so they don't touch CoreLocation.
+        init(service: NoteService,
+             caption: String? = nil,
+             imagePath: String? = nil,
+             location: CLLocationCoordinate2D? = nil,
+             currentLocation: @escaping () async -> CLLocationCoordinate2D? = CurrentLocation.coordinate) {
             self.service = service
-            self.caption = caption ?? Constants.defaultText
+            self.storedCaption = caption ?? Constants.defaultText
             self.location = location
 
             if let imagePath = imagePath {
-                self.uiImage = ImageLoader(urlString: imagePath).image
-            }
-            
-            if location == nil {
-                locationManager.requestAccess() // request access and start polling for location
-                subscriber = locationManager.$location.sink { [weak self] location in
-                    self?.location = location?.coordinate
-                    self?.locationManager.stop() // only get location once
-                    self?.subscriber?.cancel()
+                if let image = ImageLoader.localImage(urlString: imagePath) {
+                    originalImage = image
+                    uiImage = image
+                } else {
+                    loadRemoteImage(urlString: imagePath)
                 }
             }
-            
+
+            // didSet doesn't run during init, so set the starting screen directly.
+            state = uiImage.map { .picture(image: $0) } ?? .camera
+
+            if location == nil {
+                locationTask = Task { [weak self] in
+                    let coordinate = await currentLocation()
+                    guard let self, self.location == nil else { return }
+                    self.location = coordinate
+                }
+            }
+        }
+
+        isolated deinit {
+            locationTask?.cancel()
         }
         
-        convenience init(service: NoteService, note: Note?) {
+        convenience init(service: NoteService,
+                         note: Note?,
+                         currentLocation: @escaping () async -> CLLocationCoordinate2D? = CurrentLocation.coordinate) {
             self.init(service: service,
                       caption: note?.caption ?? nil,
                       imagePath: note?.imagePath ?? nil,
-                      location: note?.coordinate ?? nil)
+                      location: note?.location?.coordinate,
+                      currentLocation: currentLocation)
             
             self.note = note
         }
@@ -203,9 +233,24 @@ extension EditNoteView {
         
         func save() {
             let note = self.note ?? service.createNote()
-            
-            service.updateNote(note, caption: caption, uiImage: uiImage, location: location)
+            let savedCaption = caption == Constants.defaultText ? "" : caption
+            // Only pass a photo when it changed; passing one replaces the file on disk.
+            let newImage = uiImage === originalImage ? nil : uiImage
+
+            service.updateNote(note, caption: savedCaption, uiImage: newImage, location: location)
             service.save()
+        }
+
+        private func loadRemoteImage(urlString: String) {
+            Task { [weak self] in
+                guard let image = await ImageLoader.fetchImage(urlString: urlString),
+                      let self,
+                      uiImage == nil // the user may have picked a photo while this loaded
+                else { return }
+
+                originalImage = image
+                uiImage = image
+            }
         }
         
         func updateTag(tag: String) {
@@ -245,7 +290,7 @@ extension EditNoteView {
         private func updateTags(oldValue: String, newValue: String) -> Range<String.Index>? {
             if let range = getRangeOfCurrentEdit(oldValue: oldValue, newValue: newValue) {
                 let tag = newValue[range].trimmingCharacters(in: .whitespaces)
-                var tags = service.getTags(tag) ?? []
+                var tags = service.getTags(tag)
                 
                 if tags.count > EditNoteView.Constants.maxTagMatches {
                     tags = Array(tags[0..<EditNoteView.Constants.maxTagMatches])
@@ -272,6 +317,15 @@ extension EditNoteView {
             case .map: return "mappin.and.ellipse"
             }
         }
+
+        /// Spoken by VoiceOver for the side buttons.
+        var title: String {
+            switch self {
+            case .picture: return "Photo"
+            case .camera: return "Change Photo"
+            case .map: return "Map"
+            }
+        }
     }
     
     struct EditNoteNavItem: View {
@@ -281,15 +335,21 @@ extension EditNoteView {
         @Binding var state: EditNoteViewState
         
         var body: some View {
+            let isSelected = state == myState
             Button {
                 state = myState
             } label: {
                 Image(systemName: myState.icon)
                     .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
-                    .background(state == myState ? Color.lightGray.opacity(0.75) : Color.primaryColor.opacity(0.75))
+                    .foregroundStyle(.white)
+                    .contentShape(Circle())
             }
-            .disabled(state == myState)
+            .buttonStyle(.plain)
+            // The current screen's button is tinted; the others are clear glass.
+            .glassEffect(isSelected ? .regular.tint(.primaryColor).interactive() : .regular.interactive(), in: .circle)
+            .disabled(isSelected)
+            .accessibilityLabel(myState.title)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
         }
     }
     
@@ -301,35 +361,17 @@ extension EditNoteView {
         
         func body(content: Content) -> some View {
             content
+                .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        VStack {
-                            Text(title)
-                                .font(Font.headline)
-                                .foregroundColor(.white)
-                        }
+                    // iOS 26 shows these as glass close (✕) and prominent confirm (✓) buttons.
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(role: .cancel, action: cancelAction)
                     }
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            cancelAction()
-                        } label: {
-                            Text("Cancel")
-                                .font(Font.body)
-                                .foregroundColor(.white)
-                        }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            saveAction()
-                        } label: {
-                            Text("Done")
-                                .font(Font.body)
-                                .foregroundColor(.white)
-                        }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(role: .confirm, action: saveAction)
                     }
                 }
-                .modifier(NavigationBarModifier(backgroundColor: Color.primaryColor.toUIColor(), textColor: .white))
         }
     }
     
@@ -340,25 +382,27 @@ extension EditNoteView {
         
         func body(content: Content) -> some View {
             content
-                .actionSheet(isPresented: $isPresented) {
-                    ActionSheet(title: Text(""),
-                                message: Text("Are you sure you want to delete?"),
-                                buttons: [
-                                    .destructive(Text("Delete")) {
-                                        deleteAction()
-                                    },
-                                    .cancel()
-                                ])
+                .confirmationDialog("Delete Note", isPresented: $isPresented, titleVisibility: .hidden) {
+                    Button("Delete", role: .destructive) {
+                        deleteAction()
+                    }
+                } message: {
+                    Text("Are you sure you want to delete?")
                 }
         }
     }
 }
 
-struct EditNoteView_Previews: PreviewProvider {
-    
-    static let service = MockNoteService()
-    
-    static var previews: some View {
-        EditNoteView(viewModel: .init(service: service))
-    }
+#Preview("New Note") {
+    EditNoteView(viewModel: .init(service: .preview(), currentLocation: { nil }))
+        .preferredColorScheme(.dark)
+}
+
+#Preview("With Photo") {
+    let viewModel = EditNoteView.ViewModel(service: .preview(),
+                                           caption: "Sunny day at the beach #beach",
+                                           location: CLLocationCoordinate2D(latitude: 20.7984, longitude: -156.3319))
+    viewModel.uiImage = UIImage(named: "hula")
+    return EditNoteView(viewModel: viewModel)
+        .preferredColorScheme(.dark)
 }

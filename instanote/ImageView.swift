@@ -9,16 +9,22 @@
 import SwiftUI
 
 struct ImageView: View {
-    @ObservedObject var imageLoader: ImageLoader
+    let url: String
+
+    @State private var image: UIImage?
 
     init(with url: String) {
-        imageLoader = ImageLoader(urlString: url)
+        self.url = url
+        // Photos on this device load immediately, so rows don't flash empty while scrolling.
+        _image = State(initialValue: ImageLoader.localImage(urlString: url))
     }
 
     var body: some View {
-        Image(uiImage: imageLoader.image ?? UIImage())
+        Image(uiImage: image ?? UIImage())
             .resizable()
             .aspectRatio(contentMode: .fill)
-
+            .task(id: url) {
+                image = await ImageLoader.fetchImage(urlString: url)
+            }
     }
 }

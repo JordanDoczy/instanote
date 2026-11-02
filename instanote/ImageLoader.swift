@@ -7,53 +7,36 @@
 //
 
 import Foundation
-import Combine
 import UIKit
 
-class ImageLoader: ObservableObject {
-    @Published var image: UIImage?
-    
-    private var imageCache = ImageCache.getImageCache()
-    private let imageProcessingQueue = DispatchQueue(label: "image-processing")
-    private var cancellable: AnyCancellable?
-    
-    init(urlString: String) {
-        loadImage(urlString: urlString)
-    }
-    
-    private func loadImage(urlString: String) {
-        if loadImageFromCache(urlString: urlString) {
-            return
+enum ImageLoader {
+
+    /// Returns the image right away if it's cached or stored on this device, otherwise nil.
+    static func localImage(urlString: String) -> UIImage? {
+        if let cachedImage = ImageCache.getImageCache().get(forKey: urlString) {
+            return cachedImage
         }
-        
-        loadImageFromUrl(urlString: urlString)
+        guard let url = URL(string: urlString), url.isFileURL,
+              let image = UIImage(contentsOfFile: url.path)
+        else { return nil }
+
+        ImageCache.getImageCache().set(forKey: urlString, image: image)
+        return image
     }
-    
-    private func loadImageFromCache(urlString: String) -> Bool {
-        guard let cacheImage = imageCache.get(forKey: urlString) else {
-            return false
+
+    /// Loads and caches the image at `urlString`, which may be a file or a web URL.
+    static func fetchImage(urlString: String) async -> UIImage? {
+        if let image = localImage(urlString: urlString) {
+            return image
         }
-        
-        image = cacheImage
-        return true
-    }
-    
-    private func loadImageFromUrl(urlString: String) {
-        let url = URL(string: urlString)!
-        
-        cancellable = URLSession.shared.dataTaskPublisher(for: url)
-            .map { UIImage(data: $0.data) }
-            .replaceError(with: nil)
-            .subscribe(on: imageProcessingQueue)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] loadedImage in
-                guard let strongSelf = self, let loadedImage = loadedImage else {
-                    return
-                }
-                
-                strongSelf.imageCache.set(forKey: urlString, image: loadedImage)
-                strongSelf.image = loadedImage
-            }
+        // The network wait happens off the main actor; the rest runs back on it.
+        guard let url = URL(string: urlString),
+              let (data, _) = try? await URLSession.shared.data(from: url),
+              let image = UIImage(data: data)
+        else { return nil }
+
+        ImageCache.getImageCache().set(forKey: urlString, image: image)
+        return image
     }
 }
 
