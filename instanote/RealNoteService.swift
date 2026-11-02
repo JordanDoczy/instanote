@@ -63,7 +63,8 @@ class RealNoteService: NSObject, NoteService  {
         // combine result from caption search and tag search
         uniqueNotes = uniqueNotes.union(Set<Note>(notesFromTags ?? []))
 
-        return Array(uniqueNotes)
+        // newest first, matching the unfiltered list
+        return uniqueNotes.sorted { ($0.date ?? .distantPast) > ($1.date ?? .distantPast) }
     }
 
     

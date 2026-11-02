@@ -6,131 +6,141 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Combine
-import SwiftUI
 import AVFoundation
+import Combine
+import UIKit
 
+/// Owns the AVCaptureSession. AVFoundation requires session configuration and
+/// `startRunning()` (which blocks) to happen off the main thread, so every member is only
+/// touched on `queue`. That confinement is what makes `@unchecked Sendable` safe here.
+nonisolated final class CaptureSession: @unchecked Sendable {
 
-// (Modified)
-//
-//  SwiftUI-CameraApp
-//
-//  Created by Gaspard Rosay on 28.01.20.
-//  Copyright © 2020 Gaspard Rosay. All rights reserved.
-//
-class CameraController: NSObject, ObservableObject {
-    let publisher = PassthroughSubject<UIImage, Never>()
-    var saveCompletionHandler: ((UIImage?) -> Void)? = nil
-    
-    private var captureSession: AVCaptureSession?
-    private var camera: AVCaptureDevice?
-    private var cameraInput: AVCaptureDeviceInput?
-    private var cameraOutput: AVCapturePhotoOutput?
-    private var previewLayer: AVCaptureVideoPreviewLayer?
-
-    enum CameraControllerError: Swift.Error {
-        case captureSessionAlreadyRunning
-        case captureSessionIsMissing
-        case inputsAreInvalid
-        case invalidOperation
-        case noCamerasAvailable
-        case unknown
+    enum CaptureError: Error {
+        case noCameraAvailable
+        case invalidConfiguration
     }
-    
-    func prepare(completionHandler: @escaping (Error?) -> Void){
-        func createCaptureSession(){
-            captureSession = AVCaptureSession()
-            captureSession!.sessionPreset = .hd1280x720
-        }
-        
-        func configureCaptureDevices() throws {
-            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .back)
-            try camera?.lockForConfiguration() // leave camera optional for simulator testing
-            camera?.unlockForConfiguration()
-        }
-        
-        func configureDeviceInputs() throws  {
-            guard let captureSession = captureSession else { throw CameraControllerError.captureSessionIsMissing }
-            
-            if let camera = camera {
-                cameraInput = try AVCaptureDeviceInput(device: camera)
-                
-                if captureSession.canAddInput(cameraInput!) { captureSession.addInput(cameraInput!)}
-                else { throw CameraControllerError.inputsAreInvalid }
-                
-            }
-            else { throw CameraControllerError.noCamerasAvailable }
-            
-            captureSession.startRunning()
-        }
-        
-        func configureDeviceOutputs() throws {
-            guard let captureSession = captureSession else { throw CameraControllerError.captureSessionIsMissing }
 
-            cameraOutput = AVCapturePhotoOutput()
-            
-            if captureSession.canAddOutput(cameraOutput!) { captureSession.addOutput(cameraOutput!) }
-            else { throw CameraControllerError.unknown }
-        }
-        
-        DispatchQueue(label: "prepare").async {
-            do {
-                createCaptureSession()
-                try configureCaptureDevices()
-                try configureDeviceInputs()
-                try configureDeviceOutputs()
-            }
-                
-            catch {
-                DispatchQueue.main.async{
-                    completionHandler(error)
+    /// Exposed only so the preview layer can attach to it, which Apple allows from the main thread.
+    let session = AVCaptureSession()
+
+    private let output = AVCapturePhotoOutput()
+    private let queue = DispatchQueue(label: "com.jordandoczy.InstaNote.camera-session")
+    private var isConfigured = false
+
+    /// The app is portrait-only, so photos are always captured upright for portrait.
+    private static let portraitRotationAngle: CGFloat = 90
+
+    func start() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            queue.async {
+                do {
+                    try self.configureIfNeeded()
+                    if !self.session.isRunning {
+                        self.session.startRunning()
+                    }
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
                 }
-                
-                return
-            }
-            
-            DispatchQueue.main.async {
-                completionHandler(nil)
             }
         }
     }
-    func displayPreview(on view: UIView) throws {
-        guard let captureSession = captureSession, captureSession.isRunning else { throw CameraControllerError.captureSessionIsMissing }
-        
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer!.videoGravity = .resizeAspectFill
-        previewLayer!.connection?.videoOrientation = .portrait
-        
-        view.layer.addSublayer(previewLayer!)
-        previewLayer!.frame = view.frame
+
+    func stop() {
+        queue.async {
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+        }
     }
-    
-    func capturePhoto(completionHandler: ((UIImage?) -> Void)? = nil) {
-        self.saveCompletionHandler = completionHandler
-        cameraOutput?.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+
+    func capturePhoto(delegate: any AVCapturePhotoCaptureDelegate & Sendable) {
+        queue.async {
+            guard self.isConfigured, self.session.isRunning else { return }
+
+            if let connection = self.output.connection(with: .video),
+               connection.isVideoRotationAngleSupported(Self.portraitRotationAngle) {
+                connection.videoRotationAngle = Self.portraitRotationAngle
+            }
+
+            self.output.capturePhoto(with: AVCapturePhotoSettings(), delegate: delegate)
+        }
     }
-    
-    func processPhoto(uiImage: UIImage) -> UIImage {
-        guard var frame = previewLayer?.frame else { return uiImage }
-        
-        frame.size = CGSize(width: uiImage.size.width, height: uiImage.size.width)
-        frame.origin = CGPoint(x: (uiImage.size.height/2)-(frame.width/2), y: (uiImage.size.width/2)-(frame.height/2))
-        
-        let croppedImage = uiImage.cropImage(toRect: frame)
-        return croppedImage ?? uiImage
+
+    private func configureIfNeeded() throws {
+        guard !isConfigured else { return }
+
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            throw CaptureError.noCameraAvailable
+        }
+        let input = try AVCaptureDeviceInput(device: camera)
+
+        session.beginConfiguration()
+        defer { session.commitConfiguration() }
+
+        session.sessionPreset = .photo
+        guard session.canAddInput(input), session.canAddOutput(output) else {
+            throw CaptureError.invalidConfiguration
+        }
+        session.addInput(input)
+        session.addOutput(output)
+        isConfigured = true
+    }
+}
+
+final class CameraController: NSObject, ObservableObject {
+
+    enum Status: Equatable {
+        case starting
+        case running
+        case denied
+        case unavailable
+    }
+
+    let publisher = PassthroughSubject<UIImage, Never>()
+    let capture = CaptureSession()
+
+    @Published private(set) var status = Status.starting
+
+    func start() async {
+        // Returns immediately when the user has already answered the permission prompt.
+        guard await AVCaptureDevice.requestAccess(for: .video) else {
+            status = .denied
+            return
+        }
+
+        do {
+            try await capture.start()
+            status = .running
+        } catch {
+            status = .unavailable
+        }
+    }
+
+    func stop() {
+        capture.stop()
+        if status == .running {
+            status = .starting
+        }
+    }
+
+    func capturePhoto() {
+        capture.capturePhoto(delegate: self)
     }
 }
 
 extension CameraController: AVCapturePhotoCaptureDelegate {
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard error == nil, let imageData = photo.fileDataRepresentation(), let rawUIImage = UIImage(data: imageData) else {
-            saveCompletionHandler?(nil)
-            return
+
+    // AVFoundation calls this on its own queue. Decoding and cropping a full-size photo is
+    // slow, so it happens here, and only the finished image is sent to the main actor.
+    nonisolated func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard error == nil,
+              let data = photo.fileDataRepresentation(),
+              let image = UIImage(data: data)?.squareCropped(maxPixelSide: UIImage.notePhotoMaxPixelSide)
+        else { return }
+
+        Task { @MainActor in
+            self.publisher.send(image)
         }
-        
-        let photo = processPhoto(uiImage: rawUIImage)
-        
-        publisher.send(photo)
-        saveCompletionHandler?(photo)
     }
 }

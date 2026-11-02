@@ -9,9 +9,8 @@
 import Foundation
 import CoreData
 import CoreLocation
-import MapKit
 
-class Location: NSManagedObject, MKAnnotation {
+nonisolated class Location: NSManagedObject {
     
     struct Constants{
         struct Relationships {
@@ -32,7 +31,7 @@ class Location: NSManagedObject, MKAnnotation {
 }
 
 // MARK: CoreData
-extension Location {
+nonisolated extension Location {
 
     @NSManaged var lat: NSNumber?
     @NSManaged var long: NSNumber?
@@ -41,7 +40,7 @@ extension Location {
 }
 
 // MARK: Fetch Requests
-extension Location {
+nonisolated extension Location {
     static var getLocationsRequest: NSFetchRequest<Location> {
         let request = Location.fetchRequest() as! NSFetchRequest<Location>
         return request
@@ -49,9 +48,10 @@ extension Location {
     
     static func getLocationsRequest(with coordinate: CLLocationCoordinate2D) -> NSFetchRequest<Location> {
         let request = Location.fetchRequest() as! NSFetchRequest<Location>
-        let latPredicate = NSPredicate(format: "lat = %d", coordinate.latitude)
-        let longPredicate = NSPredicate(format: "long = %d", coordinate.longitude)
-        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [latPredicate, longPredicate])
+        // Exact match is intended: this reuses a Location saved from this same coordinate.
+        request.predicate = NSPredicate(format: "lat == %@ AND long == %@",
+                                        NSNumber(value: coordinate.latitude),
+                                        NSNumber(value: coordinate.longitude))
         return request
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 
-class Tag: NSManagedObject {
+nonisolated class Tag: NSManagedObject {
 
     struct Constants{
         struct Relationships {
@@ -27,7 +27,7 @@ class Tag: NSManagedObject {
 }
 
 // MARK: CoreData
-extension Tag {
+nonisolated extension Tag {
 
     @NSManaged var name: String?
     @NSManaged var notes: NSSet?
@@ -35,7 +35,7 @@ extension Tag {
 }
 
 // MARK: Fetch Requests
-extension Tag {
+nonisolated extension Tag {
     static func getTagRequest(with name: String) -> NSFetchRequest<Tag> {
         let request = Tag.fetchRequest() as! NSFetchRequest<Tag>
         request.predicate = NSPredicate(format: "name = %@", name)

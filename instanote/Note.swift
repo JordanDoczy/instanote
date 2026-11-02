@@ -8,10 +8,9 @@
 
 import Foundation
 import CoreData
-import MapKit
 import SwiftUI
 
-class Note: NSManagedObject, Identifiable {
+nonisolated class Note: NSManagedObject, Identifiable {
     
     struct Constants{
         struct Relationships {
@@ -60,7 +59,7 @@ extension Note {
 
 
 // MARK: CoreData
-extension Note {
+nonisolated extension Note {
 
     @NSManaged var date: Date?
     @NSManaged var photo: String?
@@ -71,7 +70,7 @@ extension Note {
 }
 
 // MARK: Photo
-extension Note {
+nonisolated extension Note {
     
     var imagePath: String? {
         guard let photo = photo else { return nil }
@@ -95,35 +94,26 @@ extension Note {
     }
 }
 
-// MARK: MKAnnotation
-extension Note: MKAnnotation {
-    
-    var coordinate: CLLocationCoordinate2D {
-        return location?.coordinate ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
-    }
-    
-    var title: String? {
-        return caption != nil ? caption : ""
+// MARK: Display
+extension Note {
 
-    }
-    
+    /// Date shown under each note in the list, e.g. "Today, 9:41 AM".
     var subtitle: String? {
-        func formateDate(_ date:Date) -> String {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .short
-            dateFormatter.timeStyle = .short
-            dateFormatter.doesRelativeDateFormatting = true
-            return dateFormatter.string(from: date)
-        }
-        
-        let str:String? = date != nil ? formateDate(date! as Date) : nil
-        return str != title ? str : nil
+        date.map { Note.subtitleFormatter.string(from: $0) }
     }
 
+    // DateFormatter is expensive to create; the list builds a subtitle per row.
+    private static let subtitleFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        formatter.doesRelativeDateFormatting = true
+        return formatter
+    }()
 }
 
 // MARK: Fetch Requests
-extension Note {
+nonisolated extension Note {
     
     static var getNotesRequest: NSFetchRequest<Note> {
         let request = Note.fetchRequest() as! NSFetchRequest<Note>

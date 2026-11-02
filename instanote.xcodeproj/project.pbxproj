@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -45,7 +45,18 @@
 		E6DC537E1C0EB0040049B295 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6DC537D1C0EB0040049B295 /* MapKit.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		17DFE1F03098CFA800DC3C21 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E67536181C08BA1400F04488 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E675361F1C08BA1400F04488;
+			remoteInfo = InstaNote;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		17DFE10D3098CFA800DC3C21 /* InstaNoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstaNoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E602E94C1C1E0F3200D9ED9B /* UIImage+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		E602E94E1C1E0F6200D9ED9B /* String+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		E6176711260A82C400DC6618 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
@@ -87,7 +98,18 @@
 		E6DC537D1C0EB0040049B295 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		17DFE10E3098CFA800DC3C21 /* InstaNoteTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = InstaNoteTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		17DFE10A3098CFA800DC3C21 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E675361D1C08BA1400F04488 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -165,6 +187,7 @@
 			children = (
 				E6DC537D1C0EB0040049B295 /* MapKit.framework */,
 				E67536221C08BA1400F04488 /* instanote */,
+				17DFE10E3098CFA800DC3C21 /* InstaNoteTests */,
 				E67536211C08BA1400F04488 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -173,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				E67536201C08BA1400F04488 /* instanote.app */,
+				17DFE10D3098CFA800DC3C21 /* InstaNoteTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -227,6 +251,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		17DFE10C3098CFA800DC3C21 /* InstaNoteTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17DFE1133098CFA800DC3C21 /* Build configuration list for PBXNativeTarget "InstaNoteTests" */;
+			buildPhases = (
+				17DFE1093098CFA800DC3C21 /* Sources */,
+				17DFE10A3098CFA800DC3C21 /* Frameworks */,
+				17DFE10B3098CFA800DC3C21 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				17DFE1F13098CFA800DC3C21 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				17DFE10E3098CFA800DC3C21 /* InstaNoteTests */,
+			);
+			name = InstaNoteTests;
+			packageProductDependencies = (
+			);
+			productName = InstaNoteTests;
+			productReference = 17DFE10D3098CFA800DC3C21 /* InstaNoteTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		E675361F1C08BA1400F04488 /* InstaNote */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E67536351C08BA1400F04488 /* Build configuration list for PBXNativeTarget "InstaNote" */;
@@ -250,10 +297,13 @@
 		E67536181C08BA1400F04488 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0710;
+				LastSwiftUpdateCheck = 2720;
 				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Jordan Doczy";
 				TargetAttributes = {
+					17DFE10C3098CFA800DC3C21 = {
+						CreatedOnToolsVersion = 27.2;
+					};
 					E675361F1C08BA1400F04488 = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = YW7WUV924U;
@@ -280,11 +330,19 @@
 			projectRoot = "";
 			targets = (
 				E675361F1C08BA1400F04488 /* InstaNote */,
+				17DFE10C3098CFA800DC3C21 /* InstaNoteTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		17DFE10B3098CFA800DC3C21 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E675361E1C08BA1400F04488 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -297,6 +355,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		17DFE1093098CFA800DC3C21 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E675361C1C08BA1400F04488 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -339,7 +404,87 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		17DFE1F13098CFA800DC3C21 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E675361F1C08BA1400F04488 /* InstaNote */;
+			targetProxy = 17DFE1F03098CFA800DC3C21 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		17DFE1113098CFA800DC3C21 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNoteTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/instanote.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/instanote";
+			};
+			name = Debug;
+		};
+		17DFE1123098CFA800DC3C21 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNoteTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/instanote.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/instanote";
+			};
+			name = Release;
+		};
 		E67536331C08BA1400F04488 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -388,7 +533,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -439,7 +584,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -455,13 +600,18 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YW7WUV924U;
 				INFOPLIST_FILE = instanote/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -473,13 +623,18 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YW7WUV924U;
 				INFOPLIST_FILE = instanote/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -487,6 +642,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		17DFE1133098CFA800DC3C21 /* Build configuration list for PBXNativeTarget "InstaNoteTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17DFE1113098CFA800DC3C21 /* Debug */,
+				17DFE1123098CFA800DC3C21 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E675361B1C08BA1400F04488 /* Build configuration list for PBXProject "instanote" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

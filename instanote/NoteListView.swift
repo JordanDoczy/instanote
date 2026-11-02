@@ -57,12 +57,21 @@ extension NoteListView {
             subscriber = service.publisher
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] notes in
-                    self?.notes = notes
+                    self?.update(with: notes)
                 }
         }
         
         func filter(by searchText: String) {
             notes = service.filter(by: searchText)
+        }
+
+        /// The service publishes every note on each change; keep showing search results while searching.
+        private func update(with allNotes: [Note]) {
+            if searchText.isEmpty {
+                notes = allNotes
+            } else {
+                filter(by: searchText)
+            }
         }
     }
 }
@@ -94,7 +103,7 @@ extension NoteListView {
                     ImageView(with: imagePath)
                         .frame(maxWidth: .infinity)
                         .clipped()
-                        .animation(.none)
+                        .transaction { $0.animation = nil }
                 }
                 
                 VStack (alignment: .leading) {

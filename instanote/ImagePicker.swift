@@ -19,19 +19,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let uiImage = info[.originalImage] as? UIImage {
-                let resizedImage = uiImage.resizeImage(targetSize: picker.view.frame.size)
-
-                let shortestSide = min(resizedImage.size.width, resizedImage.size.height)
-                let longestSide = max(resizedImage.size.width, resizedImage.size.height)
-
-                var frame = CGRect()
-                frame.size = CGSize(width: shortestSide, height: shortestSide)
-                frame.origin = CGPoint(x: 0, y: longestSide/2 - shortestSide/2)
-
-                let cgImage: CGImage = resizedImage.cgImage!.cropping(to: frame)!
-                let croppedImage = UIImage(cgImage: cgImage)
-
-                parent.outputImage = croppedImage
+                parent.outputImage = uiImage.squareCropped(maxPixelSide: UIImage.notePhotoMaxPixelSide)
             }
             
             parent.presentationMode.wrappedValue.dismiss()

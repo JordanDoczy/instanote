@@ -122,15 +122,15 @@ struct EditNoteView: View {
 extension EditNoteView {
     
     struct Constants {
-        static var defaultText = "Enter your caption here."
-        static var maxCaptionCharacterCount = 123
-        static var maxTagMatches = 3
+        static let defaultText = "Enter your caption here."
+        static let maxCaptionCharacterCount = 123
+        static let maxTagMatches = 3
     }
     
     class ViewModel: ObservableObject {
         
-        @ObservedObject var locationManager = LocationManager()
-        
+        private let locationManager = LocationManager()
+
         @Published var caption: String {
             didSet {
                 tagRange = nil
@@ -159,6 +159,8 @@ extension EditNoteView {
         
         private var subscriber: AnyCancellable? = nil
         private var note: Note?
+        /// The photo the note already had, so saving can tell whether the user picked a new one.
+        private var originalImage: UIImage? = nil
         private var service: NoteService
         private var tagRange: Range<String.Index>? = nil
         
@@ -168,25 +170,34 @@ extension EditNoteView {
             self.location = location
 
             if let imagePath = imagePath {
-                self.uiImage = ImageLoader(urlString: imagePath).image
-            }
-            
-            if location == nil {
-                locationManager.requestAccess() // request access and start polling for location
-                subscriber = locationManager.$location.sink { [weak self] location in
-                    self?.location = location?.coordinate
-                    self?.locationManager.stop() // only get location once
-                    self?.subscriber?.cancel()
+                if let image = ImageLoader.localImage(urlString: imagePath) {
+                    originalImage = image
+                    uiImage = image
+                } else {
+                    loadRemoteImage(urlString: imagePath)
                 }
             }
-            
+
+            // didSet doesn't run during init, so set the starting screen directly.
+            state = uiImage.map { .picture(image: $0) } ?? .camera
+
+            if location == nil {
+                locationManager.requestAccess() // request access and start polling for location
+                subscriber = locationManager.$location
+                    .compactMap { $0?.coordinate }
+                    .first() // only get location once
+                    .sink { [weak self] coordinate in
+                        self?.location = coordinate
+                        self?.locationManager.stop()
+                    }
+            }
         }
         
         convenience init(service: NoteService, note: Note?) {
             self.init(service: service,
                       caption: note?.caption ?? nil,
                       imagePath: note?.imagePath ?? nil,
-                      location: note?.coordinate ?? nil)
+                      location: note?.location?.coordinate)
             
             self.note = note
         }
@@ -203,9 +214,24 @@ extension EditNoteView {
         
         func save() {
             let note = self.note ?? service.createNote()
-            
-            service.updateNote(note, caption: caption, uiImage: uiImage, location: location)
+            let savedCaption = caption == Constants.defaultText ? "" : caption
+            // Only pass a photo when it changed; passing one replaces the file on disk.
+            let newImage = uiImage === originalImage ? nil : uiImage
+
+            service.updateNote(note, caption: savedCaption, uiImage: newImage, location: location)
             service.save()
+        }
+
+        private func loadRemoteImage(urlString: String) {
+            Task { [weak self] in
+                guard let image = await ImageLoader.fetchImage(urlString: urlString),
+                      let self,
+                      uiImage == nil // the user may have picked a photo while this loaded
+                else { return }
+
+                originalImage = image
+                uiImage = image
+            }
         }
         
         func updateTag(tag: String) {

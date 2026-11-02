@@ -11,6 +11,13 @@ import CoreData
 import UIKit
 
 struct PersistenceFactory {
+
+    // Loaded once: Core Data can't tell which entity a class belongs to if several
+    // copies of the same model are loaded (e.g. the app store plus in-memory test stores).
+    private static let managedObjectModel: NSManagedObjectModel = {
+        let modelURL = Bundle.main.url(forResource: "instanote", withExtension: "momd")!
+        return NSManagedObjectModel(contentsOf: modelURL)!
+    }()
     
     enum ContainerType {
         case external
@@ -30,11 +37,6 @@ struct PersistenceFactory {
                     return urls[urls.count-1]
                 }
                 
-                var managedObjectModel: NSManagedObjectModel {
-                    let modelURL = Bundle.main.url(forResource: "instanote", withExtension: "momd")!
-                    return NSManagedObjectModel(contentsOf: modelURL)!
-                }
-
                 let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
                 let url = applicationDocumentsDirectory.appendingPathComponent("SingleViewCoreData.sqlite")
 
@@ -52,7 +54,7 @@ struct PersistenceFactory {
             return managedObjectContext
 
         case .memory:
-            let container = NSPersistentContainer(name: "instanote")
+            let container = NSPersistentContainer(name: "instanote", managedObjectModel: managedObjectModel)
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
             container.loadPersistentStores { description, error in
                 if let error = error {

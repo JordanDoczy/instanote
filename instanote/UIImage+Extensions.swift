@@ -8,42 +8,33 @@
 
 import UIKit
 
-extension UIImage {
-    
-    var aspectRatio: CGFloat {
-        return max(size.width/size.height, size.height/size.width)
-    }
+// UIImage and UIGraphicsImageRenderer are thread-safe; the camera crops photos off the main thread.
+nonisolated extension UIImage {
 
-    func resizeImage(targetSize: CGSize) -> UIImage {
-        let size = self.size
-        let widthRatio  = targetSize.width  / size.width
-        let heightRatio = targetSize.height / size.height
-        
-        let newSize = widthRatio > heightRatio ?
-            CGSize(width: size.width * heightRatio, height: size.height * heightRatio) :
-            CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-        
-        let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-        
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        self.draw(in: rect)
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return newImage!
-    }
-    
-    func cropImage(toRect cropRect: CGRect) -> UIImage?
-    {
-        // Perform cropping in Core Graphics
-        guard let cutImageRef: CGImage = cgImage?.cropping(to: cropRect)
-        else {
-            return nil
+    /// Largest side, in pixels, of a photo saved to a note.
+    static let notePhotoMaxPixelSide: CGFloat = 2048
+
+    /// Returns an upright, center-cropped square, scaled down so its side is at most `maxPixelSide` pixels.
+    ///
+    /// Drawing through `draw(in:)` applies `imageOrientation`, so portrait photos (whose raw
+    /// pixels are stored sideways) crop correctly.
+    func squareCropped(maxPixelSide: CGFloat) -> UIImage {
+        let shortestSide = min(size.width, size.height)
+        guard shortestSide > 0 else { return self }
+
+        let outputSide = min(shortestSide * scale, maxPixelSide)
+        let drawScale = outputSide / shortestSide
+        let drawSize = CGSize(width: size.width * drawScale, height: size.height * drawScale)
+        let drawRect = CGRect(x: (outputSide - drawSize.width) / 2,
+                              y: (outputSide - drawSize.height) / 2,
+                              width: drawSize.width,
+                              height: drawSize.height)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1 // one point per pixel, so outputSide is in pixels
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: outputSide, height: outputSide), format: format)
+        return renderer.image { _ in
+            draw(in: drawRect)
         }
-
-        // Return image to UIImage
-        let croppedImage = UIImage(cgImage: cutImageRef, scale: 1, orientation: .right)
-        return croppedImage
     }
-    
 }
