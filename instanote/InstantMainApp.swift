@@ -13,21 +13,26 @@ import CoreLocation
 struct InstaMainApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    var service: NoteService = RealNoteService(context: PersistenceFactory.getContext())
+    private let service: NoteService
+    @State private var mainViewModel: InstaMainView.ViewModel
 
     init() {
+        let service = RealNoteService(context: PersistenceFactory.getContext())
+        self.service = service
+        _mainViewModel = State(initialValue: InstaMainView.ViewModel(service: service))
+
         // IF TESTING: addTestData()
-        
-        if UserDefaults.standard.isFirstLaunch && service.publisher.value.isEmpty {
+
+        if UserDefaults.standard.isFirstLaunch && service.notes.isEmpty {
             addExampleNote()
         } else {
             UserDefaults.standard.isFirstLaunch = false
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
-            InstaMainView(viewModel: .init(service: service))
+            InstaMainView(viewModel: mainViewModel)
         }
     }
     

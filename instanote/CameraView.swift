@@ -11,7 +11,7 @@ import SwiftUI
 
 struct CameraView: View {
 
-    @StateObject var cameraController = CameraController()
+    @State private var cameraController = CameraController()
     @Binding var outputImage: UIImage?
 
     var body: some View {
@@ -36,8 +36,10 @@ struct CameraView: View {
         .onDisappear {
             cameraController.stop()
         }
-        .onReceive(cameraController.publisher) { outputImage in
-            self.outputImage = outputImage
+        .onChange(of: cameraController.lastPhoto) { _, photo in
+            if let photo {
+                outputImage = photo
+            }
         }
     }
 

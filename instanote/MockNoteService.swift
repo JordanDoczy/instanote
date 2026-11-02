@@ -6,16 +6,20 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Combine
 import CoreData
+import CoreLocation
+import Observation
 import UIKit
 
-class MockNoteService: NoteService {
-    var publisher = CurrentValueSubject<[Note], Never>([])
+@Observable
+final class MockNoteService: NoteService {
+    private(set) var notes: [Note] = []
+
+    @ObservationIgnored
     private var context = PersistenceFactory.getContext(type: .memory)
-    
+
     init() {
-        publisher.send(requestNotes())
+        notes = requestNotes()
     }
     
     /// used for testing

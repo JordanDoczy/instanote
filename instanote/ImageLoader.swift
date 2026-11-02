@@ -6,30 +6,10 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Combine
 import Foundation
 import UIKit
 
-class ImageLoader: ObservableObject {
-    @Published var image: UIImage?
-
-    private let imageCache = ImageCache.getImageCache()
-
-    init(urlString: String) {
-        loadImage(urlString: urlString)
-    }
-
-    private func loadImage(urlString: String) {
-        if let cachedImage = imageCache.get(forKey: urlString) {
-            image = cachedImage
-            return
-        }
-
-        Task { [weak self] in
-            guard let loadedImage = await Self.fetchImage(urlString: urlString) else { return }
-            self?.image = loadedImage
-        }
-    }
+enum ImageLoader {
 
     /// Returns the image right away if it's cached or stored on this device, otherwise nil.
     static func localImage(urlString: String) -> UIImage? {

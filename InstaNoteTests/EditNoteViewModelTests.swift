@@ -75,4 +75,44 @@ struct EditNoteViewModelTests {
 
         #expect(viewModel.location == nil)
     }
+
+    @Test func captionLongerThanTheLimitIsRejected() {
+        let viewModel = EditNoteView.ViewModel(service: TestFixtures.makeService(), caption: "short", location: TestFixtures.coordinate)
+
+        viewModel.caption = String(repeating: "a", count: EditNoteView.Constants.maxCaptionCharacterCount + 1)
+
+        #expect(viewModel.caption == "short")
+    }
+
+    @Test func typingAHashtagSuggestsMatchingTags() {
+        let service = TestFixtures.makeService()
+        defer { TestFixtures.removeAllNotes(from: service) }
+        _ = service.createNote(caption: "#beach #beachday #city", uiImage: TestFixtures.image(width: 4, height: 4))
+        service.save()
+        let viewModel = EditNoteView.ViewModel(service: service, caption: "", location: TestFixtures.coordinate)
+
+        type("fun at the #bea", into: viewModel)
+
+        #expect(Set(viewModel.tags) == ["beach", "beachday"])
+    }
+
+    @Test func choosingASuggestionCompletesTheHashtag() {
+        let service = TestFixtures.makeService()
+        defer { TestFixtures.removeAllNotes(from: service) }
+        _ = service.createNote(caption: "#beachday", uiImage: TestFixtures.image(width: 4, height: 4))
+        service.save()
+        let viewModel = EditNoteView.ViewModel(service: service, caption: "", location: TestFixtures.coordinate)
+
+        type("fun at the #bea", into: viewModel)
+        viewModel.updateTag(tag: "beachday")
+
+        #expect(viewModel.caption == "fun at the #beachday")
+    }
+
+    /// Enters text one character at a time, the way the text editor reports keystrokes.
+    private func type(_ text: String, into viewModel: EditNoteView.ViewModel) {
+        for character in text {
+            viewModel.caption += String(character)
+        }
+    }
 }

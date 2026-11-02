@@ -24,7 +24,7 @@ struct TextView: UIViewRepresentable {
         }
     }
     
-    @Binding var text: NSAttributedString
+    let text: NSAttributedString
     @Binding var selectedText: String
 
     func makeUIView(context: Context) -> UITextView {

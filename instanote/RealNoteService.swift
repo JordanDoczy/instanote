@@ -8,15 +8,19 @@
 
 import Foundation
 import CoreData
-import SwiftUI
-import Combine
+import Observation
+import UIKit
 
-class RealNoteService: NSObject, NoteService  {
+@Observable
+final class RealNoteService: NSObject, NoteService  {
 
-    var publisher = CurrentValueSubject<[Note], Never>([])
+    private(set) var notes: [Note] = []
+
+    @ObservationIgnored
     internal var context: NSManagedObjectContext
     
     // controller used to monitor updates and publish results
+    @ObservationIgnored
     private lazy var controller: NSFetchedResultsController<Note> = { [unowned self] in
         let controller = NSFetchedResultsController(fetchRequest: Note.getNotesRequest,
                                                     managedObjectContext: self.context,
@@ -28,7 +32,7 @@ class RealNoteService: NSObject, NoteService  {
     init(context: NSManagedObjectContext) {
         self.context = context
         super.init()
-        publisher.send(requestNotes())
+        notes = requestNotes()
     }
     
     func debug() {
@@ -250,6 +254,6 @@ extension RealNoteService: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         guard let items = controller.fetchedObjects as? [Note]
         else { return }
-        publisher.send(items)
+        notes = items
     }
 }

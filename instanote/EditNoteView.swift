@@ -6,14 +6,13 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
+import CoreLocation
+import Observation
 import SwiftUI
-import MapKit
-import CoreData
-import Combine
 
 struct EditNoteView: View {
-    @ObservedObject var viewModel: ViewModel
-    @Environment(\.presentationMode) var presentationMode
+    @Bindable var viewModel: ViewModel
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationView {
@@ -28,15 +27,15 @@ struct EditNoteView: View {
             .modifier(EditNoteNavigationModifier(title: viewModel.title,
                  cancelAction: {
                     viewModel.cancel()
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                  },
                  saveAction: {
                     viewModel.save()
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                  }))
             .modifier(EditNoteDeleteActionSheetModifier(isPresented: $viewModel.showingDeleteActionSheet) {
                 viewModel.delete()
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             })
         }
     }
@@ -127,26 +126,27 @@ extension EditNoteView {
         static let maxTagMatches = 3
     }
     
-    class ViewModel: ObservableObject {
-        
-        private let locationManager = LocationManager()
+    @Observable
+    final class ViewModel: Identifiable {
 
-        @Published var caption: String {
-            didSet {
-                tagRange = nil
-
-                if caption.count > Constants.maxCaptionCharacterCount {
-                    caption = oldValue
-                } else {
-                    tagRange = updateTags(oldValue: oldValue, newValue: caption)
+        /// Edits longer than `maxCaptionCharacterCount` are rejected.
+        var caption: String {
+            get { storedCaption }
+            set {
+                guard newValue.count <= Constants.maxCaptionCharacterCount else {
+                    storedCaption = storedCaption // still notify, so the text field reverts
+                    return
                 }
+                let oldValue = storedCaption
+                storedCaption = newValue
+                tagRange = updateTags(oldValue: oldValue, newValue: newValue)
             }
         }
-        @Published var location: CLLocationCoordinate2D? = nil
-        @Published var showingDeleteActionSheet = false
-        @Published var state = EditNoteViewState.camera
-        @Published var tags: [String] = []
-        @Published var uiImage: UIImage? = nil {
+        var location: CLLocationCoordinate2D? = nil
+        var showingDeleteActionSheet = false
+        var state = EditNoteViewState.camera
+        var tags: [String] = []
+        var uiImage: UIImage? = nil {
             didSet {
                 if uiImage != nil {
                     state = .picture(image: uiImage!)
@@ -157,16 +157,17 @@ extension EditNoteView {
         var hasImage: Bool { uiImage != nil }
         var title: String { note == nil ? "Create Note" : "Edit Note" }
         
-        private var subscriber: AnyCancellable? = nil
-        private var note: Note?
+        private var storedCaption: String
+        @ObservationIgnored private var locationTask: Task<Void, Never>? = nil
+        @ObservationIgnored private var note: Note?
         /// The photo the note already had, so saving can tell whether the user picked a new one.
-        private var originalImage: UIImage? = nil
-        private var service: NoteService
-        private var tagRange: Range<String.Index>? = nil
+        @ObservationIgnored private var originalImage: UIImage? = nil
+        @ObservationIgnored private let service: NoteService
+        @ObservationIgnored private var tagRange: Range<String.Index>? = nil
         
         init(service: NoteService, caption: String? = nil, imagePath: String? = nil, location: CLLocationCoordinate2D? = nil) {
             self.service = service
-            self.caption = caption ?? Constants.defaultText
+            self.storedCaption = caption ?? Constants.defaultText
             self.location = location
 
             if let imagePath = imagePath {
@@ -182,15 +183,16 @@ extension EditNoteView {
             state = uiImage.map { .picture(image: $0) } ?? .camera
 
             if location == nil {
-                locationManager.requestAccess() // request access and start polling for location
-                subscriber = locationManager.$location
-                    .compactMap { $0?.coordinate }
-                    .first() // only get location once
-                    .sink { [weak self] coordinate in
-                        self?.location = coordinate
-                        self?.locationManager.stop()
-                    }
+                locationTask = Task { [weak self] in
+                    let coordinate = await CurrentLocation.coordinate()
+                    guard let self, self.location == nil else { return }
+                    self.location = coordinate
+                }
             }
+        }
+
+        isolated deinit {
+            locationTask?.cancel()
         }
         
         convenience init(service: NoteService, note: Note?) {

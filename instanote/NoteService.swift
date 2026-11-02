@@ -6,13 +6,14 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
-import Combine
 import CoreLocation
 import SwiftUI
 
-protocol NoteService {
+/// Conforming types should be `@Observable`, so views reading `notes` update when it changes.
+protocol NoteService: AnyObject {
 
-    var publisher: CurrentValueSubject<[Note], Never> { get }
+    /// Every note, newest first.
+    var notes: [Note] { get }
 
     func createNote(caption: String?, uiImage: UIImage?, location: CLLocationCoordinate2D?) -> Note
     func deleteAll()

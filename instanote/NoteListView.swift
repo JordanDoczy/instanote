@@ -6,13 +6,13 @@
 //  Copyright © 2021 Jordan Doczy. All rights reserved.
 //
 
+import Observation
 import SwiftUI
-import Combine
 
 struct NoteListView: View {
-    
-    @StateObject var viewModel: ViewModel
-    
+
+    @Bindable var viewModel: ViewModel
+
     var body: some View {
         ZStack {
             LinearGradient(.darker, .dark)
@@ -21,11 +21,11 @@ struct NoteListView: View {
                 SearchBar(text: $viewModel.searchText)
                 List {
                     ForEach(viewModel.notes) { note in
-                        NoteRow(viewModel: .init(note: note, searchText: $viewModel.searchText))
+                        NoteRow(note: note, searchText: $viewModel.searchText)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 15, trailing: 0))
                             .onTapGesture {
-                                viewModel.selectedNote = note
+                                viewModel.onSelect(note)
                             }
                     }
                 }
@@ -38,78 +38,50 @@ struct NoteListView: View {
 }
 
 extension NoteListView {
-    class ViewModel: ObservableObject {
-        @Published var notes: [Note] = []
-        @Published var searchText: String = "" {
-            didSet {
-                filter(by: searchText)
-            }
-        }
-        @Binding var selectedNote: Note?
-        
+
+    @Observable
+    final class ViewModel {
+        var searchText: String = ""
+
+        /// Called when the user taps a note.
+        @ObservationIgnored
+        var onSelect: (Note) -> Void = { _ in }
+
         private let service: NoteService
-        private var subscriber: AnyCancellable? = nil
-        
-        init(service: NoteService, selectedNote: Binding<Note?>) {
+
+        init(service: NoteService) {
             self.service = service
-            self._selectedNote = selectedNote
-            
-            subscriber = service.publisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] notes in
-                    self?.update(with: notes)
-                }
-        }
-        
-        func filter(by searchText: String) {
-            notes = service.filter(by: searchText)
         }
 
-        /// The service publishes every note on each change; keep showing search results while searching.
-        private func update(with allNotes: [Note]) {
-            if searchText.isEmpty {
-                notes = allNotes
-            } else {
-                filter(by: searchText)
-            }
+        /// Reads `service.notes` even while searching, so results refresh whenever notes change.
+        var notes: [Note] {
+            let allNotes = service.notes
+            return searchText.isEmpty ? allNotes : service.filter(by: searchText)
         }
     }
 }
 
 extension NoteListView {
-    
+
     struct NoteRow: View {
-        
-        class ViewModel: ObservableObject {
-            @Published var imagePath: String? = nil
-            @Published var caption: NSAttributedString = NSAttributedString()
-            @Published var subtitle: String = ""
-            @Binding var searchText: String
-            
-            init(note: Note, searchText: Binding<String>) {
-                self._searchText = searchText
-                imagePath = note.imagePath
-                caption = note.captionFormatted ?? NSAttributedString()
-                subtitle = note.subtitle ?? ""
-            }
-        }
-        
-        @ObservedObject var viewModel: ViewModel
-        
+
+        // NSManagedObject publishes its own changes, so edits to a note redraw its row.
+        @ObservedObject var note: Note
+        @Binding var searchText: String
+
         var body: some View {
-            
             ZStack (alignment: .bottomLeading) {
-                if let imagePath = viewModel.imagePath {
+                if let imagePath = note.imagePath {
                     ImageView(with: imagePath)
                         .frame(maxWidth: .infinity)
                         .clipped()
                         .transaction { $0.animation = nil }
                 }
-                
+
                 VStack (alignment: .leading) {
-                    Text(viewModel.subtitle)
+                    Text(note.subtitle ?? "")
                         .font(Font.subheadline.bold()).padding([.top,.bottom], 1).foregroundColor(.white)
-                    TextView(text: $viewModel.caption, selectedText: $viewModel.searchText)
+                    TextView(text: note.captionFormatted ?? NSAttributedString(), selectedText: $searchText)
                         .frame(maxHeight: 75) // TODO: remove fixed height, needs to be dynamic
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -123,10 +95,6 @@ extension NoteListView {
     }
 }
 
-struct NoteListView_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        NoteListView(viewModel: .init(service: MockNoteService(),
-                                      selectedNote: .constant(nil)))
-    }
+#Preview {
+    NoteListView(viewModel: .init(service: MockNoteService()))
 }

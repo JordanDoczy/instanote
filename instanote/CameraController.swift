@@ -7,7 +7,7 @@
 //
 
 import AVFoundation
-import Combine
+import Observation
 import UIKit
 
 /// Owns the AVCaptureSession. AVFoundation requires session configuration and
@@ -88,7 +88,8 @@ nonisolated final class CaptureSession: @unchecked Sendable {
     }
 }
 
-final class CameraController: NSObject, ObservableObject {
+@Observable
+final class CameraController: NSObject {
 
     enum Status: Equatable {
         case starting
@@ -97,10 +98,12 @@ final class CameraController: NSObject, ObservableObject {
         case unavailable
     }
 
-    let publisher = PassthroughSubject<UIImage, Never>()
+    @ObservationIgnored
     let capture = CaptureSession()
 
-    @Published private(set) var status = Status.starting
+    private(set) var status = Status.starting
+    /// The most recent photo taken, already cropped for a note.
+    private(set) var lastPhoto: UIImage?
 
     func start() async {
         // Returns immediately when the user has already answered the permission prompt.
@@ -140,7 +143,7 @@ extension CameraController: AVCapturePhotoCaptureDelegate {
         else { return }
 
         Task { @MainActor in
-            self.publisher.send(image)
+            self.lastPhoto = image
         }
     }
 }

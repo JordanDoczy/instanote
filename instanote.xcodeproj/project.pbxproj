@@ -22,7 +22,7 @@
 		E6250E3725FCF8CC00D0BD2E /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6250E3625FCF8CC00D0BD2E /* ImagePicker.swift */; };
 		E66D6F37260CD08800C9D8FC /* LinearGradient+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66D6F36260CD08800C9D8FC /* LinearGradient+Extensions.swift */; };
 		E66F6654260A25D200D32733 /* MockNoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66F6653260A25D200D32733 /* MockNoteService.swift */; };
-		E66F665D260A35F400D32733 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66F665C260A35F400D32733 /* LocationManager.swift */; };
+		E66F665D260A35F400D32733 /* CurrentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66F665C260A35F400D32733 /* CurrentLocation.swift */; };
 		E675365E1C0A7EFD00F04488 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = E675365A1C0A7EFD00F04488 /* Note.swift */; };
 		E67536601C0A7EFD00F04488 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = E675365C1C0A7EFD00F04488 /* Tag.swift */; };
 		E67536641C0B88AF00F04488 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = E67536621C0B88AF00F04488 /* Location.swift */; };
@@ -75,7 +75,7 @@
 		E631C3B61C1BA38800BB5692 /* Color+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
 		E66D6F36260CD08800C9D8FC /* LinearGradient+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LinearGradient+Extensions.swift"; sourceTree = "<group>"; };
 		E66F6653260A25D200D32733 /* MockNoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNoteService.swift; sourceTree = "<group>"; };
-		E66F665C260A35F400D32733 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		E66F665C260A35F400D32733 /* CurrentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentLocation.swift; sourceTree = "<group>"; };
 		E67536201C08BA1400F04488 /* instanote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = instanote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E675365A1C0A7EFD00F04488 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		E675365C1C0A7EFD00F04488 /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
@@ -176,7 +176,7 @@
 			children = (
 				E623D2A02600EBB0001A7C57 /* CameraController.swift */,
 				E623D28825FE3A4C001A7C57 /* ImageLoader.swift */,
-				E66F665C260A35F400D32733 /* LocationManager.swift */,
+				E66F665C260A35F400D32733 /* CurrentLocation.swift */,
 				E6C4A85F2608104E006F2A8C /* PersistenceFactory.swift */,
 			);
 			name = Utils;
@@ -369,7 +369,7 @@
 				E6176715260A83C300DC6618 /* MapView.swift in Sources */,
 				E688CB0D260E751000B5D450 /* CLLocationCoordinate2D+Extensions.swift in Sources */,
 				E694E7E826050A3300300F3C /* EditNoteView.swift in Sources */,
-				E66F665D260A35F400D32733 /* LocationManager.swift in Sources */,
+				E66F665D260A35F400D32733 /* CurrentLocation.swift in Sources */,
 				E623D29025FE3E36001A7C57 /* NoteListView.swift in Sources */,
 				E617671E260B916F00DC6618 /* TextView.swift in Sources */,
 				E698D3BA1C208CAE004DCD5F /* instanote.xcdatamodeld in Sources */,
