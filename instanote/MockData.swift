@@ -7,7 +7,6 @@
 //
 
 import CoreLocation
-import Photos
 
 struct MockData {
 
@@ -38,6 +37,22 @@ struct MockData {
          (lat: 37.7878750, long: -122.4269130)]
     }
     
+}
+
+extension NoteService {
+
+    /// An in-memory service filled with the sample notes, for SwiftUI previews.
+    static func preview() -> NoteService {
+        let service = NoteService(container: Persistence.makeInMemoryContainer())
+        for (index, caption) in MockData.captions.enumerated() {
+            let location = MockData.locations[index]
+            let note = service.createNote(caption: caption,
+                                          location: CLLocationCoordinate2D(latitude: location.lat, longitude: location.long))
+            note.photo = MockData.photos[index]
+        }
+        service.save()
+        return service
+    }
 }
 
 //extension MockData {

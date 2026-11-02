@@ -16,7 +16,7 @@ struct InstaMainApp: App {
     @State private var mainViewModel: InstaMainView.ViewModel
 
     init() {
-        let service = RealNoteService(context: PersistenceFactory.getContext())
+        let service = NoteService(container: Persistence.makeAppContainer())
         self.service = service
         _mainViewModel = State(initialValue: InstaMainView.ViewModel(service: service))
 

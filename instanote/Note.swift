@@ -7,33 +7,33 @@
 //
 
 import Foundation
-import CoreData
+import SwiftData
 import SwiftUI
 
-nonisolated class Note: NSManagedObject, Identifiable {
-    
-    struct Constants{
-        struct Relationships {
-            static let Tags = "tags"
-            static let Location = "location"
-        }
-    }
+// Entity and attribute names match the original Core Data model, so SwiftData can open
+// the store the Core Data version of the app created.
+@Model
+final class Note {
+    var caption: String?
+    var date: Date?
+    /// A file name in Documents, or a full URL for sample data.
+    var photo: String?
 
-    override func prepareForDeletion() {
-        super.prepareForDeletion()
-        _ = deletePhoto()
-    }
+    @Relationship(deleteRule: .nullify, inverse: \Location.notes)
+    var location: Location?
 
-    func addTag(_ tag:Tag) {
-        mutableSetValue(forKey: Constants.Relationships.Tags).add(tag)
-    }
-    
-    func removeTag(_ tag:Tag) {
-        mutableSetValue(forKey: Constants.Relationships.Tags).remove(tag)
+    @Relationship(deleteRule: .nullify, inverse: \Tag.notes)
+    var tags: [Tag]? = []
+
+    init(caption: String? = nil, date: Date? = nil, photo: String? = nil) {
+        self.caption = caption
+        self.date = date
+        self.photo = photo
     }
 }
 
 // MARK: Attributed String
+@MainActor
 extension Note {
 
     /// The caption with each hashtag highlighted and linked; the link URL is the tag text, e.g. "#beach".
@@ -53,38 +53,26 @@ extension Note {
     }
 }
 
-
-// MARK: CoreData
-nonisolated extension Note {
-
-    @NSManaged var date: Date?
-    @NSManaged var photo: String?
-    @NSManaged var caption: String?
-    @NSManaged var location: Location?
-    @NSManaged var tags: NSSet?
-
-}
-
 // MARK: Photo
-nonisolated extension Note {
-    
+extension Note {
+
     var imagePath: String? {
         guard let photo = photo else { return nil }
         return FileManager.default.getFilePath(photo)
     }
-    
+
     func deletePhoto() -> Bool {
         if let imagePath = imagePath, let imageURL = URL(string: imagePath) {
-            return FileManager.default.deleteImage(imageURL) // OK with dependency here, since FileManager.default is a native object
+            return FileManager.default.deleteImage(imageURL)
         }
         return false
     }
-    
+
     func savePhoto(uiImage: UIImage) -> Bool {
         guard let path = FileManager.default.saveImage(uiImage) else {
             return false
         }
-        
+
         photo = path
         return true
     }
@@ -106,21 +94,4 @@ extension Note {
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
-}
-
-// MARK: Fetch Requests
-nonisolated extension Note {
-    
-    static var getNotesRequest: NSFetchRequest<Note> {
-        let request = Note.fetchRequest() as! NSFetchRequest<Note>
-        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Note.date), ascending: false)]
-        return request
-    }
-    
-    static func getNotesRequestWith(with captionPrefix: String) -> NSFetchRequest<Note> {
-        let request = Note.fetchRequest() as! NSFetchRequest<Note>
-        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Note.caption), ascending: true)]
-        request.predicate = NSPredicate(format: "caption BEGINSWITH[c] %@", captionPrefix)
-        return request
-    }
 }

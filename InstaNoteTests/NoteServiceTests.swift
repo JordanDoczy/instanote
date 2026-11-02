@@ -1,5 +1,5 @@
 //
-//  RealNoteServiceTests.swift
+//  NoteServiceTests.swift
 //  InstaNoteTests
 //
 
@@ -8,7 +8,7 @@ import Foundation
 import Testing
 @testable import instanote
 
-struct RealNoteServiceTests {
+struct NoteServiceTests {
 
     @Test func notesAtTheSameCoordinateShareOneLocation() {
         let service = TestFixtures.makeService()
@@ -18,7 +18,7 @@ struct RealNoteServiceTests {
         _ = service.createNote(caption: "second", uiImage: TestFixtures.image(width: 4, height: 4), location: TestFixtures.coordinate)
         service.save()
 
-        #expect(service.getLocations()?.count == 1)
+        #expect(service.getLocations().count == 1)
     }
 
     @Test func getLocationFindsAnExistingCoordinate() {

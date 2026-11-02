@@ -28,7 +28,7 @@ struct HashtagTests {
         _ = service.createNote(caption: "Castro theatre #sanfrancisco #movies", uiImage: TestFixtures.image(width: 4, height: 4))
         service.save()
 
-        let names = Set(try #require(service.getTags()).compactMap(\.name))
+        let names = Set(service.getTags().compactMap(\.name))
         #expect(names == ["sanfrancisco", "movies"])
     }
 

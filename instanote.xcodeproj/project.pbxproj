@@ -19,7 +19,6 @@
 		E6250E1725FBA2AB00D0BD2E /* ChoosePhotoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6250E1625FBA2AB00D0BD2E /* ChoosePhotoView.swift */; };
 		E6250E2925FBB35A00D0BD2E /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6250E2825FBB35A00D0BD2E /* View+Extensions.swift */; };
 		E66D6F37260CD08800C9D8FC /* LinearGradient+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66D6F36260CD08800C9D8FC /* LinearGradient+Extensions.swift */; };
-		E66F6654260A25D200D32733 /* MockNoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66F6653260A25D200D32733 /* MockNoteService.swift */; };
 		E66F665D260A35F400D32733 /* CurrentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66F665C260A35F400D32733 /* CurrentLocation.swift */; };
 		E675365E1C0A7EFD00F04488 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = E675365A1C0A7EFD00F04488 /* Note.swift */; };
 		E67536601C0A7EFD00F04488 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = E675365C1C0A7EFD00F04488 /* Tag.swift */; };
@@ -32,12 +31,10 @@
 		E694E7EA26050CEF00300F3C /* InstaMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB5025FA775B00A22A5F /* InstaMainView.swift */; };
 		E694E7ED260526D600300F3C /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E694E7EC260526D500300F3C /* CameraView.swift */; };
 		E698D3B41C208C72004DCD5F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E698D3B31C208C72004DCD5F /* Assets.xcassets */; };
-		E698D3BA1C208CAE004DCD5F /* instanote.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E698D3B81C208CAE004DCD5F /* instanote.xcdatamodeld */; };
 		E6ACCB4B25FA75AB00A22A5F /* InstantMainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB4A25FA75AB00A22A5F /* InstantMainApp.swift */; };
 		E6ACCB6625FA9C8300A22A5F /* FileManager+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ACCB6525FA9C8300A22A5F /* FileManager+Extensions.swift */; };
-		E6C4A84F26077C91006F2A8C /* RealNoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E694E7DE2605066300300F3C /* RealNoteService.swift */; };
-		E6C4A85626079B43006F2A8C /* NoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6C4A85526079B43006F2A8C /* NoteService.swift */; };
-		E6C4A8602608104E006F2A8C /* PersistenceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6C4A85F2608104E006F2A8C /* PersistenceFactory.swift */; };
+		E6C4A84F26077C91006F2A8C /* NoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E694E7DE2605066300300F3C /* NoteService.swift */; };
+		E6C4A8602608104E006F2A8C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6C4A85F2608104E006F2A8C /* Persistence.swift */; };
 		E6DC537E1C0EB0040049B295 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6DC537D1C0EB0040049B295 /* MapKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -68,7 +65,6 @@
 		E6250E2B25FBCCF100D0BD2E /* EditNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditNoteView.swift; sourceTree = "<group>"; };
 		E631C3B61C1BA38800BB5692 /* Color+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
 		E66D6F36260CD08800C9D8FC /* LinearGradient+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LinearGradient+Extensions.swift"; sourceTree = "<group>"; };
-		E66F6653260A25D200D32733 /* MockNoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNoteService.swift; sourceTree = "<group>"; };
 		E66F665C260A35F400D32733 /* CurrentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentLocation.swift; sourceTree = "<group>"; };
 		E67536201C08BA1400F04488 /* instanote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = instanote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E675365A1C0A7EFD00F04488 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
@@ -77,16 +73,14 @@
 		E688CB0C260E751000B5D450 /* CLLocationCoordinate2D+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D+Extensions.swift"; sourceTree = "<group>"; };
 		E688CB202610A85800B5D450 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E688CB2A2610B22D00B5D450 /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
-		E694E7DE2605066300300F3C /* RealNoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealNoteService.swift; sourceTree = "<group>"; };
+		E694E7DE2605066300300F3C /* NoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteService.swift; sourceTree = "<group>"; };
 		E694E7EC260526D500300F3C /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		E698D3B11C208C63004DCD5F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E698D3B31C208C72004DCD5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E698D3B91C208CAE004DCD5F /* instanote.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = instanote.xcdatamodel; sourceTree = "<group>"; };
 		E6ACCB4A25FA75AB00A22A5F /* InstantMainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstantMainApp.swift; sourceTree = "<group>"; };
 		E6ACCB5025FA775B00A22A5F /* InstaMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstaMainView.swift; sourceTree = "<group>"; };
 		E6ACCB6525FA9C8300A22A5F /* FileManager+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+Extensions.swift"; sourceTree = "<group>"; };
-		E6C4A85526079B43006F2A8C /* NoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteService.swift; sourceTree = "<group>"; };
-		E6C4A85F2608104E006F2A8C /* PersistenceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceFactory.swift; sourceTree = "<group>"; };
+		E6C4A85F2608104E006F2A8C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		E6DC537D1C0EB0040049B295 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -167,7 +161,7 @@
 				E623D2A02600EBB0001A7C57 /* CameraController.swift */,
 				E623D28825FE3A4C001A7C57 /* ImageLoader.swift */,
 				E66F665C260A35F400D32733 /* CurrentLocation.swift */,
-				E6C4A85F2608104E006F2A8C /* PersistenceFactory.swift */,
+				E6C4A85F2608104E006F2A8C /* Persistence.swift */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -197,7 +191,6 @@
 				E6ACCB4A25FA75AB00A22A5F /* InstantMainApp.swift */,
 				E698D3B31C208C72004DCD5F /* Assets.xcassets */,
 				E698D3B11C208C63004DCD5F /* Info.plist */,
-				E698D3B81C208CAE004DCD5F /* instanote.xcdatamodeld */,
 				E688CB202610A85800B5D450 /* Launch Screen.storyboard */,
 				E623D2A42600ED70001A7C57 /* Extensions */,
 				E67536441C08D96800F04488 /* ManagedObjects */,
@@ -222,9 +215,7 @@
 		E6C4A85126079B04006F2A8C /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				E6C4A85526079B43006F2A8C /* NoteService.swift */,
-				E66F6653260A25D200D32733 /* MockNoteService.swift */,
-				E694E7DE2605066300300F3C /* RealNoteService.swift */,
+				E694E7DE2605066300300F3C /* NoteService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -359,7 +350,6 @@
 				E694E7E826050A3300300F3C /* EditNoteView.swift in Sources */,
 				E66F665D260A35F400D32733 /* CurrentLocation.swift in Sources */,
 				E623D29025FE3E36001A7C57 /* NoteListView.swift in Sources */,
-				E698D3BA1C208CAE004DCD5F /* instanote.xcdatamodeld in Sources */,
 				E675365E1C0A7EFD00F04488 /* Note.swift in Sources */,
 				E623D28C25FE3A94001A7C57 /* ImageView.swift in Sources */,
 				E694E7C82605031800300F3C /* Color+Extensions.swift in Sources */,
@@ -373,16 +363,14 @@
 				E623D28525FE3650001A7C57 /* MockData.swift in Sources */,
 				E602E94D1C1E0F3200D9ED9B /* UIImage+Extensions.swift in Sources */,
 				E6250E2925FBB35A00D0BD2E /* View+Extensions.swift in Sources */,
-				E6C4A8602608104E006F2A8C /* PersistenceFactory.swift in Sources */,
+				E6C4A8602608104E006F2A8C /* Persistence.swift in Sources */,
 				E67536601C0A7EFD00F04488 /* Tag.swift in Sources */,
 				E6ACCB6625FA9C8300A22A5F /* FileManager+Extensions.swift in Sources */,
 				17DFE1273098D52F00DC3C21 /* PhotoLibraryView.swift in Sources */,
-				E66F6654260A25D200D32733 /* MockNoteService.swift in Sources */,
-				E6C4A85626079B43006F2A8C /* NoteService.swift in Sources */,
 				E623D28925FE3A4C001A7C57 /* ImageLoader.swift in Sources */,
 				E623D2A12600EBB0001A7C57 /* CameraController.swift in Sources */,
 				E602E94F1C1E0F6200D9ED9B /* String+Extensions.swift in Sources */,
-				E6C4A84F26077C91006F2A8C /* RealNoteService.swift in Sources */,
+				E6C4A84F26077C91006F2A8C /* NoteService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -654,19 +642,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		E698D3B81C208CAE004DCD5F /* instanote.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				E698D3B91C208CAE004DCD5F /* instanote.xcdatamodel */,
-			);
-			currentVersion = E698D3B91C208CAE004DCD5F /* instanote.xcdatamodel */;
-			path = instanote.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = E67536181C08BA1400F04488 /* Project object */;
 }

@@ -290,7 +290,7 @@ extension EditNoteView {
         private func updateTags(oldValue: String, newValue: String) -> Range<String.Index>? {
             if let range = getRangeOfCurrentEdit(oldValue: oldValue, newValue: newValue) {
                 let tag = newValue[range].trimmingCharacters(in: .whitespaces)
-                var tags = service.getTags(tag) ?? []
+                var tags = service.getTags(tag)
                 
                 if tags.count > EditNoteView.Constants.maxTagMatches {
                     tags = Array(tags[0..<EditNoteView.Constants.maxTagMatches])
@@ -394,12 +394,12 @@ extension EditNoteView {
 }
 
 #Preview("New Note") {
-    EditNoteView(viewModel: .init(service: MockNoteService(), currentLocation: { nil }))
+    EditNoteView(viewModel: .init(service: .preview(), currentLocation: { nil }))
         .preferredColorScheme(.dark)
 }
 
 #Preview("With Photo") {
-    let viewModel = EditNoteView.ViewModel(service: MockNoteService(),
+    let viewModel = EditNoteView.ViewModel(service: .preview(),
                                            caption: "Sunny day at the beach #beach",
                                            location: CLLocationCoordinate2D(latitude: 20.7984, longitude: -156.3319))
     viewModel.uiImage = UIImage(named: "hula")

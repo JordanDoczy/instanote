@@ -62,8 +62,8 @@ extension NoteListView {
 
     struct NoteRow: View {
 
-        // NSManagedObject publishes its own changes, so edits to a note redraw its row.
-        @ObservedObject var note: Note
+        // Note is a SwiftData model, so edits to it redraw this row.
+        let note: Note
         @Binding var searchText: String
 
         var body: some View {
@@ -102,7 +102,7 @@ extension NoteListView {
 
 #Preview {
     NavigationStack {
-        NoteListView(viewModel: .init(service: MockNoteService()))
+        NoteListView(viewModel: .init(service: .preview()))
     }
     .preferredColorScheme(.dark)
 }

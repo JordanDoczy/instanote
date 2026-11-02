@@ -26,12 +26,12 @@ enum TestFixtures {
     }
 
     /// A service backed by an in-memory store, so tests never touch the user's notes.
-    static func makeService() -> RealNoteService {
-        RealNoteService(context: PersistenceFactory.getContext(type: .memory))
+    static func makeService() -> NoteService {
+        NoteService(container: Persistence.makeInMemoryContainer())
     }
 
     /// Deletes every note, which also removes any photo files the test wrote to Documents.
-    static func removeAllNotes(from service: RealNoteService) {
+    static func removeAllNotes(from service: NoteService) {
         service.deleteAll()
         service.save()
     }

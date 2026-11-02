@@ -70,5 +70,5 @@ extension InstaMainView {
 }
 
 #Preview {
-    InstaMainView(viewModel: .init(service: MockNoteService()))
+    InstaMainView(viewModel: .init(service: .preview()))
 }

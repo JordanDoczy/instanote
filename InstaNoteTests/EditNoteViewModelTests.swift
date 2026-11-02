@@ -61,7 +61,7 @@ struct EditNoteViewModelTests {
         viewModel.uiImage = TestFixtures.image(width: 4, height: 4)
         viewModel.save()
 
-        let note = try #require(service.getNotes()?.first)
+        let note = try #require(service.getNotes().first)
         #expect(note.caption != EditNoteView.Constants.defaultText)
     }
 
