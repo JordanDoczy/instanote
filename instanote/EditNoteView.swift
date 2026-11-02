@@ -39,6 +39,9 @@ struct EditNoteView: View {
             })
         }
         .tint(Color.primaryColor)
+        .task {
+            await viewModel.getLocationIfNeeded()
+        }
     }
     
     @ViewBuilder
@@ -167,12 +170,12 @@ extension EditNoteView {
         var title: String { note == nil ? "Create Note" : "Edit Note" }
         
         private var storedCaption: String
-        @ObservationIgnored private var locationTask: Task<Void, Never>? = nil
         @ObservationIgnored private var note: Note?
         /// The photo the note already had, so saving can tell whether the user picked a new one.
         @ObservationIgnored private var originalImage: UIImage? = nil
         @ObservationIgnored private let service: NoteService
         @ObservationIgnored private var tagRange: Range<String.Index>? = nil
+        @ObservationIgnored private var currentLocation: () async -> CLLocationCoordinate2D?
         
         /// `currentLocation` is used for notes without a location; tests pass a stub so they don't touch CoreLocation.
         init(service: NoteService,
@@ -183,30 +186,17 @@ extension EditNoteView {
             self.service = service
             self.storedCaption = caption ?? Constants.defaultText
             self.location = location
+            self.currentLocation = currentLocation
 
             if let imagePath = imagePath {
                 if let image = ImageLoader.localImage(urlString: imagePath) {
                     originalImage = image
                     uiImage = image
-                } else {
-                    loadRemoteImage(urlString: imagePath)
                 }
             }
 
             // didSet doesn't run during init, so set the starting screen directly.
             state = uiImage.map { .picture(image: $0) } ?? .camera
-
-            if location == nil {
-                locationTask = Task { [weak self] in
-                    let coordinate = await currentLocation()
-                    guard let self, self.location == nil else { return }
-                    self.location = coordinate
-                }
-            }
-        }
-
-        isolated deinit {
-            locationTask?.cancel()
         }
         
         convenience init(service: NoteService,
@@ -231,6 +221,11 @@ extension EditNoteView {
             service.save()
         }
         
+        func getLocationIfNeeded() async {
+            guard location == nil else { return }
+            self.location = await currentLocation()
+        }
+        
         func save() {
             let note = self.note ?? service.createNote()
             let savedCaption = caption == Constants.defaultText ? "" : caption
@@ -239,18 +234,6 @@ extension EditNoteView {
 
             service.updateNote(note, caption: savedCaption, uiImage: newImage, location: location)
             service.save()
-        }
-
-        private func loadRemoteImage(urlString: String) {
-            Task { [weak self] in
-                guard let image = await ImageLoader.fetchImage(urlString: urlString),
-                      let self,
-                      uiImage == nil // the user may have picked a photo while this loaded
-                else { return }
-
-                originalImage = image
-                uiImage = image
-            }
         }
         
         func updateTag(tag: String) {
