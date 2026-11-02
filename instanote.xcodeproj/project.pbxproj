@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		17DFE1273098D52F00DC3C21 /* PhotoLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DFE1263098D52F00DC3C21 /* PhotoLibraryView.swift */; };
+		17DFE1573098DD8D00DC3C21 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 17DFE1563098DD8D00DC3C21 /* PrivacyInfo.xcprivacy */; };
 		E602E94D1C1E0F3200D9ED9B /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E602E94C1C1E0F3200D9ED9B /* UIImage+Extensions.swift */; };
 		E602E94F1C1E0F6200D9ED9B /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E602E94E1C1E0F6200D9ED9B /* String+Extensions.swift */; };
 		E6176715260A83C300DC6618 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6176714260A83C300DC6618 /* MapView.swift */; };
@@ -51,6 +52,7 @@
 /* Begin PBXFileReference section */
 		17DFE10D3098CFA800DC3C21 /* InstaNoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InstaNoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		17DFE1263098D52F00DC3C21 /* PhotoLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryView.swift; sourceTree = "<group>"; };
+		17DFE1563098DD8D00DC3C21 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E602E94C1C1E0F3200D9ED9B /* UIImage+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		E602E94E1C1E0F6200D9ED9B /* String+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		E6176714260A83C300DC6618 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 				E6C4A85126079B04006F2A8C /* Services */,
 				E6250E1925FBA2B000D0BD2E /* Views */,
 				E6250E2325FBAF3700D0BD2E /* Utils */,
+				17DFE1563098DD8D00DC3C21 /* PrivacyInfo.xcprivacy */,
 			);
 			path = instanote;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17DFE1573098DD8D00DC3C21 /* PrivacyInfo.xcprivacy in Resources */,
 				E688CB212610A85800B5D450 /* Launch Screen.storyboard in Resources */,
 				E698D3B41C208C72004DCD5F /* Assets.xcassets in Resources */,
 			);
@@ -577,7 +581,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -600,7 +604,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordandoczy.InstaNote;
 				PRODUCT_NAME = instanote;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

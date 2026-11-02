@@ -36,7 +36,7 @@ struct InstaMainApp: App {
     }
     
     func addExampleNote() {
-        _ = service.createNote(caption: "Welcome! Click me to edit, or click the ⊕ buttom below to create new notes. Add #hashtags to notes to make searching #easy!",
+        _ = service.createNote(caption: "Welcome! Tap me to edit, or tap the ⊕ button below to create new notes. Add #hashtags to notes to make searching #easy!",
                            uiImage: UIImage(named: "hula"),
                            location: CLLocationCoordinate2D(
                             latitude: 20.7984, longitude: -156.3319)) // Maui
